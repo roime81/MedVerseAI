@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2, Check } from "lucide-react";
-import { allPatients, Patient } from "@/lib/sample-data";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2 } from "lucide-react";
+import { allPatients, Patient, allTasks } from "@/lib/sample-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
@@ -25,13 +26,6 @@ const schedule = [
     { time: '10:15', name: 'Emma Davis', age: 34, reason: 'Annual Physical', status: 'Waiting', mrn: 'MRN-1055' }, // MRN Added
     { time: '11:00', name: 'Robert Wilson', age: 58, reason: 'Hypertension', status: 'Scheduled', mrn: 'MRN-0921' }, // Dummy MRN
     { time: '14:00', name: 'Lisa Anderson', age: 41, reason: 'Lab Review', status: 'Scheduled', mrn: 'MRN-0847' }, // Dummy MRN
-];
-
-const tasks = [
-    { description: 'Review lab results', patient: 'David Lee', mrn: 'MRN-1055', time: '30 min ago', priority: 'High' },
-    { description: 'Sign prescription refill', patient: 'Patricia Brown', mrn: 'MRN-0921', time: '1 hour ago', priority: 'Medium' },
-    { description: 'Complete discharge summary', patient: 'James Martinez', mrn: 'MRN-0847', time: '2 hours ago', priority: 'High' },
-    { description: 'Review imaging results', patient: 'David Lee', mrn: 'MRN-1055', time: '3 hours ago', priority: 'Low' },
 ];
 
 export type RecentPatient = {
@@ -295,6 +289,7 @@ export default function PhysicianDashboard() {
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
+  const router = useRouter();
   
   const handleSavePatient = (data: PatientRegistrationData) => {
     setIsSaving(true);
@@ -423,11 +418,11 @@ export default function PhysicianDashboard() {
           <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Pending Tasks</CardTitle>
-                  <Button variant="link" size="sm">View All</Button>
+                  <Button variant="link" size="sm" onClick={() => router.push('/tasks')}>View All</Button>
               </CardHeader>
               <CardContent>
                   <div className="space-y-4">
-                      {tasks.map((task, i) => (
+                      {allTasks.slice(0, 4).map((task, i) => (
                           <div key={i} className="flex items-start justify-between p-3 rounded-lg border">
                             <div className="flex-1">
                                   <p className="font-semibold text-sm">{task.description} for <span className="font-bold">{task.patient}</span></p>
@@ -447,7 +442,7 @@ export default function PhysicianDashboard() {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Recent Patients</CardTitle>
-                <Button variant="link" size="sm">View All</Button>
+                <Button variant="link" size="sm" onClick={() => router.push('/patients')}>View All</Button>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentPatients.map((patient, i) => (
