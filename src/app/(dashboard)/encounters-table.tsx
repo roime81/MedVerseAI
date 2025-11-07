@@ -1,12 +1,12 @@
 'use client';
 import { useCollection } from '@/firebase';
 import { collectionGroup } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useMemo } from 'react';
+import { useFirestore, useMemoFirebase } from '@/firebase';
 
-export function EncountersTable() {
+// ENCOUNTERS TABLE COMPONENT
+export default function EncountersTable() {
   const firestore = useFirestore();
-  const encountersCollection = useMemo(
+  const encountersCollection = useMemoFirebase(
     () => collectionGroup(firestore, 'encounters'),
     [firestore]
   );

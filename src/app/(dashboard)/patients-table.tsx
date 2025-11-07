@@ -1,12 +1,12 @@
 'use client';
 import { useCollection } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useMemo } from 'react';
+import { useFirestore, useMemoFirebase } from '@/firebase';
 
-export function PatientsTable() {
+// PATIENTS TABLE COMPONENT
+export default function PatientsTable() {
   const firestore = useFirestore();
-  const patientsCollection = useMemo(
+  const patientsCollection = useMemoFirebase(
     () => collection(firestore, 'patients'),
     [firestore]
   );

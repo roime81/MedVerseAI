@@ -1,12 +1,12 @@
 'use client';
 import { useCollection } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useMemo } from 'react';
+import { useFirestore, useMemoFirebase } from '@/firebase';
 
-export function BedsTable() {
+// BEDS TABLE COMPONENT
+export default function BedsTable() {
   const firestore = useFirestore();
-  const bedsCollection = useMemo(
+  const bedsCollection = useMemoFirebase(
     () => collection(firestore, 'beds'),
     [firestore]
   );

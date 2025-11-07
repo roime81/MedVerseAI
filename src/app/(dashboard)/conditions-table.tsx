@@ -1,12 +1,12 @@
 'use client';
 import { useCollection } from '@/firebase';
 import { collectionGroup } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useMemo } from 'react';
+import { useFirestore, useMemoFirebase } from '@/firebase';
 
-export function ConditionsTable() {
+// CONDITIONS TABLE COMPONENT
+export default function ConditionsTable() {
   const firestore = useFirestore();
-  const conditionsCollection = useMemo(
+  const conditionsCollection = useMemoFirebase(
     () => collectionGroup(firestore, 'conditions'),
     [firestore]
   );
