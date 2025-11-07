@@ -207,10 +207,12 @@ export function PatientDetailSheet({
               </Avatar>
               <div>
                 <p className="text-xl font-bold">{patient.name}</p>
-                <p className="text-xs text-muted-foreground font-normal">
-                  MRN: {patient.mrn} &bull; {getAge(patient.dob)} years old
-                  &bull; {patient.gender}
-                </p>
+                {patient.mrn && patient.dob && patient.gender && (
+                  <p className="text-xs text-muted-foreground font-normal">
+                    MRN: {patient.mrn} &bull; {getAge(patient.dob)} years old
+                    &bull; {patient.gender}
+                  </p>
+                )}
               </div>
               <div className="ml-auto flex gap-2">
                 {canEdit && (
@@ -242,106 +244,122 @@ export function PatientDetailSheet({
               </TabsList>
               <TabsContent value="overview" className="mt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <User className="mr-2" /> Demographics
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <DetailRow
-                        label="Date of Birth"
-                        value={new Date(patient.dob).toLocaleDateString(
-                          'en-US',
-                          { year: 'numeric', month: 'long', day: 'numeric' }
+                  {patient.dob && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <User className="mr-2" /> Demographics
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <DetailRow
+                          label="Date of Birth"
+                          value={new Date(patient.dob).toLocaleDateString(
+                            'en-US',
+                            { year: 'numeric', month: 'long', day: 'numeric' }
+                          )}
+                        />
+                        <DetailRow label="Gender" value={patient.gender} />
+                        {patient.ssnLast4 && (
+                          <DetailRow label="SSN" value={`***-**-${patient.ssnLast4}`} />
                         )}
-                      />
-                      <DetailRow label="Gender" value={patient.gender} />
-                      <DetailRow label="SSN" value={`***-**-${patient.ssnLast4}`} />
-                      <DetailRow
-                        label="Marital Status"
-                        value={patient.maritalStatus}
-                      />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <Phone className="mr-2" /> Contact Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <DetailRow label="Phone" value={patient.contact.phone} />
-                      <DetailRow label="Email" value={patient.contact.email} />
-                      <DetailRow
-                        label="Address"
-                        value={
+                        {patient.maritalStatus && (
+                          <DetailRow
+                            label="Marital Status"
+                            value={patient.maritalStatus}
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {patient.contact && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <Phone className="mr-2" /> Contact Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <DetailRow label="Phone" value={patient.contact.phone} />
+                        <DetailRow label="Email" value={patient.contact.email} />
+                        <DetailRow
+                          label="Address"
+                          value={
+                            <>
+                              {patient.contact.address.line1}
+                              <br />
+                              {patient.contact.address.city},{' '}
+                              {patient.contact.address.state}{' '}
+                              {patient.contact.address.zip}
+                            </>
+                          }
+                        />
+                        {patient.emergencyContact && (
                           <>
-                            {patient.contact.address.line1}
-                            <br />
-                            {patient.contact.address.city},{' '}
-                            {patient.contact.address.state}{' '}
-                            {patient.contact.address.zip}
+                            <Separator className="my-2"/>
+                            <DetailRow
+                              label="Emergency Contact"
+                              value={patient.emergencyContact.name}
+                            />
+                            <DetailRow
+                              label="Emergency Phone"
+                              value={patient.emergencyContact.phone}
+                            />
                           </>
-                        }
-                      />
-                       <Separator className="my-2"/>
-                      <DetailRow
-                        label="Emergency Contact"
-                        value={patient.emergencyContact.name}
-                      />
-                      <DetailRow
-                        label="Emergency Phone"
-                        value={patient.emergencyContact.phone}
-                      />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <Shield className="mr-2" /> Insurance
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <DetailRow
-                        label="Provider"
-                        value={patient.insurance.provider}
-                      />
-                      <DetailRow
-                        label="Policy Number"
-                        value={patient.insurance.policyNumber}
-                      />
-                      <DetailRow
-                        label="Group Number"
-                        value={patient.insurance.groupNumber}
-                      />
-                      <DetailRow
-                        label="Status"
-                        value={<Badge>{patient.insurance.status}</Badge>}
-                      />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <HeartPulse className="mr-2" /> Active Conditions
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {patient.conditions.map((condition) => (
-                        <div key={condition.name} className="p-3 rounded-md border text-sm">
-                           <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="font-semibold">{condition.name}</p>
-                                    <p className="text-xs text-muted-foreground">{condition.stage}</p>
-                                </div>
-                                <Badge variant="outline">{condition.code}</Badge>
-                           </div>
-                           <p className="text-xs text-muted-foreground mt-1">Diagnosed: {new Date(condition.diagnosedDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {patient.insurance && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <Shield className="mr-2" /> Insurance
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <DetailRow
+                          label="Provider"
+                          value={patient.insurance.provider}
+                        />
+                        <DetailRow
+                          label="Policy Number"
+                          value={patient.insurance.policyNumber}
+                        />
+                        <DetailRow
+                          label="Group Number"
+                          value={patient.insurance.groupNumber}
+                        />
+                        <DetailRow
+                          label="Status"
+                          value={<Badge>{patient.insurance.status}</Badge>}
+                        />
+                      </CardContent>
+                    </Card>
+                  )}
+                  {patient.conditions && patient.conditions.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <HeartPulse className="mr-2" /> Active Conditions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {patient.conditions.map((condition) => (
+                          <div key={condition.name} className="p-3 rounded-md border text-sm">
+                            <div className="flex justify-between items-start">
+                                  <div>
+                                      <p className="font-semibold">{condition.name}</p>
+                                      <p className="text-xs text-muted-foreground">{condition.stage}</p>
+                                  </div>
+                                  <Badge variant="outline">{condition.code}</Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">Diagnosed: {new Date(condition.diagnosedDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="journey" className="mt-4">
@@ -362,7 +380,7 @@ export function PatientDetailSheet({
               <TabsContent value="vitals" className="mt-4">
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Vital Signs History</h3>
-                    {patient.vitals.map((vital, index) => (
+                    {patient.vitals && patient.vitals.map((vital, index) => (
                         <Card key={index}>
                             <CardHeader>
                                 <CardTitle className="text-base">
@@ -384,7 +402,7 @@ export function PatientDetailSheet({
                <TabsContent value="medications" className="mt-4">
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Current Medications</h3>
-                    {patient.medications.map((med, index) => (
+                    {patient.medications && patient.medications.map((med, index) => (
                         <Card key={index}>
                             <CardContent className="p-4 grid grid-cols-2 gap-4 items-start">
                                 <div>
@@ -408,7 +426,7 @@ export function PatientDetailSheet({
               <TabsContent value="lab-results" className="mt-4">
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Recent Laboratory Results</h3>
-                    {patient.labResults.map((lab, index) => (
+                    {patient.labResults && patient.labResults.map((lab, index) => (
                         <Card key={index} className="p-4">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -430,7 +448,7 @@ export function PatientDetailSheet({
               <TabsContent value="visit-history" className="mt-4">
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Visit History</h3>
-                    {patient.visitHistory.map((visit, index) => (
+                    {patient.visitHistory && patient.visitHistory.map((visit, index) => (
                         <Card key={index}>
                             <CardHeader>
                                 <div className="flex justify-between items-start">
@@ -465,56 +483,62 @@ export function PatientDetailSheet({
               </TabsContent>
               <TabsContent value="other" className="mt-4">
                 <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <Activity className="mr-2" /> Immunization History
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        {patient.immunizationHistory.map((shot, index) => (
+                  {patient.immunizationHistory && patient.immunizationHistory.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <Activity className="mr-2" /> Immunization History
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                          {patient.immunizationHistory.map((shot, index) => (
+                              <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm bg-secondary/30">
+                                  <div>
+                                      <p className="font-semibold">{shot.vaccine}</p>
+                                      <p className="text-xs text-muted-foreground">Administered by {shot.administeredBy}</p>
+                                  </div>
+                                  <span className="text-sm text-muted-foreground">{new Date(shot.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                              </div>
+                          ))}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {patient.socialHistory && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <BriefcaseMedical className="mr-2" /> Social History
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                          <HistoryDetailRow label="Smoking Status" value={patient.socialHistory.smokingStatus} />
+                          <HistoryDetailRow label="Alcohol Use" value={patient.socialHistory.alcoholUse} />
+                          <HistoryDetailRow label="Exercise" value={patient.socialHistory.exercise} />
+                          <HistoryDetailRow label="Occupation" value={patient.socialHistory.occupation} />
+                      </CardContent>
+                    </Card>
+                  )}
+                  {patient.familyHistory && patient.familyHistory.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center text-base">
+                          <Users2 className="mr-2" /> Family History
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {patient.familyHistory.map((item, index) => (
                             <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm bg-secondary/30">
                                 <div>
-                                    <p className="font-semibold">{shot.vaccine}</p>
-                                    <p className="text-xs text-muted-foreground">Administered by {shot.administeredBy}</p>
+                                    <p className="font-semibold">{item.condition}</p>
+                                    <p className="text-xs text-muted-foreground">{item.relation}</p>
+
                                 </div>
-                                <span className="text-sm text-muted-foreground">{new Date(shot.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                                <Badge variant="outline">{item.notes}</Badge>
                             </div>
                         ))}
-                    </CardContent>
-                  </Card>
-                   <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <BriefcaseMedical className="mr-2" /> Social History
-                      </CardTitle>
-                    </CardHeader>
-                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-                        <HistoryDetailRow label="Smoking Status" value={patient.socialHistory.smokingStatus} />
-                        <HistoryDetailRow label="Alcohol Use" value={patient.socialHistory.alcoholUse} />
-                        <HistoryDetailRow label="Exercise" value={patient.socialHistory.exercise} />
-                        <HistoryDetailRow label="Occupation" value={patient.socialHistory.occupation} />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-base">
-                        <Users2 className="mr-2" /> Family History
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {patient.familyHistory.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm bg-secondary/30">
-                              <div>
-                                  <p className="font-semibold">{item.condition}</p>
-                                  <p className="text-xs text-muted-foreground">{item.relation}</p>
-
-                              </div>
-                              <Badge variant="outline">{item.notes}</Badge>
-                          </div>
-                      ))}
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
