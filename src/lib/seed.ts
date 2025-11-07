@@ -56,7 +56,7 @@ async function seedDatabase() {
         await userDocBatch.commit();
         console.log(`Successfully created Firestore doc for ${authUser.email}`);
 
-      } catch (error) {
+      } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           console.warn(`Auth user with email ${user.email} already exists. Skipping auth creation.`);
         } else {
