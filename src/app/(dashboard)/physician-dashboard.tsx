@@ -20,11 +20,11 @@ const kpiData = [
 ];
 
 const schedule = [
-    { time: '09:00', name: 'Sarah Johnson', age: 45, reason: 'Follow-up', status: 'Completed' },
-    { time: '09:30', name: 'Michael Chen', age: 62, reason: 'Diabetes Check', status: 'In Progress' },
-    { time: '10:15', name: 'Emma Davis', age: 34, reason: 'Annual Physical', status: 'Waiting' },
-    { time: '11:00', name: 'Robert Wilson', age: 58, reason: 'Hypertension', status: 'Scheduled' },
-    { time: '14:00', name: 'Lisa Anderson', age: 41, reason: 'Lab Review', status: 'Scheduled' },
+    { time: '09:00', name: 'Sarah Johnson', age: 45, reason: 'Follow-up', status: 'Completed', mrn: 'MRN-0921' }, // MRN Added
+    { time: '09:30', name: 'James Martinez', age: 62, reason: 'Diabetes Check', status: 'In Progress', mrn: 'MRN-0847' }, // MRN Added
+    { time: '10:15', name: 'Emma Davis', age: 34, reason: 'Annual Physical', status: 'Waiting', mrn: 'MRN-1055' }, // MRN Added
+    { time: '11:00', name: 'Robert Wilson', age: 58, reason: 'Hypertension', status: 'Scheduled', mrn: 'MRN-0921' }, // Dummy MRN
+    { time: '14:00', name: 'Lisa Anderson', age: 41, reason: 'Lab Review', status: 'Scheduled', mrn: 'MRN-0847' }, // Dummy MRN
 ];
 
 const tasks = [
@@ -317,6 +317,20 @@ export default function PhysicianDashboard() {
       setFormOpen(false);
     }, 1000);
   };
+  
+  const handleOpenChart = (mrn: string) => {
+    const patient = recentPatients.find(p => p.mrn === mrn);
+    if (patient) {
+        setSelectedPatient(patient);
+    } else {
+        // Find in a broader list if needed or handle not found case
+        toast({
+            title: 'Patient Not Found',
+            description: 'The selected patient\'s detailed chart is not available in the recent list.',
+            variant: 'destructive',
+        })
+    }
+  };
 
 
   const getStatusBadge = (status: string) => {
@@ -397,7 +411,7 @@ export default function PhysicianDashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             {getStatusBadge(appt.status)}
-                            <Button variant="ghost">Open Chart</Button>
+                            <Button variant="ghost" onClick={() => handleOpenChart(appt.mrn)}>Open Chart</Button>
                           </div>
                       </div>
                   ))}
