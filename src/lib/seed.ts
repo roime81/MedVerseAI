@@ -4,7 +4,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, writeBatch, Timestamp } from 'firebase/firestore';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { firebaseConfig } from '@/firebase/config';
 
 import {
@@ -44,6 +44,9 @@ async function seedDatabase() {
         const authUser = userCredential.user;
         console.log(`Successfully created auth user: ${authUser.email}`);
         
+        // Add displayName to Auth user profile
+        await updateProfile(authUser, { displayName: user.displayName });
+
         // Add user data to Firestore
         const userRef = doc(db, 'users', authUser.uid);
         const { password, ...userData } = user; // Don't store password in Firestore

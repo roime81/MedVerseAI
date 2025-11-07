@@ -1,4 +1,67 @@
 
+export const sampleUsers = [
+    {
+        email: 'physician@medverse.com',
+        password: 'password123',
+        role: 'physician',
+        displayName: 'Emily Carter'
+    },
+    {
+        email: 'physician2@medverse.com',
+        password: 'password123',
+        role: 'physician',
+        displayName: 'Ben Stone'
+    },
+    {
+        email: 'nurse@medverse.com',
+        password: 'password123',
+        role: 'nurse',
+        displayName: 'Olivia Rodriguez'
+    },
+    {
+        email: 'nurse2@medverse.com',
+        password: 'password123',
+        role: 'nurse',
+        displayName: 'Michael Chen'
+    },
+    {
+        email: 'radiology@medverse.com',
+        password: 'password123',
+        role: 'radiology',
+        displayName: 'Sarah Johnson'
+    },
+    {
+        email: 'radiology2@medverse.com',
+        password: 'password123',
+        role: 'radiology',
+        displayName: 'David Kim'
+    },
+    {
+        email: 'lab@medverse.com',
+        password: 'password123',
+        role: 'lab',
+        displayName: 'Jessica Patel'
+    },
+    {
+        email: 'lab2@medverse.com',
+        password: 'password123',
+        role: 'lab',
+        displayName: 'Kevin Harris'
+    },
+    {
+        email: 'billing@medverse.com',
+        password: 'password123',
+        role: 'billing',
+        displayName: 'Laura Wilson'
+    },
+    {
+        email: 'billing2@medverse.com',
+        password: 'password123',
+        role: 'billing',
+        displayName: 'Tom Clark'
+    }
+];
+
 export const samplePatients = [
   {
     personId: '1',
