@@ -7,97 +7,51 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
-import { useAuth } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '@/hooks/use-mock-auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // Admin user check
     if (email === 'roimepuniran@gmail.com' && password === 'Pudina@81') {
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
+        login({ email, isAdmin: true });
         toast({
           title: 'Admin Login Successful',
           description: `Welcome back, Admin!`,
         });
         router.push('/');
-      } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
-          try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            toast({
-              title: 'Admin Account Created',
-              description: `Welcome! A new admin account has been created for ${email}.`,
-            });
-            router.push('/');
-          } catch (creationError: any) {
-            toast({
-              title: 'Admin Login Failed',
-              description: creationError.message || 'An unexpected error occurred.',
-              variant: 'destructive',
-            });
-          }
-        } else {
-          toast({
-            title: 'Admin Login Failed',
-            description: error.message || 'An unexpected error occurred.',
-            variant: 'destructive',
-          });
-        }
-      } finally {
-        setIsLoading(false);
-      }
-      return; // Stop execution for admin user
+        return;
     }
     
     // Regular user login
-    try {
-      // For prototype purposes, we allow any email with a default password.
-      // A real implementation would have a proper user database.
-      const loginPassword = password || 'password';
-      await signInWithEmailAndPassword(auth, email, loginPassword);
-      toast({
-        title: 'Login Successful',
-        description: `Welcome back!`,
-      });
-      router.push('/');
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-            const loginPassword = password || 'password';
-            await createUserWithEmailAndPassword(auth, email, loginPassword);
-             toast({
-                title: 'Account Created',
-                description: `Welcome! A new account has been created for ${email}.`,
-            });
-            router.push('/');
-        } catch (creationError: any) {
-             toast({
-                title: 'Login Failed',
-                description: creationError.message || 'An unexpected error occurred.',
-                variant: 'destructive',
-            });
-        }
-      } else {
-         toast({
+    if(email) {
+        login({ email, isAdmin: false });
+        toast({
+            title: 'Login Successful',
+            description: `Welcome back!`,
+        });
+        router.push('/');
+    } else {
+        toast({
             title: 'Login Failed',
-            description: error.message || 'An unexpected error occurred.',
+            description: 'Please enter a valid email.',
             variant: 'destructive',
         });
-      }
-    } finally {
-        setIsLoading(false);
     }
+
+    setIsLoading(false);
   };
 
   return (

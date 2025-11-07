@@ -11,9 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
-import { useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth } from '@/hooks/use-mock-auth';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const navItems = [
@@ -27,12 +25,11 @@ const navItems = [
 
 function AppHeader() {
   const userAvatar = placeholderImages.find(p => p.id === 'user-avatar');
-  const { user } = useUser();
-  const auth = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await signOut(auth);
+  const handleLogout = () => {
+    logout();
     router.push('/login');
   };
 
@@ -68,15 +65,15 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading } = useAuth();
 
   React.useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (!isLoading && !user) {
       router.push('/login');
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isLoading, router]);
 
-  if (isUserLoading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
