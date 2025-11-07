@@ -99,21 +99,30 @@ export default function Login() {
           role: 'physician',
         };
         
-        setDoc(userRef, newUser)
-          .catch(async (serverError) => {
+        // This setDoc operation is now allowed by the updated security rules
+        await setDoc(userRef, newUser)
+          .catch((serverError) => {
+              // This internal catch is for logging and creating a rich error,
+              // but the outer try/catch will handle the UI update.
+              console.error("Error creating user document:", serverError);
               const permissionError = new FirestorePermissionError({
                   path: userRef.path,
                   operation: 'create',
                   requestResourceData: newUser,
               });
               errorEmitter.emit('permission-error', permissionError);
+              // Re-throw to be caught by the outer catch block
+              throw serverError; 
           });
       }
     } catch (error: any) {
         console.error("Google sign-in error:", error);
         if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
             setError('Sign-in cancelled. Please try again.');
-        } else {
+        } else if (error.code === 'permission-denied') {
+             setError('Could not create user profile. Please contact support.');
+        }
+        else {
             setError('Failed to sign in with Google. Please try again.');
         }
     } finally {
