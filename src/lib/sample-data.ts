@@ -3,85 +3,85 @@ export const sampleUsers = [
     // Doctors
     {
         email: 'emily.carter@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'physician',
         displayName: 'Dr. Emily Carter'
     },
     {
         email: 'ben.stone@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'physician',
         displayName: 'Dr. Ben Stone'
     },
     // Nurses
     {
         email: 'olivia.rodriguez@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'nurse',
         displayName: 'Olivia Rodriguez, RN'
     },
     {
         email: 'michael.chen@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'nurse',
         displayName: 'Michael Chen, RN'
     },
     // Lab Techs
     {
         email: 'jessica.patel@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'lab',
         displayName: 'Jessica Patel'
     },
     {
         email: 'kevin.harris@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'lab',
         displayName: 'Kevin Harris'
     },
     // Radiology Techs
     {
         email: 'sarah.johnson@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'radiology',
         displayName: 'Sarah Johnson'
     },
     {
         email: 'david.kim@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'radiology',
         displayName: 'David Kim'
     },
     // Billing
     {
         email: 'laura.wilson@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'billing',
         displayName: 'Laura Wilson'
     },
     {
         email: 'tom.clark@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'billing',
         displayName: 'Tom Clark'
     },
     // Pharmacists
     {
         email: 'sandra.dee@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'pharmacist',
         displayName: 'Sandra Dee'
     },
     {
         email: 'peter.jones@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'pharmacist',
         displayName: 'Peter Jones'
     },
     // Admin
     {
         email: 'super.admin@medverse.com',
-        password: 'password123',
+        password: 'password',
         role: 'admin',
         displayName: 'Super Admin'
     },
