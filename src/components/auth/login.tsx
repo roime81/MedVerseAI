@@ -11,18 +11,20 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser, useFirestore } from '@/firebase';
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Stethoscope } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
 
 export default function Login() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -73,7 +75,7 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!auth) {
+    if (!auth || !firestore) {
       setError('Authentication service is not available.');
       return;
     }
@@ -81,11 +83,36 @@ export default function Login() {
     setError('');
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const signedInUser = result.user;
+
+      // After sign-in, check if user document exists, create if it doesn't
+      const userRef = doc(firestore, "users", signedInUser.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        // User document doesn't exist, create it
+        await setDoc(userRef, {
+          uid: signedInUser.uid,
+          email: signedInUser.email,
+          displayName: signedInUser.displayName,
+          role: 'physician', // Assign a default role
+        });
+        console.log(`Created new user document for ${signedInUser.displayName}`);
+      }
       // The onAuthStateChanged listener will handle the redirect.
     } catch (error: any) {
         console.error("Google sign-in error:", error);
-        setError('Failed to sign in with Google. Please try again.');
+        // Provide more specific error messages if possible
+        if (error.code === 'auth/popup-closed-by-user') {
+            setError('Sign-in cancelled. Please try again.');
+        } else if (error.code === 'auth/cancelled-popup-request') {
+            // This can happen if user clicks the button multiple times
+            setError(''); // Don't show an error for this case
+        }
+        else {
+            setError('Failed to sign in with Google. Please try again.');
+        }
     } finally {
         setIsSigningIn(false);
     }
