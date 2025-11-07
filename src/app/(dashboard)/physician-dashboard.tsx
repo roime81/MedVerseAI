@@ -14,16 +14,16 @@ import { PatientDetailSheet } from './patient-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TreatmentJourney } from './treatment-journey';
 import { Input } from '@/components/ui/input';
-import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, addDoc, limit, orderBy } from 'firebase/firestore';
+import { useCollection, useFirebase, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
+import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import type { Patient as PatientData, Task } from '@/lib/sample-data';
 
 
 const kpiData = [
-    { title: "Today's Appointments", value: 5, icon: Calendar, color: "text-blue-500", id: "appointments" },
-    { title: "Pending Tasks", value: 6, icon: AlertCircle, color: "text-orange-500", id: "tasks" },
-    { title: "Active Patients", value: 100, icon: Users, color: "text-green-500", id: "patients" },
-    { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500", id: "wait-time" },
+    { title: "Today's Appointments", value: 5, icon: Calendar, color: "text-blue-500", borderColor: "border-blue-500", id: "appointments" },
+    { title: "Pending Tasks", value: 6, icon: AlertCircle, color: "text-orange-500", borderColor: "border-orange-500", id: "tasks" },
+    { title: "Active Patients", value: 100, icon: Users, color: "text-green-500", borderColor: "border-green-500", id: "patients" },
+    { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500", borderColor: "border-purple-500", id: "wait-time" },
 ];
 
 export type RecentPatient = PatientData;
@@ -85,6 +85,7 @@ export default function PhysicianDashboard() {
       reason: reasons[index % reasons.length],
       status: statuses[index],
       mrn: patient.mrn,
+      id: patient.id
     }));
   }, [allPatients]);
 
@@ -129,7 +130,7 @@ export default function PhysicianDashboard() {
     };
 
     try {
-        await addDoc(collection(firestore, 'patients'), newPatient);
+        await addDocumentNonBlocking(collection(firestore, 'patients'), newPatient);
         toast({
             title: 'Patient Registered',
             description: `${data.firstName} ${data.lastName} has been successfully added to the system.`,
@@ -336,13 +337,10 @@ const treatmentJourneyLee: JourneyTask[] = [
           {kpiData.map((kpi) => (
               <Card 
                 key={kpi.title} 
-                className={`flex items-center p-4 ${kpi.id === 'patients' || kpi.id === 'tasks' ? 'cursor-pointer hover:bg-secondary/50' : ''}`}
+                className={`flex items-center p-4 border-l-4 ${kpi.borderColor} ${kpi.id === 'patients' || kpi.id === 'tasks' ? 'cursor-pointer hover:bg-secondary/50' : ''}`}
                 onClick={() => handleKpiClick(kpi.id)}
               >
-                  <div className={`mr-4 p-3 rounded-lg bg-secondary ${kpi.color}`}>
-                      <kpi.icon className="h-6 w-6" />
-                  </div>
-                  <div>
+                  <div className="flex-1">
                       <p className="text-sm text-muted-foreground">{kpi.title}</p>
                       <p className="text-2xl font-bold">{
                         kpi.id === 'patients' ? (allPatients?.length || 0) :
@@ -350,6 +348,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                         kpi.id === 'appointments' ? schedule.length : kpi.value
                       }</p>
                   </div>
+                  <kpi.icon className={`h-8 w-8 ${kpi.color}`} />
               </Card>
           ))}
         </div>
@@ -365,7 +364,7 @@ const treatmentJourneyLee: JourneyTask[] = [
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-1">
                   {schedule.filter(appt => appt.status !== 'Completed').map((appt, i) => (
                       <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
                           <div className="flex items-center gap-4">
@@ -395,12 +394,12 @@ const treatmentJourneyLee: JourneyTask[] = [
                   <Button variant="link" size="sm" onClick={() => setShowAllTasks(true)}>View All</Button>
               </CardHeader>
               <CardContent>
-                  <div className="space-y-2">
-                      {(allTasks || []).slice(0,5).map((task, i) => (
-                          <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
+                  <div className="space-y-3">
+                      {(allTasks || []).slice(0,4).map((task, i) => (
+                          <div key={i} className="flex items-start justify-between p-4 rounded-lg border bg-background hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
                               <div className="flex-grow">
                                   <p className="font-semibold text-sm">{task.description}</p>
-                                  <p className="text-xs text-muted-foreground">
+                                  <p className="text-xs text-muted-foreground mt-1">
                                     Patient:{" "}
                                     <Button
                                         variant="link"
@@ -412,10 +411,12 @@ const treatmentJourneyLee: JourneyTask[] = [
                                     >
                                         {task.patient}
                                     </Button>{" "}
-                                    &bull; Due: {task.time}
+                                    &bull; {task.time}
                                   </p>
                               </div>
-                              {getPriorityBadge(task.priority)}
+                              <div className="ml-4">
+                                {getPriorityBadge(task.priority)}
+                              </div>
                           </div>
                       ))}
                   </div>
@@ -424,12 +425,9 @@ const treatmentJourneyLee: JourneyTask[] = [
         </div>
 
         {/* Recent Patients */}
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Recent Patients</CardTitle>
-                <Button variant="link" size="sm" onClick={() => { setSearchQuery(''); setCurrentPage(1); setShowAllPatientsDialog(true); }}>View All</Button>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-4">
+            <h2 className="text-xl font-semibold tracking-tight">Recent Patients</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {(recentPatients || []).map((patient, i) => (
                     <Card key={i} className="flex flex-col cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setSelectedPatient(patient)}>
                         <CardContent className="p-4 flex-grow">
@@ -453,8 +451,8 @@ const treatmentJourneyLee: JourneyTask[] = [
                         </CardContent>
                     </Card>
                 ))}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
       </div>
       
       <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
