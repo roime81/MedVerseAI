@@ -73,6 +73,48 @@
         }
       },
       "required": ["person_identifier_id", "person_id", "system_uri", "value"]
+    },
+    "Coverage": {
+      "title": "Coverage",
+      "type": "object",
+      "description": "Insurance coverage for a person.",
+      "properties": {
+        "coverage_id": { "type": "string", "description": "Primary key (UUID)." },
+        "person_id": { "type": "string", "description": "FK to person_master." },
+        "status": { "type": "string", "enum": ["active", "cancelled", "draft", "entered-in-error"] },
+        "payor": { "type": "string", "description": "Name of the insurance company." },
+        "subscriberId": { "type": "string", "description": "The subscriber ID." },
+        "period_start": { "type": "string", "format": "date-time" },
+        "period_end": { "type": "string", "format": "date-time" }
+      },
+      "required": ["coverage_id", "person_id", "status", "payor"]
+    },
+    "Claim": {
+      "title": "Claim",
+      "type": "object",
+      "description": "A claim for services rendered.",
+      "properties": {
+        "claim_id": { "type": "string", "description": "Primary key (UUID)." },
+        "person_id": { "type": "string", "description": "FK to person_master." },
+        "status": { "type": "string", "enum": ["active", "cancelled", "draft", "entered-in-error"] },
+        "total": { "type": "number", "description": "The total amount of the claim." },
+        "created": { "type": "string", "format": "date-time" },
+        "provider_id": { "type": "string", "description": "FK to practitioner/organization." }
+      },
+      "required": ["claim_id", "person_id", "status", "total"]
+    },
+    "ExplanationOfBenefit": {
+      "title": "Explanation of Benefit",
+      "type": "object",
+      "description": "An Explanation of Benefit (EOB) from an insurer.",
+      "properties": {
+        "eob_id": { "type": "string", "description": "Primary key (UUID)." },
+        "claim_id": { "type": "string", "description": "FK to the claim." },
+        "status": { "type": "string", "enum": ["active", "cancelled", "draft", "entered-in-error"] },
+        "total": { "type": "number", "description": "Total amount covered." },
+        "payment_date": { "type": "string", "format": "date" }
+      },
+      "required": ["eob_id", "claim_id", "status"]
     }
   },
   "auth": {
@@ -102,8 +144,32 @@
           },
           "description": "Stores identifiers associated with a person."
         }
+      },
+      {
+        "path": "/person_master/{personId}/coverage/{coverageId}",
+        "definition": {
+          "entityName": "Coverage",
+          "schema": { "$ref": "#/backend/entities/Coverage" },
+          "description": "Stores patient insurance coverage."
+        }
+      },
+      {
+        "path": "/claims/{claimId}",
+        "definition": {
+          "entityName": "Claim",
+          "schema": { "$ref": "#/backend/entities/Claim" },
+          "description": "Stores claims for all patients."
+        }
+      },
+      {
+        "path": "/eobs/{eobId}",
+        "definition": {
+          "entityName": "ExplanationOfBenefit",
+          "schema": { "$ref": "#/backend/entities/ExplanationOfBenefit" },
+          "description": "Stores EOBs for all claims."
+        }
       }
     ],
-    "reasoning": "This structure aligns with the FHIR/OMOP data model provided. It establishes a master 'person' collection to act as the single source of truth (golden record). Identifiers are stored in a sub-collection, allowing for multiple identifiers per person (e.g., MRN, Driver's License) while maintaining a clean data hierarchy. Authorization can be managed at the root 'person_master' level."
+    "reasoning": "This structure aligns with the FHIR/OMOP data model provided. It establishes a master 'person' collection to act as the single source of truth (golden record). Identifiers and coverage are stored in a sub-collection, allowing for multiple per person while maintaining a clean data hierarchy. Claims and EOBs are in root collections for easier querying across all patients. Authorization can be managed at the appropriate levels."
   }
 }

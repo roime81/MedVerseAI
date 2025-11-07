@@ -26,6 +26,35 @@ service cloud.firestore {
         // Allow read and write access if the user owns the parent person record.
         allow read, write: if isSignedIn() && isOwner(personId);
     }
+    
+    /**
+     * @description Manages access to patient coverage. Inherits access from the parent person record.
+     * @path /person_master/{personId}/coverage/{coverageId}
+     */
+    match /person_master/{personId}/coverage/{coverageId} {
+      allow read, write: if isSignedIn() && isOwner(personId);
+    }
+
+    /**
+     * @description Manages claims. In a real scenario, this would be restricted to billing staff.
+     * For now, any authenticated user can create, but only read/update their own claims.
+     * @path /claims/{claimId}
+     */
+    match /claims/{claimId} {
+      allow create: if isSignedIn();
+      allow read, update: if isSignedIn() && resource.data.person_id == request.auth.uid;
+      // No delete for audit purposes
+    }
+
+    /**
+     * @description Manages EOBs. Access is determined by the linked claim.
+     * @path /eobs/{eobId}
+     */
+    match /eobs/{eobId} {
+      allow read, update: if isSignedIn() && get(/databases/$(database)/documents/claims/$(resource.data.claim_id)).data.person_id == request.auth.uid;
+      allow create: if isSignedIn();
+    }
+
 
     // ---- Helper functions ----
 
