@@ -99,7 +99,7 @@ export type RecentPatient = {
     doctor: string;
     chiefComplaint: string;
     diagnosis: string;
-    notes: string;
+notes: string;
   }[];
   immunizationHistory: {
     vaccine: string;
@@ -421,8 +421,9 @@ export default function PhysicianDashboard() {
 
           {/* Pending Tasks */}
           <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Pending Tasks</CardTitle>
+                  <Button variant="link" size="sm">View All</Button>
               </CardHeader>
               <CardContent>
                   <div className="space-y-4">
@@ -445,8 +446,9 @@ export default function PhysicianDashboard() {
 
         {/* Recent Patients */}
         <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Recent Patients</CardTitle>
+                <Button variant="link" size="sm">View All</Button>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentPatients.map((patient, i) => (
