@@ -29,7 +29,7 @@ export default function ImagingPage() {
     <div className="space-y-6 animate-fade-in">
       <header>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
-          Medical Imaging Archive
+          Imaging Archive
         </h1>
         <p className="text-muted-foreground">
           Search and view DICOM-compatible medical images.

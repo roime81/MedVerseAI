@@ -61,7 +61,7 @@ const initialMedications: Medication[] = [
   { id: 4, name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily', status: 'Discontinued' },
 ];
 
-export default function MedicationPage() {
+export default function MedicationsPage() {
   const [medications, setMedications] = useState<Medication[]>(initialMedications);
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const [newMedication, setNewMedication] = useState({ name: '', dosage: '', frequency: '' });
