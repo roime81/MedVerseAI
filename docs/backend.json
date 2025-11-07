@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "UserAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserAccount",
+      "type": "object",
+      "description": "Stores user account information for login and logoff functionality. Note: Authentication data (passwords) should be handled by an external authentication service and not stored directly.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user account."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user, used for login.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Phone number of the user, used for login."
+        },
+        "patientNumber": {
+          "type": "string",
+          "description": "Patient number, used for login (if applicable)."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserAccount 1:1 UserProfile)"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp of the last successful login.",
+          "format": "date-time"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the user account is active."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores user profile information associated with a user account.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "Date of birth of the user.",
+          "format": "date"
+        },
+        "gender": {
+          "type": "string",
+          "description": "Gender of the user."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the user."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/userAccounts/{accountId}",
+        "definition": {
+          "entityName": "UserAccount",
+          "schema": {
+            "$ref": "#/backend/entities/UserAccount"
+          },
+          "description": "Stores user account information. Uses path-based ownership for authorization. Only the user with the matching {userId} can access this data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "accountId",
+              "description": "The unique ID of the user account."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/userProfiles/{profileId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Uses path-based ownership for authorization. Only the user with the matching {userId} can access this data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "profileId",
+              "description": "The unique ID of the user profile."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This design prioritizes security and scalability for the MedVerseAI application, adhering to the core design principles. The structure is designed to support a multi-hospital HIS with clinical, diagnostic, administrative, and financial workflows, all while ensuring data privacy and compliance.\n\n**Authorization Independence:**\n*   User-related data is stored under `/users/{userId}`, providing clear ownership and avoiding the need for `get()` calls in security rules to validate user identity.\n*   If collaborative features are implemented later, requiring shared access to data, a membership map (`members: {uid1: \"role\", uid2: \"role\"}`) would be denormalized into relevant documents to eliminate hierarchical authorization dependencies.  Since the current use case focuses on personal user accounts, collaborative features are not included in the initial structure.\n\n**Structural Segregation:**\n*   User accounts and profiles are separated into `userAccounts` and `userProfiles` subcollections under the `/users/{userId}` collection. This segregation allows different security rules to be applied to account management and user profile information.\n\n**Access Modeling:**\n*   Private user data (account and profile information) is stored under `/users/{userId}`, enforcing path-based ownership. Only the authenticated user (`request.auth.uid`) can access data under their respective path.\n\n**Data Clarity and Predictability:**\n*   Entity names are semantically meaningful (e.g., `userAccount`, `userProfile`).\n*   Each path is clearly defined with descriptions.\n\n**QAPs (Rules are not Filters):**\n*   The path-based ownership model (`/users/{userId}/...`) ensures secure `list` operations for user-specific data. Security rules can easily restrict listing access to only the authenticated user's data."
+  }
+}
