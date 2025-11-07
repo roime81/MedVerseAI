@@ -1,10 +1,14 @@
 'use client';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, AlertCircle, Users, Clock, FilePlus2, Check } from "lucide-react";
-import { allPatients } from "@/lib/sample-data";
+import { allPatients, Patient } from "@/lib/sample-data";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
+import { useToast } from '@/hooks/use-toast';
 
 const kpiData = [
     { title: "Today's Appointments", value: 12, icon: Calendar, color: "text-blue-500" },
@@ -28,7 +32,7 @@ const tasks = [
     { description: 'Review imaging results', time: '3 hours ago', priority: 'Low' },
 ];
 
-const recentPatients = [
+const initialRecentPatients = [
     { name: 'James Martinez', lastSeen: '2 days ago', alerts: 2, conditions: ['Hypertension', 'Type 2 Diabetes']},
     { name: 'Patricia Brown', lastSeen: '5 days ago', alerts: 0, conditions: ['Asthma']},
     { name: 'David Lee', lastSeen: '1 week ago', alerts: 1, conditions: ['COPD', 'High Cholesterol']},
@@ -36,7 +40,39 @@ const recentPatients = [
 
 
 export default function PhysicianDashboard() {
+  const [isFormOpen, setFormOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+  const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   
+  const handleSavePatient = (data: PatientRegistrationData) => {
+    setIsSaving(true);
+    // Simulate API call
+    setTimeout(() => {
+      const newPatient: Patient = {
+        id: allPatients.length + 1,
+        name: `${data.firstName} ${data.lastName}`,
+        ward: 'General Medicine',
+        hospital: 'City General',
+        consultant: 'Dr. Anderson',
+        status: 'Admitted',
+      };
+      // In a real app, you'd send this to a server. Here we just log it.
+      console.log('New Patient Registered:', newPatient);
+      
+      // Add to sample data (for demonstration purposes)
+      allPatients.push(newPatient);
+
+      toast({
+        title: 'Patient Registered',
+        description: `${data.firstName} ${data.lastName} has been successfully added to the system.`,
+      });
+      setIsSaving(false);
+      setFormOpen(false);
+    }, 1000);
+  };
+
+
   const getStatusBadge = (status: string) => {
     switch (status) {
         case 'Completed': return <Badge className="bg-gray-800 text-white hover:bg-gray-700">Completed</Badge>;
@@ -57,6 +93,7 @@ export default function PhysicianDashboard() {
   }
 
   return (
+    <>
     <div className="space-y-6 animate-fade-in">
       <header className="flex items-center justify-between">
         <div>
@@ -67,7 +104,7 @@ export default function PhysicianDashboard() {
             Here's what's happening today
             </p>
         </div>
-        <Button>
+        <Button onClick={() => setFormOpen(true)}>
             <FilePlus2 className="mr-2 h-4 w-4" />
             New Patient Record
         </Button>
@@ -173,5 +210,22 @@ export default function PhysicianDashboard() {
           </CardContent>
       </Card>
     </div>
+    
+    <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>New Patient Registration</DialogTitle>
+            <DialogDescription>
+              Complete the form below to register a new patient in the system.
+            </DialogDescription>
+          </DialogHeader>
+          <PatientRegistrationForm 
+            onSubmit={handleSavePatient}
+            onCancel={() => setFormOpen(false)}
+            isSaving={isSaving}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
