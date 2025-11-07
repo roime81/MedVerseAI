@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -293,6 +293,7 @@ export default function PhysicianDashboard() {
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
+  const [selectedAppointmentStatus, setSelectedAppointmentStatus] = useState<string | undefined>(undefined);
   
   const handleSavePatient = (data: PatientRegistrationData) => {
     setIsSaving(true);
@@ -316,10 +317,11 @@ export default function PhysicianDashboard() {
     }, 1000);
   };
   
-  const handleOpenChart = (mrn: string) => {
+  const handleOpenChart = (mrn: string, status?: string) => {
     const patient = recentPatients.find(p => p.mrn === mrn);
     if (patient) {
         setSelectedPatient(patient);
+        setSelectedAppointmentStatus(status);
     } else {
         // Find in a broader list if needed or handle not found case
         toast({
@@ -431,7 +433,7 @@ export default function PhysicianDashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             {getStatusBadge(appt.status)}
-                            <Button variant="ghost" onClick={() => handleOpenChart(appt.mrn)}>Open Chart</Button>
+                            <Button variant="ghost" onClick={() => handleOpenChart(appt.mrn, appt.status)}>Open Chart</Button>
                           </div>
                       </div>
                   ))}
@@ -602,8 +604,10 @@ export default function PhysicianDashboard() {
         onOpenChange={(isOpen) => {
             if (!isOpen) {
                 setSelectedPatient(null);
+                setSelectedAppointmentStatus(undefined);
             }
         }}
+        appointmentStatus={selectedAppointmentStatus}
       />
     </>
   );

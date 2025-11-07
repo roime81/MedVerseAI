@@ -45,6 +45,7 @@ type PatientDetailSheetProps = {
   patient: RecentPatient | null;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  appointmentStatus?: string;
 };
 
 const DetailRow = ({
@@ -84,6 +85,7 @@ export function PatientDetailSheet({
   patient,
   isOpen,
   onOpenChange,
+  appointmentStatus,
 }: PatientDetailSheetProps) {
   if (!patient) return null;
 
@@ -111,6 +113,8 @@ export function PatientDetailSheet({
     }
   };
 
+  const canEdit = appointmentStatus === 'In Progress';
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="p-0 sm:max-w-2xl">
@@ -133,7 +137,7 @@ export function PatientDetailSheet({
                 </p>
               </div>
               <div className="ml-auto flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" disabled={!canEdit}>
                   <FileEdit className="mr-2 h-4 w-4" /> Edit
                 </Button>
                 <Button variant="outline" size="sm">
