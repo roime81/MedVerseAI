@@ -1,3 +1,4 @@
+
 // A standalone script to seed the database.
 // This is not part of the Next.js app, but a utility to run from the command line.
 // Example: `npx tsx src/lib/seed.ts`
@@ -46,6 +47,7 @@ async function seedDatabase() {
         
         // Add displayName to Auth user profile
         await updateProfile(authUser, { displayName: user.displayName });
+        console.log(`Successfully updated profile for ${authUser.email}`);
 
         // Add user data to Firestore
         const userRef = doc(db, 'users', authUser.uid);
@@ -54,11 +56,7 @@ async function seedDatabase() {
 
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
-          console.warn(`Auth user with email ${user.email} already exists. Skipping creation, but will attempt to update Firestore data.`);
-           // Even if auth user exists, we can still try to set the firestore doc
-           // This requires getting the user by email, which is an admin-only function.
-           // For this seed script, we will just log a warning and the firestore doc won't be created/updated if the auth creation fails.
-           // A more robust script might handle this by fetching the user and then setting data.
+          console.warn(`Auth user with email ${user.email} already exists. Skipping creation.`);
         } else {
           console.error(`Error creating auth user ${user.email}:`, error);
         }
@@ -195,5 +193,3 @@ seedDatabase().then(() => {
     console.log('Seed script finished. Exiting.');
     process.exit(0);
 });
-
-    
