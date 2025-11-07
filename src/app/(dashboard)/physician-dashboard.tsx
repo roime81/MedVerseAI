@@ -78,6 +78,14 @@ export type RecentPatient = {
     height: string;
     bmi: string;
   }[];
+  medications: {
+    name: string;
+    dosage: string;
+    frequency: string;
+    prescriber: string;
+    remaining: number;
+    startDate: string;
+  }[];
 };
 
 const initialRecentPatients: RecentPatient[] = [
@@ -118,6 +126,12 @@ const initialRecentPatients: RecentPatient[] = [
         { date: '2025-11-05', bloodPressure: '145/92', heartRate: '82 bpm', temperature: '98.4°F', weight: '185 lbs', height: "5'10\"", bmi: '26.5' },
         { date: '2025-10-20', bloodPressure: '148/94', heartRate: '78 bpm', temperature: '98.6°F', weight: '187 lbs', height: "5'10\"", bmi: '26.8' },
         { date: '2025-09-15', bloodPressure: '152/96', heartRate: '85 bpm', temperature: '98.5°F', weight: '189 lbs', height: "5'10\"", bmi: '27.1' },
+    ],
+    medications: [
+        { name: 'Lisinopril', dosage: '20mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 3, startDate: 'Jan 2018' },
+        { name: 'Metformin', dosage: '1000mg', frequency: 'Twice daily', prescriber: 'Dr. Anderson', remaining: 2, startDate: 'Jun 2019' },
+        { name: 'Atorvastatin', dosage: '40mg', frequency: 'Once daily at bedtime', prescriber: 'Dr. Anderson', remaining: 5, startDate: 'Jan 2018' },
+        { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 6, startDate: 'Jan 2018' },
     ]
   },
   {
@@ -139,6 +153,9 @@ const initialRecentPatients: RecentPatient[] = [
     conditions: [{ name: 'Asthma', stage: '', code: 'J45', diagnosedDate: '2010-05-10' }],
     vitals: [
       { date: '2025-11-01', bloodPressure: '120/80', heartRate: '72 bpm', temperature: '98.7°F', weight: '140 lbs', height: "5'5\"", bmi: '23.4' },
+    ],
+    medications: [
+        { name: 'Albuterol', dosage: '90mcg', frequency: '2 puffs every 4-6 hours as needed', prescriber: 'Dr. Anderson', remaining: 1, startDate: 'May 2010' },
     ]
   },
   {
@@ -163,6 +180,10 @@ const initialRecentPatients: RecentPatient[] = [
     ],
     vitals: [
          { date: '2025-10-28', bloodPressure: '135/88', heartRate: '75 bpm', temperature: '98.2°F', weight: '170 lbs', height: "5'11\"", bmi: '23.7' },
+    ],
+    medications: [
+         { name: 'Symbicort', dosage: '160/4.5 mcg', frequency: '1 inhalation twice daily', prescriber: 'Dr. Anderson', remaining: 1, startDate: 'Feb 2021' },
+         { name: 'Lipitor', dosage: '20mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 4, startDate: 'Nov 2020' },
     ]
   },
 ];

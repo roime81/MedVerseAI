@@ -31,6 +31,7 @@ import {
   FileEdit,
   Download,
   X,
+  Pill,
 } from 'lucide-react';
 import type { RecentPatient } from './physician-dashboard';
 
@@ -245,6 +246,26 @@ export function PatientDetailSheet({
                                 <VitalStat label="Weight" value={vital.weight} />
                                 <VitalStat label="Height" value={vital.height} />
                                 <VitalStat label="BMI" value={vital.bmi} />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+              </TabsContent>
+               <TabsContent value="medications" className="mt-4">
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Current Medications</h3>
+                    {patient.medications.map((med, index) => (
+                        <Card key={index}>
+                            <CardContent className="p-4 grid grid-cols-2 gap-4 items-start">
+                                <div>
+                                    <p className="font-semibold">{med.name}</p>
+                                    <p className="text-sm text-muted-foreground">{med.dosage} &bull; {med.frequency}</p>
+                                    <p className="text-xs text-muted-foreground mt-2">Prescribed by {med.prescriber}</p>
+                                </div>
+                                <div className="text-right">
+                                    <Badge variant="outline" className="mb-2">{med.remaining} remaining</Badge>
+                                    <p className="text-sm text-muted-foreground">Since {med.startDate}</p>
+                                </div>
                             </CardContent>
                         </Card>
                     ))}
