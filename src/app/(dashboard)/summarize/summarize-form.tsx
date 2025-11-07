@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { summarizePatientRecord } from '@/ai/flows/summarize-patient-records';
+import { summarizePatientRecord } from '@/ai/flows/summarize-patient-record';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -108,7 +108,7 @@ export function SummarizeForm() {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <Textarea
-              placeholder="Enter patient record here..."
+              placeholder="Enter one patient record here..."
               value={patientRecord}
               onChange={(e) => setPatientRecord(e.target.value)}
               className="min-h-[400px] text-sm"
