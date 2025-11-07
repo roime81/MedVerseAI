@@ -1,7 +1,6 @@
 {
   "entities": {
     "Patient": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Patient",
       "type": "object",
       "description": "Represents a patient's demographic and identifying information.",
@@ -36,23 +35,20 @@
         },
         "locationId": {
           "type": "string",
-          "description": "Reference to Location. (Relationship: Patient 1:1 Location)"
+          "description": "Link to the patient's address."
         },
         "providerId": {
           "type": "string",
-          "description": "Reference to Provider. (Relationship: Patient 1:1 Provider)"
+          "description": "Primary care provider for the patient."
         },
         "careSiteId": {
           "type": "string",
-          "description": "Reference to CareSite. (Relationship: Patient 1:1 CareSite)"
+          "description": "Hospital or clinic site associated with the patient."
         }
       },
-      "required": [
-        "personId"
-      ]
+      "required": ["personId"]
     },
     "Encounter": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Encounter",
       "type": "object",
       "description": "Represents a patient encounter or visit.",
@@ -63,7 +59,7 @@
         },
         "personId": {
           "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N Encounter)"
+          "description": "Link to the Patient."
         },
         "visitConceptId": {
           "type": "string",
@@ -71,26 +67,22 @@
         },
         "visitStartDatetime": {
           "type": "string",
-          "description": "Start time of the visit.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Start time of the visit."
         },
         "visitEndDatetime": {
           "type": "string",
-          "description": "End time of the visit.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "End time of the visit."
         },
         "careSiteId": {
           "type": "string",
-          "description": "Reference to CareSite. (Relationship: CareSite 1:N Encounter)"
+          "description": "Facility where the encounter occurred."
         }
       },
-      "required": [
-        "visitOccurrenceId",
-        "personId"
-      ]
+      "required": ["visitOccurrenceId", "personId"]
     },
     "Condition": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Condition",
       "type": "object",
       "description": "Represents a patient's medical condition or diagnosis.",
@@ -101,7 +93,7 @@
         },
         "personId": {
           "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N Condition)"
+          "description": "Link to the Patient."
         },
         "conditionConceptId": {
           "type": "string",
@@ -109,22 +101,18 @@
         },
         "conditionStartDate": {
           "type": "string",
-          "description": "Onset date of the condition.",
-          "format": "date"
+          "format": "date",
+          "description": "Onset date of the condition."
         },
         "conditionEndDate": {
           "type": "string",
-          "description": "Resolution date of the condition.",
-          "format": "date"
+          "format": "date",
+          "description": "Resolution date of the condition."
         }
       },
-      "required": [
-        "conditionOccurrenceId",
-        "personId"
-      ]
+      "required": ["conditionOccurrenceId", "personId"]
     },
     "Observation": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Observation",
       "type": "object",
       "description": "Represents a clinical observation about a patient.",
@@ -133,14 +121,18 @@
           "type": "string",
           "description": "Unique identifier for the Observation entity."
         },
+        "personId": {
+          "type": "string",
+          "description": "Link to the Patient."
+        },
         "observationConceptId": {
           "type": "string",
           "description": "Type of observation."
         },
         "observationDate": {
           "type": "string",
-          "description": "Date and time of the observation.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Date and time of the observation."
         },
         "valueAsNumber": {
           "type": "number",
@@ -155,12 +147,9 @@
           "description": "Unit of measurement for the observation."
         }
       },
-      "required": [
-        "observationId"
-      ]
+      "required": ["observationId", "personId"]
     },
     "Measurement": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Measurement",
       "type": "object",
       "description": "Represents a vital sign or lab measurement.",
@@ -169,14 +158,18 @@
           "type": "string",
           "description": "Unique identifier for the Measurement entity."
         },
+        "personId": {
+          "type": "string",
+          "description": "Link to the Patient."
+        },
         "measurementConceptId": {
           "type": "string",
           "description": "LOINC code for the measurement."
         },
         "measurementDatetime": {
           "type": "string",
-          "description": "Date and time of the measurement.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Date and time of the measurement."
         },
         "valueAsNumber": {
           "type": "number",
@@ -187,12 +180,9 @@
           "description": "Unit of measurement (mmHg, mmol/L)."
         }
       },
-      "required": [
-        "measurementId"
-      ]
+      "required": ["measurementId", "personId"]
     },
     "DrugExposure": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "DrugExposure",
       "type": "object",
       "description": "Represents a patient's drug exposure or medication.",
@@ -201,300 +191,73 @@
           "type": "string",
           "description": "Unique identifier for the DrugExposure entity."
         },
+        "personId": {
+          "type": "string",
+          "description": "Link to the Patient."
+        },
         "drugConceptId": {
           "type": "string",
           "description": "RxNorm / ATC code for the drug."
         },
         "drugExposureStartDatetime": {
           "type": "string",
-          "description": "Start time of the drug exposure.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "Start time of the drug exposure."
         },
         "drugExposureEndDatetime": {
           "type": "string",
-          "description": "End time of the drug exposure.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "End time of the drug exposure."
         },
         "doseUnitConceptId": {
           "type": "string",
           "description": "Unit of measurement for the drug dose (mg, ml)."
         }
       },
-      "required": [
-        "drugExposureId"
-      ]
-    },
-    "CareSite": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "CareSite",
-      "type": "object",
-      "description": "Represents a hospital or clinic site.",
-      "properties": {
-        "careSiteId": {
-          "type": "string",
-          "description": "Unique identifier for the CareSite entity."
-        },
-        "careSiteName": {
-          "type": "string",
-          "description": "Name of the care site."
-        }
+      "required": ["drugExposureId", "personId"]
+    }
+  },
+  "firestore": {
+    "/patients/{patientId}": {
+      "schema": {
+        "$ref": "#/entities/Patient"
       },
-      "required": [
-        "careSiteId"
-      ]
+      "description": "Stores individual patient records."
     },
-    "Provider": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Provider",
-      "type": "object",
-      "description": "Represents a healthcare provider.",
-      "properties": {
-        "providerId": {
-          "type": "string",
-          "description": "Unique identifier for the Provider entity."
-        },
-        "providerName": {
-          "type": "string",
-          "description": "Name of the provider."
-        },
-        "specialtyConceptId": {
-          "type": "string",
-          "description": "Specialty of the provider."
-        }
+    "/patients/{patientId}/encounters/{encounterId}": {
+      "schema": {
+        "$ref": "#/entities/Encounter"
       },
-      "required": [
-        "providerId"
-      ]
+      "description": "Sub-collection for a patient's encounters."
     },
-    "Location": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Location",
-      "type": "object",
-      "description": "Represents a physical location or address.",
-      "properties": {
-        "locationId": {
-          "type": "string",
-          "description": "Unique identifier for the Location entity."
-        },
-        "address1": {
-          "type": "string",
-          "description": "First line of the address."
-        },
-        "city": {
-          "type": "string",
-          "description": "City of the address."
-        },
-        "state": {
-          "type": "string",
-          "description": "State of the address."
-        },
-        "zipCode": {
-          "type": "string",
-          "description": "Zip code of the address."
-        }
+    "/patients/{patientId}/conditions/{conditionId}": {
+      "schema": {
+        "$ref": "#/entities/Condition"
       },
-      "required": [
-        "locationId"
-      ]
+      "description": "Sub-collection for a patient's conditions."
+    },
+    "/patients/{patientId}/observations/{observationId}": {
+      "schema": {
+        "$ref": "#/entities/Observation"
+      },
+      "description": "Sub-collection for a patient's observations."
+    },
+    "/patients/{patientId}/measurements/{measurementId}": {
+      "schema": {
+        "$ref": "#/entities/Measurement"
+      },
+      "description": "Sub-collection for a patient's measurements."
+    },
+    "/patients/{patientId}/drugExposures/{drugExposureId}": {
+      "schema": {
+        "$ref": "#/entities/DrugExposure"
+      },
+      "description": "Sub-collection for a patient's drug exposures."
     }
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
-  },
-  "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}/patients/{patientId}",
-        "definition": {
-          "entityName": "Patient",
-          "schema": {
-            "$ref": "#/backend/entities/Patient"
-          },
-          "description": "Stores patient information specific to a user (doctor or hospital staff). Includes denormalized data to avoid get() calls in rules.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user (doctor or hospital staff) who has access to the patient record."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique ID of the patient."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/patients/{patientId}/encounters/{encounterId}",
-        "definition": {
-          "entityName": "Encounter",
-          "schema": {
-            "$ref": "#/backend/entities/Encounter"
-          },
-          "description": "Stores encounter information for a specific patient. Access is restricted to the user (doctor or hospital staff) who has access to the patient record.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user (doctor or hospital staff) who has access to the patient record."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique ID of the patient."
-            },
-            {
-              "name": "encounterId",
-              "description": "The unique ID of the encounter."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/patients/{patientId}/conditions/{conditionId}",
-        "definition": {
-          "entityName": "Condition",
-          "schema": {
-            "$ref": "#/backend/entities/Condition"
-          },
-          "description": "Stores condition (diagnosis) information for a specific patient. Access is restricted to the user (doctor or hospital staff) who has access to the patient record.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user (doctor or hospital staff) who has access to the patient record."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique ID of the patient."
-            },
-            {
-              "name": "conditionId",
-              "description": "The unique ID of the condition."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/patients/{patientId}/observations/{observationId}",
-        "definition": {
-          "entityName": "Observation",
-          "schema": {
-            "$ref": "#/backend/entities/Observation"
-          },
-          "description": "Stores observation information for a specific patient. Access is restricted to the user (doctor or hospital staff) who has access to the patient record.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user (doctor or hospital staff) who has access to the patient record."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique ID of the patient."
-            },
-            {
-              "name": "observationId",
-              "description": "The unique ID of the observation."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/patients/{patientId}/measurements/{measurementId}",
-        "definition": {
-          "entityName": "Measurement",
-          "schema": {
-            "$ref": "#/backend/entities/Measurement"
-          },
-          "description": "Stores measurement (vitals, labs) information for a specific patient. Access is restricted to the user (doctor or hospital staff) who has access to the patient record.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user (doctor or hospital staff) who has access to the patient record."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique ID of the patient."
-            },
-            {
-              "name": "measurementId",
-              "description": "The unique ID of the measurement."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/patients/{patientId}/drugExposures/{drugExposureId}",
-        "definition": {
-          "entityName": "DrugExposure",
-          "schema": {
-            "$ref": "#/backend/entities/DrugExposure"
-          },
-          "description": "Stores drug exposure (medication) information for a specific patient. Access is restricted to the user (doctor or hospital staff) who has access to the patient record.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user (doctor or hospital staff) who has access to the patient record."
-            },
-            {
-              "name": "patientId",
-              "description": "The unique ID of the patient."
-            },
-            {
-              "name": "drugExposureId",
-              "description": "The unique ID of the drug exposure."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/care_sites/{careSiteId}",
-        "definition": {
-          "entityName": "CareSite",
-          "schema": {
-            "$ref": "#/backend/entities/CareSite"
-          },
-          "description": "Stores information about care sites (hospitals, clinics). Publicly readable.",
-          "params": [
-            {
-              "name": "careSiteId",
-              "description": "The unique ID of the care site."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/providers/{providerId}",
-        "definition": {
-          "entityName": "Provider",
-          "schema": {
-            "$ref": "#/backend/entities/Provider"
-          },
-          "description": "Stores information about healthcare providers. Publicly readable.",
-          "params": [
-            {
-              "name": "providerId",
-              "description": "The unique ID of the provider."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/locations/{locationId}",
-        "definition": {
-          "entityName": "Location",
-          "schema": {
-            "$ref": "#/backend/entities/Location"
-          },
-          "description": "Stores information about locations (addresses). Publicly readable.",
-          "params": [
-            {
-              "name": "locationId",
-              "description": "The unique ID of the location."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to provide a secure, scalable, and easily maintainable database for the MedVerseAI application, focusing on patient records and related healthcare data. It emphasizes authorization independence, clarity of intent, and adherence to the DBAC (Database Authentication and Control) principle.\n\nAuthorization Independence is achieved through structural segregation, where data with different access needs are stored in separate collections. Patient-specific data is nested under `/users/{userId}`, ensuring that access control is based on the authenticated user's ID. No `get()` calls are needed in the security rules to access parent data, enabling atomic operations and simplifying debugging.\n\nThe structure also adheres to QAPs (Rules are not Filters). The hierarchical structure under `/users/{userId}` ensures that listing operations can be securely performed based on the user's ID without requiring filtering. The separation of data types (Patient, Encounters, Conditions, etc.) into distinct collections further simplifies security rules and prevents unintended data exposure.\n\nSpecifically:\n\n*   **Patients:** Patient data is stored under `/users/{userId}/patients/{patientId}`, establishing clear ownership and enabling secure retrieval of patient records. Each doctor or hospital staff member will have their own user id. Patient data will be stored according to the corresponding user id.\n*   **Encounters, Conditions, Observations, Measurements, and DrugExposures:** These entities are stored as subcollections under `/users/{userId}/patients/{patientId}`, reflecting the 1:N relationship between patients and these entities. This structure ensures that access to these records is restricted to authorized users (doctors and hospital staff) who have access to the patient record.\n*   **CareSites, Providers and Locations:** These are stored as top level collections and contain no PHI, therefore it's okay if they are globally readable.\n\nThis structure enables secure list operations since all reads are performed under `/users/{userId}` or public top-level collections such as care_sites, providers and locations."
   }
 }
