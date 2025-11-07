@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2, FileClock, ClipboardCheck, Pill, Search } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2, FileClock, ClipboardCheck, Pill, Search, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TreatmentJourney } from './treatment-journey';
 import { Input } from '@/components/ui/input';
 import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, addDoc } from 'firebase/firestore';
+import { collection, query, where, addDoc, limit, orderBy } from 'firebase/firestore';
 import type { Patient as PatientData, Task } from '@/lib/sample-data';
 
 
@@ -54,17 +54,13 @@ export default function PhysicianDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const patientsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
-  const { data: allPatients, isLoading: patientsLoading } = useCollection<PatientData>(patientsQuery);
+  const patientsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'patients'), orderBy('lastSeen', 'desc'), limit(3)) : null, [firestore]);
+  const allPatientsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
+  const { data: recentPatients, isLoading: patientsLoading } = useCollection<PatientData>(patientsQuery);
+  const { data: allPatients, isLoading: allPatientsLoading } = useCollection<PatientData>(allPatientsQuery);
   
-  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const tasksQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'tasks'), limit(5)) : null, [firestore]);
   const { data: allTasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
-  
-  const recentPatients = useMemo(() => {
-    if (!allPatients) return [];
-    // simple sort for recency for now
-    return allPatients.sort((a, b) => (a.lastSeen && b.lastSeen && a.lastSeen > b.lastSeen ? -1 : 1)).slice(0, 3);
-  }, [allPatients]);
   
   const schedule = useMemo(() => {
     if (!allPatients) return [];
@@ -303,8 +299,8 @@ const treatmentJourneyLee: JourneyTask[] = [
     currentPage * PATIENTS_PER_PAGE
   );
   
-  if (patientsLoading || tasksLoading) {
-    return <div>Loading physician dashboard...</div>;
+  if (patientsLoading || tasksLoading || allPatientsLoading) {
+    return <div className="flex items-center justify-center p-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div>;
   }
 
   return (
@@ -420,7 +416,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                 <Button variant="link" size="sm" onClick={() => { setSearchQuery(''); setCurrentPage(1); setShowAllPatientsDialog(true); }}>View All</Button>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recentPatients.map((patient, i) => (
+                {(recentPatients || []).map((patient, i) => (
                     <Card key={i} className="flex flex-col cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setSelectedPatient(patient)}>
                         <CardContent className="p-4 flex-grow">
                           <div className="flex items-start justify-between">
@@ -555,7 +551,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {recentPatients.map((patient) => (
+                    {(recentPatients || []).map((patient) => (
                         <TableRow key={patient.mrn} className="cursor-pointer" onClick={() => {
                             setSelectedPatient(patient);
                             setShowActivePatientsDialog(false);

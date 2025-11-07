@@ -5,37 +5,36 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useCollection } from '@/firebase';
 import { useMemo, useState } from 'react';
-import { collection, getFirestore } from 'firebase/firestore';
+import { collection, getFirestore, limit, query } from 'firebase/firestore';
 import type { Ward, Patient } from '@/lib/sample-data';
 import { Button } from "@/components/ui/button";
 import { seedDatabase } from "@/lib/seed";
 import { useToast } from "@/hooks/use-toast";
-import { Database } from "lucide-react";
+import { Database, Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const firestore = getFirestore();
   const { toast } = useToast();
   const [isSeeding, setIsSeeding] = useState(false);
   
-  const wardsQuery = useMemo(() => collection(firestore, 'wards'), [firestore]);
-  const patientsQuery = useMemo(() => collection(firestore, 'patients'), [firestore]);
+  const wardsQuery = useMemo(() => query(collection(firestore, 'wards'), limit(5)), [firestore]);
+  const patientsQuery = useMemo(() => query(collection(firestore, 'patients'), limit(5)), [firestore]);
+  const allWardsQuery = useMemo(() => collection(firestore, 'wards'), [firestore]);
 
-  const { data: wards, isLoading: wardsLoading } = useCollection<Ward>(wardsQuery);
-  const { data: patients, isLoading: patientsLoading } = useCollection<Patient>(patientsQuery);
+  const { data: topWards, isLoading: wardsLoading } = useCollection<Ward>(wardsQuery);
+  const { data: recentMovements, isLoading: patientsLoading } = useCollection<Patient>(patientsQuery);
+  const { data: allWards, isLoading: allWardsLoading } = useCollection<Ward>(allWardsQuery);
 
-  const topWards = wards ? wards.slice(0, 5) : [];
-  const recentMovements = patients ? patients.filter(p => p.status !== 'Occupied').slice(0, 5) : [];
-  
   const totalOccupancy = useMemo(() => {
-    if (!wards) return { percentage: 0, occupied: 0, total: 0 };
-    const totalBeds = wards.reduce((acc, ward) => acc + ward.totalBeds, 0);
-    const occupiedBeds = wards.reduce((acc, ward) => acc + ward.occupiedBeds, 0);
+    if (!allWards) return { percentage: 0, occupied: 0, total: 0 };
+    const totalBeds = allWards.reduce((acc, ward) => acc + ward.totalBeds, 0);
+    const occupiedBeds = allWards.reduce((acc, ward) => acc + ward.occupiedBeds, 0);
     return {
       percentage: totalBeds > 0 ? (occupiedBeds / totalBeds) * 100 : 0,
       occupied: occupiedBeds,
       total: totalBeds,
     };
-  }, [wards]);
+  }, [allWards]);
   
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
@@ -55,9 +54,10 @@ export default function AdminDashboard() {
     setIsSeeding(false);
   };
 
+  const isLoading = wardsLoading || patientsLoading || allWardsLoading;
 
-  if (wardsLoading || patientsLoading) {
-    return <div>Loading...</div>
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div>
   }
 
   return (
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topWards.map((ward) => (
+              {(topWards || []).map((ward) => (
                 <div key={ward.name}>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{ward.name}</span>
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentMovements.map((patient) => (
+                {(recentMovements || []).map((patient) => (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{patient.name}</TableCell>
                     <TableCell>{patient.ward}</TableCell>

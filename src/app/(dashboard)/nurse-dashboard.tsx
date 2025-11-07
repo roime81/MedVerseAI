@@ -4,9 +4,9 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, ClipboardList, Syringe, UserCheck } from "lucide-react";
+import { Check, ClipboardList, Loader2, Syringe, UserCheck } from "lucide-react";
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, limit } from 'firebase/firestore';
 import type { Patient, Task } from '@/lib/sample-data';
 
 export default function NurseDashboard() {
@@ -14,24 +14,23 @@ export default function NurseDashboard() {
 
   const patientsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'patients'), where('ward', '==', 'Cardiology'));
+    return query(collection(firestore, 'patients'), where('ward', '==', 'Cardiology'), limit(4));
   }, [firestore]);
 
   const tasksQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    // In a real app, you'd likely filter tasks by the current nurse
-    return collection(firestore, 'tasks');
+    return query(collection(firestore, 'tasks'), limit(5));
   }, [firestore]);
 
   const { data: myPatientsData, isLoading: patientsLoading } = useCollection<Patient>(patientsQuery);
   const { data: tasksData, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
   
-  const myPatients = myPatientsData ? myPatientsData.slice(0, 4) : [];
+  const myPatients = myPatientsData || [];
   const tasks = tasksData || [];
 
 
   if (patientsLoading || tasksLoading) {
-    return <div>Loading...</div>
+    return <div className="flex items-center justify-center p-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div>
   }
 
   return (
