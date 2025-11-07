@@ -6,281 +6,189 @@
       "type": "object",
       "description": "Represents a patient's medical record summary and related information.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Patient entity."
+        "id": { "type": "string", "description": "Unique identifier for the Patient entity." },
+        "name": { "type": "string", "description": "The full name of the patient." },
+        "ward": { "type": "string" },
+        "hospital": { "type": "string" },
+        "consultant": { "type": "string" },
+        "status": { "type": "string", "enum": ["Occupied", "Discharging", "Admitted"] },
+        "mrn": { "type": "string" },
+        "lastSeen": { "type": "string" },
+        "alerts": { "type": "number" },
+        "dob": { "type": "string", "format": "date" },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
+        "ssnLast4": { "type": "string" },
+        "maritalStatus": { "type": "string", "enum": ["Married", "Single", "Divorced", "Widowed"] },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "phone": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "line1": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip": { "type": "string" }
+              }
+            }
+          }
         },
-        "patientName": {
-          "type": "string",
-          "description": "The full name of the patient."
+        "emergencyContact": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "phone": { "type": "string" }
+          }
         },
-        "medicalHistorySummary": {
-          "type": "string",
-          "description": "A summarized overview of the patient's medical history."
+        "insurance": {
+          "type": "object",
+          "properties": {
+            "provider": { "type": "string" },
+            "policyNumber": { "type": "string" },
+            "groupNumber": { "type": "string" },
+            "status": { "type": "string", "enum": ["Active", "Inactive"] }
+          }
         },
-        "diagnosesSummary": {
-          "type": "string",
-          "description": "A summarized list of the patient's diagnoses."
-        },
-        "treatmentPlansSummary": {
-          "type": "string",
-          "description": "A summarized outline of the patient's current and past treatment plans."
-        },
-        "appointmentIds": {
+        "conditions": {
           "type": "array",
-          "description": "References to Appointments. (Relationship: Patient 1:N Appointment)",
           "items": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "stage": { "type": "string" },
+              "code": { "type": "string" },
+              "diagnosedDate": { "type": "string", "format": "date" }
+            }
+          }
+        },
+        "vitals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string", "format": "date-time" },
+              "bloodPressure": { "type": "string" },
+              "heartRate": { "type": "string" },
+              "temperature": { "type": "string" },
+              "weight": { "type": "string" },
+              "height": { "type": "string" },
+              "bmi": { "type": "string" }
+            }
+          }
+        },
+        "medications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "dosage": { "type": "string" },
+              "frequency": { "type": "string" },
+              "prescriber": { "type": "string" },
+              "remaining": { "type": "number" },
+              "startDate": { "type": "string" }
+            }
+          }
+        },
+        "labResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "date": { "type": "string", "format": "date-time" },
+              "result": { "type": "string" },
+              "reference": { "type": "string" },
+              "status": { "type": "string", "enum": ["Normal", "Elevated", "Low"] }
+            }
+          }
+        },
+        "visitHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "date": { "type": "string", "format": "date-time" },
+              "doctor": { "type": "string" },
+              "chiefComplaint": { "type": "string" },
+              "diagnosis": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "immunizationHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vaccine": { "type": "string" },
+              "date": { "type": "string", "format": "date-time" },
+              "administeredBy": { "type": "string" }
+            }
+          }
+        },
+        "socialHistory": {
+          "type": "object",
+          "properties": {
+            "smokingStatus": { "type": "string" },
+            "alcoholUse": { "type": "string" },
+            "exercise": { "type": "string" },
+            "occupation": { "type": "string" }
+          }
+        },
+        "familyHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "relation": { "type": "string" },
+              "condition": { "type": "string" },
+              "notes": { "type": "string" }
+            }
           }
         }
       },
-      "required": [
-        "id",
-        "patientName"
-      ]
+      "required": [ "id", "name" ]
     },
-    "Appointment": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Appointment",
+    "Ward": {
+      "title": "Ward",
       "type": "object",
-      "description": "Represents a scheduled appointment, including patient, physician, and resource details.",
+      "description": "Represents a hospital ward.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Appointment entity."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N Appointment)"
-        },
-        "physicianId": {
-          "type": "string",
-          "description": "Reference to Physician. (Relationship: Physician 1:N Appointment)"
-        },
-        "appointmentDateTime": {
-          "type": "string",
-          "description": "The date and time of the appointment.",
-          "format": "date-time"
-        },
-        "resourceAllocations": {
-          "type": "string",
-          "description": "Details of the resources allocated for the appointment (e.g., room, equipment)."
-        }
+        "name": { "type": "string" },
+        "hospital": { "type": "string" },
+        "totalBeds": { "type": "number" },
+        "occupiedBeds": { "type": "number" }
       },
-      "required": [
-        "id",
-        "patientId",
-        "physicianId",
-        "appointmentDateTime"
-      ]
+      "required": ["name", "hospital", "totalBeds", "occupiedBeds"]
     },
-    "Physician": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Physician",
-      "type": "object",
-      "description": "Represents a physician's profile and availability.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Physician entity."
+    "Task": {
+        "title": "Task",
+        "type": "object",
+        "description": "Represents a task for a physician.",
+        "properties": {
+            "description": { "type": "string" },
+            "patient": { "type": "string" },
+            "mrn": { "type": "string" },
+            "time": { "type": "string" },
+            "priority": { "type": "string", "enum": ["High", "Medium", "Low"] }
         },
-        "physicianName": {
-          "type": "string",
-          "description": "The full name of the physician."
-        },
-        "availabilitySchedule": {
-          "type": "string",
-          "description": "The physician's availability schedule (e.g., days and times available)."
-        },
-        "specialty": {
-          "type": "string",
-          "description": "The physician's medical specialty."
-        },
-        "appointmentIds": {
-          "type": "array",
-          "description": "References to Appointments. (Relationship: Physician 1:N Appointment)",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "physicianName"
-      ]
+        "required": ["description", "patient", "mrn", "time", "priority"]
     },
-    "Bed": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Bed",
+     "StaffProfile": {
+      "title": "StaffProfile",
       "type": "object",
-      "description": "Represents a bed in the hospital and its current status.",
+      "description": "Represents a staff member's profile.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Bed entity."
-        },
-        "facilityId": {
-          "type": "string",
-          "description": "Reference to Facility. (Relationship: Facility 1:N Bed)"
-        },
-        "bedNumber": {
-          "type": "string",
-          "description": "The unique number or identifier for the bed within the facility."
-        },
-        "bedStatus": {
-          "type": "string",
-          "description": "The current status of the bed (e.g., available, occupied, out of service)."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to the Patient currently occupying the bed, if any. (Optional Relationship: Patient 1:1 Bed)"
-        }
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "avatarId": { "type": "string" }
       },
-      "required": [
-        "id",
-        "facilityId",
-        "bedNumber",
-        "bedStatus"
-      ]
-    },
-    "Facility": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Facility",
-      "type": "object",
-      "description": "Represents a hospital or healthcare facility.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Facility entity."
-        },
-        "facilityName": {
-          "type": "string",
-          "description": "The name of the hospital or healthcare facility."
-        },
-        "location": {
-          "type": "string",
-          "description": "The physical location of the facility (e.g., address)."
-        },
-        "bedIds": {
-          "type": "array",
-          "description": "References to Beds. (Relationship: Facility 1:N Bed)",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "facilityName"
-      ]
-    },
-    "Medication": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Medication",
-      "type": "object",
-      "description": "Represents information about a medication, including dosage and interactions.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Medication entity."
-        },
-        "medicationName": {
-          "type": "string",
-          "description": "The name of the medication."
-        },
-        "dosage": {
-          "type": "string",
-          "description": "The standard dosage for the medication."
-        },
-        "interactions": {
-          "type": "string",
-          "description": "Known drug interactions for the medication."
-        }
-      },
-      "required": [
-        "id",
-        "medicationName"
-      ]
-    },
-    "TelehealthSession": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "TelehealthSession",
-      "type": "object",
-      "description": "Represents a telehealth session with video conferencing and remote monitoring capabilities.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the TelehealthSession entity."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N TelehealthSession)"
-        },
-        "physicianId": {
-          "type": "string",
-          "description": "Reference to Physician. (Relationship: Physician 1:N TelehealthSession)"
-        },
-        "sessionDateTime": {
-          "type": "string",
-          "description": "The date and time of the telehealth session.",
-          "format": "date-time"
-        },
-        "videoConferenceLink": {
-          "type": "string",
-          "description": "Link to the video conference for the telehealth session.",
-          "format": "uri"
-        },
-        "monitoringData": {
-          "type": "string",
-          "description": "Data collected during remote monitoring (e.g., vital signs)."
-        }
-      },
-      "required": [
-        "id",
-        "patientId",
-        "physicianId",
-        "sessionDateTime",
-        "videoConferenceLink"
-      ]
-    },
-    "ImageStudy": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ImageStudy",
-      "type": "object",
-      "description": "Represents a medical image study with DICOM compatibility and study categorization.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the ImageStudy entity."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N ImageStudy)"
-        },
-        "studyDateTime": {
-          "type": "string",
-          "description": "The date and time of the image study.",
-          "format": "date-time"
-        },
-        "dicomImage": {
-          "type": "string",
-          "description": "The DICOM image data."
-        },
-        "studyCategory": {
-          "type": "string",
-          "description": "The category or type of the image study (e.g., X-ray, MRI)."
-        },
-        "annotation": {
-          "type": "string",
-          "description": "Annotations or notes associated with the image study."
-        }
-      },
-      "required": [
-        "id",
-        "patientId",
-        "studyDateTime",
-        "dicomImage"
-      ]
+      "required": ["name", "role", "email", "avatarId"]
     }
   },
   "auth": {
@@ -294,144 +202,31 @@
       {
         "path": "/patients/{patientId}",
         "definition": {
-          "entityName": "Patient",
-          "schema": {
-            "$ref": "#/backend/entities/Patient"
-          },
-          "description": "Represents a patient's medical record summary and related information.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "The unique identifier for the patient."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Patient" },
+          "description": "Stores individual patient records."
         }
       },
       {
-        "path": "/patients/{patientId}/appointments/{appointmentId}",
+        "path": "/wards/{wardId}",
         "definition": {
-          "entityName": "Appointment",
-          "schema": {
-            "$ref": "#/backend/entities/Appointment"
-          },
-          "description": "Represents a scheduled appointment. Includes denormalized 'patientId' and possibly denormalized 'physicianId' and facility attributes for authorization independence.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "The unique identifier for the patient."
-            },
-            {
-              "name": "appointmentId",
-              "description": "The unique identifier for the appointment."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Ward" },
+          "description": "Stores information about hospital wards."
         }
       },
       {
-        "path": "/physicians/{physicianId}",
+        "path": "/tasks/{taskId}",
         "definition": {
-          "entityName": "Physician",
-          "schema": {
-            "$ref": "#/backend/entities/Physician"
-          },
-          "description": "Represents a physician's profile and availability.",
-          "params": [
-            {
-              "name": "physicianId",
-              "description": "The unique identifier for the physician."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Task" },
+          "description": "Stores tasks for medical staff."
         }
       },
       {
-        "path": "/facilities/{facilityId}/beds/{bedId}",
+        "path": "/staffProfiles/{staffProfileId}",
         "definition": {
-          "entityName": "Bed",
-          "schema": {
-            "$ref": "#/backend/entities/Bed"
-          },
-          "description": "Represents a bed in the hospital. Includes the 'facilityId' for association with the facility.",
-          "params": [
-            {
-              "name": "facilityId",
-              "description": "The unique identifier for the facility."
-            },
-            {
-              "name": "bedId",
-              "description": "The unique identifier for the bed."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/facilities/{facilityId}",
-        "definition": {
-          "entityName": "Facility",
-          "schema": {
-            "$ref": "#/backend/entities/Facility"
-          },
-          "description": "Represents a hospital or healthcare facility.",
-          "params": [
-            {
-              "name": "facilityId",
-              "description": "The unique identifier for the facility."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/medications/{medicationId}",
-        "definition": {
-          "entityName": "Medication",
-          "schema": {
-            "$ref": "#/backend/entities/Medication"
-          },
-          "description": "Represents information about a medication.",
-          "params": [
-            {
-              "name": "medicationId",
-              "description": "The unique identifier for the medication."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/telehealthSessions/{telehealthSessionId}",
-        "definition": {
-          "entityName": "TelehealthSession",
-          "schema": {
-            "$ref": "#/backend/entities/TelehealthSession"
-          },
-          "description": "Represents a telehealth session. Includes 'patientId' and 'physicianId' and potentially denormalized facility attributes for authorization.",
-          "params": [
-            {
-              "name": "telehealthSessionId",
-              "description": "The unique identifier for the telehealth session."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/patients/{patientId}/imageStudies/{imageStudyId}",
-        "definition": {
-          "entityName": "ImageStudy",
-          "schema": {
-            "$ref": "#/backend/entities/ImageStudy"
-          },
-          "description": "Represents a medical image study. Includes the 'patientId' for association with the patient.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "The unique identifier for the patient."
-            },
-            {
-              "name": "imageStudyId",
-              "description": "The unique identifier for the image study."
-            }
-          ]
+            "schema": { "$ref": "#/backend/entities/StaffProfile" },
+            "description": "Stores staff profile information."
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to support a distributed health information system (HIS) with a focus on scalability, security, and debuggability. The structure emphasizes Authorization Independence by denormalizing authorization data, enabling robust security rules without relying on hierarchical `get()` calls. This is crucial for maintaining atomic operations and simplifies debugging. Structural Segregation is applied to ensure each collection contains documents with homogeneous security requirements. Access Modeling is standardized using path-based ownership and membership maps. The structure also incorporates explicit state modeling and predictable schemas to enhance data clarity and maintainability.\n\n**Authorization Independence (CRITICAL):**\n\n*   Authorization data (e.g., user roles, membership information) is denormalized into documents where access control is required. For example, if access to an `Appointment` needs to consider the `Physician`, the physician's relevant attributes are copied into the appointment document.\n\n**Structural Segregation (Homogeneous Security Posture):**\n\n*   Each collection is designed to hold documents that share the same security requirements.\n*   For example, `TelehealthSession` documents are stored in a collection separate from other data with differing access needs.\n\n**Access Modeling (Standardization and Consistency):**\n\n*   **Path-Based Ownership:** User-owned data is stored under paths like `/users/{userId}/...`, ensuring easy rule creation based on the authenticated user.\n*   **Membership Map:** Collaborative access is managed using membership maps (`members: {uid1: \"role\", uid2: \"role\"}`). This structure allows defining roles for different users within a document.\n\n**QAPs (Rules are not Filters):**\n\n*   The structural segregation of data based on access requirements ensures that list operations can be securely performed without filtering based on data content, addressing the QAPs principle.\n\n**Invariants:**\n\n*   The data structure supports the integrity of ownership, timestamps, and denormalized data through consistent naming conventions and explicit state modeling.\n\n**Specific Denormalization Examples:**\n\n*   If `Appointment` documents require physician information for access control, the `physicianId` is included in the `Appointment` documents, and relevant physician attributes (e.g., specialty, facility) can be denormalized as well.\n*   For `TelehealthSession` documents, both `patientId` and `physicianId` are included. If telehealth sessions require facility-level access control, the facility ID or relevant facility attributes can be denormalized into the `TelehealthSession` documents.\n\nThe design enables simpler and more robust security rules by eliminating the need for complex `get()` calls, making the system more secure and easier to debug and maintain."
+    ]
   }
 }

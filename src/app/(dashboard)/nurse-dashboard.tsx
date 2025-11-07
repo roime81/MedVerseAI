@@ -5,16 +5,34 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, ClipboardList, Syringe, UserCheck } from "lucide-react";
-import { allPatients } from "@/lib/sample-data";
+import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
+import type { Patient, Task } from '@/lib/sample-data';
 
 export default function NurseDashboard() {
-  const myPatients = allPatients.filter(p => p.ward === 'Cardiology').slice(0, 4);
-  const tasks = [
-    { patient: 'Jane Doe', task: 'Administer Lisinopril 10mg', time: '09:00' },
-    { patient: 'John Smith', task: 'Check vitals', time: '09:30' },
-    { patient: 'Sarah Brown', task: 'Change wound dressing', time: '10:00' },
-    { patient: 'James Rodriguez', task: 'Prepare for discharge', time: '10:15' },
-  ];
+  const { firestore } = useFirebase();
+
+  const patientsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'patients'), where('ward', '==', 'Cardiology'));
+  }, [firestore]);
+
+  const tasksQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    // In a real app, you'd likely filter tasks by the current nurse
+    return collection(firestore, 'tasks');
+  }, [firestore]);
+
+  const { data: myPatientsData, isLoading: patientsLoading } = useCollection<Patient>(patientsQuery);
+  const { data: tasksData, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
+  
+  const myPatients = myPatientsData ? myPatientsData.slice(0, 4) : [];
+  const tasks = tasksData || [];
+
+
+  if (patientsLoading || tasksLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -100,7 +118,7 @@ export default function NurseDashboard() {
                     {tasks.map((task, i) => (
                         <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
                             <div>
-                                <p className="font-semibold text-sm">{task.task}</p>
+                                <p className="font-semibold text-sm">{task.description}</p>
                                 <p className="text-xs text-muted-foreground">Patient: {task.patient} | Due: {task.time}</p>
                             </div>
                             <Button variant="ghost" size="icon" className="h-8 w-8">

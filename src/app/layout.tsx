@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
-import { AuthProvider } from '@/hooks/use-mock-auth';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'MedVerseAI',
@@ -36,9 +36,9 @@ export default function RootLayout({
       <body
         className={cn('font-body antialiased', 'bg-background text-foreground')}
       >
-        <AuthProvider>
+        <FirebaseClientProvider>
           {children}
-        </AuthProvider>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

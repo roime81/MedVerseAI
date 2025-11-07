@@ -24,37 +24,49 @@ import {
   Hospital,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-mock-auth';
+import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 const allMenuItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['Admin', 'Physician', 'Nurse'] },
   { href: '/patient-360', icon: Scan, label: 'Patient 360', roles: ['Admin'] },
-  { href: '/orders', icon: FileText, label: 'Orders', roles: [] },
-  { href: '/medications', icon: Pill, label: 'Medications', roles: [] },
-  { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: [] },
-  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: [] },
-  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: [] },
-  { href: '/telehealth', icon: Video, label: 'Telehealth', roles: [] },
-  { href: '/billing', icon: CreditCard, label: 'Billing', roles: [] },
-  { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: [] },
-  { href: '/admin', icon: Settings, label: 'Admin', roles: [] },
+  { href: '/orders', icon: FileText, label: 'Orders', roles: ['Physician'] },
+  { href: '/medications', icon: Pill, label: 'Medications', roles: ['Physician', 'Pharmacist'] },
+  { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: ['Physician'] },
+  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: ['Physician', 'Radiologist'] },
+  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: ['Scheduler'] },
+  { href: '/telehealth', icon: Video, label: 'Telehealth', roles: ['Physician'] },
+  { href: '/billing', icon: CreditCard, label: 'Billing', roles: ['Billing'] },
+  { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['Admin'] },
+  { href: '/admin', icon: Settings, label: 'Admin', roles: ['Admin'] },
 ];
+
+// This is a mock mapping. In a real app, you'd get this from user profile/claims.
+const emailToRole: { [key: string]: string } = {
+    'admin@medverse.com': 'Admin',
+    'physician@medverse.com': 'Physician',
+    'nurse@medverse.com': 'Nurse',
+    'roimepuniran@gmail.com': 'Admin',
+};
+
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user } = useUser();
+  const auth = useFirebaseAuth();
   const { state } = useSidebar();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut(auth);
     router.push('/login');
   };
   
+  const userRole = user?.email ? emailToRole[user.email] : 'Patient';
+
   const menuItems = allMenuItems.filter(item => {
-    if (item.href === '/') return true; // Always show dashboard link initially
-    if (!item.roles || !user?.role) return false;
-    return item.roles.includes(user.role);
+    if (!item.roles || !userRole) return false;
+    return item.roles.includes(userRole);
   });
 
 
@@ -76,32 +88,18 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => {
-            const isDashboard = item.href === '/';
-            const isPhysician = user?.role === 'Physician';
-            
-            // For physicians, only show the dashboard
-            if (isPhysician && !isDashboard) {
-                return null;
-            }
-
-            const label = isDashboard && isPhysician && user.name
-              ? `${user.name.split(' ').slice(0, 2).join(' ')}'s Dashboard`
-              : item.label;
-
-            return (
-                <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                    onClick={() => router.push(item.href)}
-                    isActive={pathname === item.href}
-                    icon={<item.icon />}
-                    tooltip={label}
-                >
-                    <span>{label}</span>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-            );
-          })}
+          {menuItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+            <SidebarMenuButton
+                onClick={() => router.push(item.href)}
+                isActive={pathname === item.href}
+                icon={<item.icon />}
+                tooltip={item.label}
+            >
+                <span>{item.label}</span>
+            </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>

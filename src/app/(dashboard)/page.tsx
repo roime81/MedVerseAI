@@ -1,5 +1,5 @@
 'use client';
-import { useAuth } from '@/hooks/use-mock-auth';
+import { useUser } from '@/firebase';
 import AdminDashboard from './admin-dashboard';
 import PhysicianDashboard from './physician-dashboard';
 import NurseDashboard from './nurse-dashboard';
@@ -7,17 +7,24 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+const emailToRole: { [key: string]: string } = {
+    'admin@medverse.com': 'Admin',
+    'physician@medverse.com': 'Physician',
+    'nurse@medverse.com': 'Nurse',
+    'roimepuniran@gmail.com': 'Admin',
+};
+
 export default function Home() {
-  const { user, isLoading } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isUserLoading && !user) {
       router.push('/login');
     }
-  }, [isLoading, user, router]);
+  }, [isUserLoading, user, router]);
 
-  if (isLoading || !user) {
+  if (isUserLoading || !user) {
     return (
       <div className="space-y-6">
         <header>
@@ -37,7 +44,9 @@ export default function Home() {
     );
   }
 
-  switch (user.role) {
+  const role = user.email ? emailToRole[user.email] || 'Physician' : 'Physician';
+
+  switch (role) {
     case 'Admin':
       return <AdminDashboard />;
     case 'Physician':

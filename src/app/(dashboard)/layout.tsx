@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth } from '@/hooks/use-mock-auth';
+import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { AppSidebar } from './sidebar';
 
@@ -33,13 +33,24 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, logout } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
 
   const handleLogout = () => {
-    logout();
+    // For now, just redirect, actual logout logic would be in useUser or a similar hook
     router.push('/login');
   };
+
+  React.useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [isUserLoading, user, router]);
+
+  if (isUserLoading || !user) {
+      return <div>Loading...</div>; // Or a proper skeleton loader
+  }
+
 
   return (
     <SidebarProvider>
@@ -79,18 +90,18 @@ export default function DashboardLayout({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
+                  <AvatarImage src={user.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026704d"} />
                   <AvatarFallback>
-                    {user?.name
+                    {user?.displayName
                       ?.split(' ')
                       .map((n) => n[0])
-                      .join('')}
+                      .join('') || user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
-                  {user?.name}
+                  {user?.displayName}
                   <p className="text-xs font-normal text-muted-foreground">
                     {user?.email}
                   </p>

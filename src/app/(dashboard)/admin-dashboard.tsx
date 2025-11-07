@@ -3,11 +3,36 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { allWards, allPatients } from "@/lib/sample-data";
+import { useCollection } from '@/firebase';
+import { useMemo } from 'react';
+import { collection, getFirestore } from 'firebase/firestore';
+import type { Ward, Patient } from '@/lib/sample-data';
 
 export default function AdminDashboard() {
-  const wards = allWards.slice(0, 5); // Show top 5 wards for brevity
-  const recentMovements = allPatients.filter(p => p.status !== 'Occupied').slice(0, 5);
+  const firestore = getFirestore();
+  const wardsQuery = useMemo(() => collection(firestore, 'wards'), [firestore]);
+  const patientsQuery = useMemo(() => collection(firestore, 'patients'), [firestore]);
+
+  const { data: wards, isLoading: wardsLoading } = useCollection<Ward>(wardsQuery);
+  const { data: patients, isLoading: patientsLoading } = useCollection<Patient>(patientsQuery);
+
+  const topWards = wards ? wards.slice(0, 5) : [];
+  const recentMovements = patients ? patients.filter(p => p.status !== 'Occupied').slice(0, 5) : [];
+  
+  const totalOccupancy = useMemo(() => {
+    if (!wards) return { percentage: 0, occupied: 0, total: 0 };
+    const totalBeds = wards.reduce((acc, ward) => acc + ward.totalBeds, 0);
+    const occupiedBeds = wards.reduce((acc, ward) => acc + ward.occupiedBeds, 0);
+    return {
+      percentage: totalBeds > 0 ? (occupiedBeds / totalBeds) * 100 : 0,
+      occupied: occupiedBeds,
+      total: totalBeds,
+    };
+  }, [wards]);
+
+  if (wardsLoading || patientsLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -27,10 +52,10 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <span className="text-3xl font-bold">88%</span>
-              <span className="text-sm text-muted-foreground">198/225 Beds</span>
+              <span className="text-3xl font-bold">{totalOccupancy.percentage.toFixed(0)}%</span>
+              <span className="text-sm text-muted-foreground">{totalOccupancy.occupied}/{totalOccupancy.total} Beds</span>
             </div>
-            <Progress value={88} className="mt-2" />
+            <Progress value={totalOccupancy.percentage} className="mt-2" />
           </CardContent>
         </Card>
         <Card>
@@ -59,7 +84,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {wards.map((ward) => (
+              {topWards.map((ward) => (
                 <div key={ward.name}>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{ward.name}</span>
