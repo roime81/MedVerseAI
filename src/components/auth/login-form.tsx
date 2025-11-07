@@ -17,7 +17,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -45,7 +44,6 @@ export function LoginForm() {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard');
     } catch (error: any) {
-      // If the user does not exist, try to create them if they are in the sample data
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
         const sampleUser = sampleUsers.find((u) => u.email === email);
         if (sampleUser && password === sampleUser.password) {
@@ -67,7 +65,7 @@ export function LoginForm() {
             });
             
             router.push('/dashboard');
-            return; // Exit after successful creation and redirect
+            return;
           } catch (creationError: any) {
             setError(`Failed to create account: ${creationError.message}`);
           }
@@ -115,51 +113,49 @@ export function LoginForm() {
   };
 
   return (
-    <div className="mx-auto grid w-[350px] gap-6">
-      <div className="grid gap-2 text-center">
-          <div className="flex items-center justify-center gap-2">
-            <Stethoscope className="h-8 w-8 text-primary" />
-            <h1 className="font-grotesk text-3xl font-bold text-primary">MedVerseAI</h1>
-          </div>
-        <p className="text-balance text-muted-foreground">
-          The AI-powered clinical dashboard
-        </p>
-      </div>
-      <form onSubmit={handleSignIn}>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="emily.carter@medverse.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
+    <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+            <div className="mb-4 flex justify-center">
+                <Stethoscope className="h-10 w-10 text-primary" />
             </div>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isSigningIn}>
-            {isSigningIn ? 'Logging in...' : 'Login'}
-          </Button>
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSigningIn} type="button">
-            Login with Google
-          </Button>
-        </div>
-      </form>
-    </div>
+            <CardTitle className="font-grotesk text-3xl font-bold text-primary">MedVerseAI</CardTitle>
+            <CardDescription>The AI-powered clinical dashboard</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <form onSubmit={handleSignIn}>
+                <div className="grid gap-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                    id="email"
+                    type="email"
+                    placeholder="emily.carter@medverse.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                {error && <p className="text-sm text-destructive">{error}</p>}
+                <Button type="submit" className="w-full" disabled={isSigningIn}>
+                    {isSigningIn ? 'Logging in...' : 'Login'}
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSigningIn} type="button">
+                    Login with Google
+                </Button>
+                </div>
+            </form>
+        </CardContent>
+    </Card>
   );
 }
