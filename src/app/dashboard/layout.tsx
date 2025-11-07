@@ -10,9 +10,17 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronsUpDown } from 'lucide-react';
+import { Search, ChevronsUpDown, LogOut } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -62,10 +70,22 @@ export default function DashboardLayout({
               City General
               <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
             </Button>
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || ''} />
-              <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-9 w-9 cursor-pointer">
+                  <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || ''} />
+                  <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-500">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex-1 p-6">{children}</main>
