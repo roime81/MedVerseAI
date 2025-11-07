@@ -175,10 +175,10 @@ export default function PhysicianDashboard() {
           <div>
             <h2 className="text-xl font-bold font-grotesk mb-4 text-gray-800">Pending Tasks</h2>
             <div className="space-y-4">
-                <TaskItem title="Review lab results for Michael Chen" patient="" time="30 min" priority="High" priorityColor="bg-red-100 text-red-800" />
-                <TaskItem title="Sign prescription refill for Sarah Johnson" patient="" time="1 hour" priority="Medium" priorityColor="bg-yellow-100 text-yellow-800" />
-                <TaskItem title="Complete discharge summary for Robert Wilson" patient="" time="2 hours" priority="High" priorityColor="bg-red-100 text-red-800" />
-                <TaskItem title="Review imaging results" patient="" time="3 hours" priority="Low" priorityColor="bg-gray-100 text-gray-800" />
+                <TaskItem title="Review lab results for John Doe" patient="" time="30 min" priority="High" priorityColor="bg-red-100 text-red-800" />
+                <TaskItem title="Sign prescription refill for Jane Smith" patient="" time="1 hour" priority="Medium" priorityColor="bg-yellow-100 text-yellow-800" />
+                <TaskItem title="Complete discharge summary for David Johnson" patient="" time="2 hours" priority="High" priorityColor="bg-red-100 text-red-800" />
+                <TaskItem title="Review imaging results for Maria Garcia" patient="" time="3 hours" priority="Low" priorityColor="bg-gray-100 text-gray-800" />
             </div>
           </div>
         </div>
