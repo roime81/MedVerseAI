@@ -24,9 +24,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useUser } from '@/firebase';
+import { useUser, useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { AppSidebar } from './sidebar';
+import { collection } from 'firebase/firestore';
+import type { Ward } from '@/lib/sample-data';
+
 
 export default function DashboardLayout({
   children,
@@ -34,7 +37,24 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, isUserLoading } = useUser();
+  const { firestore } = useFirebase();
   const router = useRouter();
+
+  const [selectedHospital, setSelectedHospital] = React.useState('City General');
+
+  const wardsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'wards');
+  }, [firestore]);
+
+  const { data: wards, isLoading: wardsLoading } = useCollection<Ward>(wardsQuery);
+
+  const hospitals = React.useMemo(() => {
+    if (!wards) return [];
+    const hospitalSet = new Set(wards.map(ward => ward.hospital));
+    return Array.from(hospitalSet);
+  }, [wards]);
+
 
   const handleLogout = () => {
     // For now, just redirect, actual logout logic would be in useUser or a similar hook
@@ -73,7 +93,7 @@ export default function DashboardLayout({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-40 justify-between">
-                  <span>City General</span>
+                  <span>{wardsLoading ? 'Loading...' : selectedHospital}</span>
                   <ChevronsRight className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -81,9 +101,15 @@ export default function DashboardLayout({
                 align="end"
                 className="w-40"
               >
-                <DropdownMenuItem>City General</DropdownMenuItem>
-                <DropdownMenuItem>St. Lukes</DropdownMenuItem>
-                <DropdownMenuItem>MetroWest</DropdownMenuItem>
+                {wardsLoading ? (
+                    <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                ) : (
+                    hospitals.map((hospital) => (
+                        <DropdownMenuItem key={hospital} onClick={() => setSelectedHospital(hospital)}>
+                            {hospital}
+                        </DropdownMenuItem>
+                    ))
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
