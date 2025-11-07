@@ -97,7 +97,11 @@ export default function Login() {
     }
   }, [user, isUserLoading]);
 
+  // Combined loading state to prevent flash of login page
+  const isLoading = isUserLoading || isSigningIn;
+
   if (isUserLoading || user) {
+     // Show a loading indicator while checking auth state or if user object is present (pre-redirect)
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
@@ -122,7 +126,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isSigningIn}
+                disabled={isLoading}
               />
             </div>
             <div className="grid gap-2">
@@ -133,12 +137,12 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isSigningIn}
+                disabled={isLoading}
               />
             </div>
             {error && <p className="text-sm text-center text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isSigningIn}>
-              {isSigningIn ? 'Signing In...' : 'Sign In'}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
 
@@ -153,7 +157,7 @@ export default function Login() {
             </div>
           </div>
 
-          <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSigningIn}>
+          <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
             <svg
               className="w-4 h-4 mr-2"
               aria-hidden="true"
@@ -169,7 +173,7 @@ export default function Login() {
                 d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 256S109.8 0 244 0c73.2 0 136 29.3 181.9 76.5l-64.4 64.2C335.5 113.5 293.6 96 244 96 156.4 96 86.1 166.3 86.1 254s70.3 158 157.9 158c90.5 0 131.3-61.9 135.8-93.1H244v-75.5h236.4c2.5 12.9 3.6 27.4 3.6 42.4z"
               ></path>
             </svg>
-            {isSigningIn ? 'Signing In...' : 'Sign in with Google'}
+            {isLoading ? 'Signing In...' : 'Sign in with Google'}
           </Button>
         </CardContent>
       </Card>

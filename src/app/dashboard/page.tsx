@@ -1,36 +1,40 @@
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { redirect } from 'next/navigation';
 import PhysicianDashboard from '@/components/dashboard/physician-dashboard';
 import AdminDashboard from '@/components/dashboard/admin-dashboard';
 import { doc } from 'firebase/firestore';
-import { useFirestore, useDoc } from '@/firebase';
 import { useEffect } from 'react';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+
+  // The user profile won't be available until the user object is.
+  // This reference depends on user.uid.
+  const userDocRef = useMemoFirebase(
+    () => (user ? doc(firestore, 'users', user.uid) : null),
+    [firestore, user]
+  );
   
-  // Create a memoized reference to the user document
-  const userDocRef = user ? doc(firestore, 'users', user.uid) : null;
   const { data: userProfile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
   useEffect(() => {
-    // If the auth state is resolved and there's no user, redirect to login
+    // If auth state is resolved and there's no user, it's safe to redirect.
     if (!isUserLoading && !user) {
       redirect('/');
     }
   }, [user, isUserLoading]);
 
-  // Combined loading state
+  // The overall loading state depends on both auth and Firestore profile fetch.
   const isLoading = isUserLoading || isProfileLoading;
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading dashboard...</div>;
   }
   
-  // If loading is finished and there's still no user, redirect (or render null as redirect will happen)
+  // If loading is finished but there's no user, redirect will have been triggered.
   if (!user) {
     return null;
   }
@@ -47,11 +51,19 @@ export default function DashboardPage() {
     //   return <NurseDashboard />;
     // etc.
     default:
-      // If role is not defined or doesn't match, default to a view or show an error/message
-      // Defaulting to physician for now, but could be a generic dashboard or access-denied page.
-      if (role) {
-         console.warn(`No dashboard found for role: ${role}. Defaulting to Physician view.`);
+      // If we are done loading but the role is still undefined, it means the 
+      // user document might be missing in Firestore.
+      if (!role) {
+         console.error(`No user profile/role found in Firestore for UID: ${user.uid}.`);
+         return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <h1 className="text-2xl font-bold">Configuration Error</h1>
+                <p>Your user profile could not be found. Please contact an administrator.</p>
+            </div>
+         );
       }
+      // A role exists, but we don't have a specific dashboard for it.
+      console.warn(`No dashboard component found for role: "${role}". Defaulting to Physician view.`);
       return <PhysicianDashboard />;
   }
 }
