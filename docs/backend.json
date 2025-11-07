@@ -565,6 +565,21 @@
         "imagingOrderId",
         "personId"
       ]
+    },
+    "PendingTask": {
+      "title": "PendingTask",
+      "type": "object",
+      "description": "Represents a pending task for a user.",
+      "properties": {
+        "taskId": { "type": "string", "description": "Unique identifier for the task." },
+        "assignedTo": { "type": "string", "description": "UID of the user the task is assigned to." },
+        "description": { "type": "string", "description": "A description of the task to be completed." },
+        "priority": { "type": "string", "enum": ["High", "Medium", "Low"], "description": "The priority level of the task." },
+        "dueDate": { "type": "string", "format": "date", "description": "The date the task is due." },
+        "status": { "type": "string", "enum": ["Pending", "Completed"], "description": "The current status of the task." },
+        "patientId": { "type": "string", "description": "Optional patient ID related to the task." }
+      },
+      "required": ["taskId", "assignedTo", "description", "priority", "status"]
     }
   },
   "firestore": {
@@ -573,6 +588,12 @@
         "$ref": "#/entities/User"
       },
       "description": "Stores user profiles and roles."
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": {
+        "$ref": "#/entities/PendingTask"
+      },
+      "description": "Sub-collection for a user's pending tasks."
     },
     "/patients/{patientId}": {
       "schema": {

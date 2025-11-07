@@ -1,658 +1,41 @@
+import { faker } from '@faker-js/faker';
 
-export const sampleUsers = [
+// Static base data
+const baseUsers = [
     // Doctors
     {
         email: 'emily.carter@medverse.com',
         password: 'password',
         role: 'physician',
-        displayName: 'Dr. Emily Carter'
+        displayName: 'Dr. Emily Carter',
+        id: 'dr_emily_carter'
     },
     {
         email: 'ben.stone@medverse.com',
         password: 'password',
         role: 'physician',
-        displayName: 'Dr. Ben Stone'
+        displayName: 'Dr. Ben Stone',
+        id: 'dr_ben_stone'
     },
     // Nurses
     {
         email: 'olivia.rodriguez@medverse.com',
         password: 'password',
         role: 'nurse',
-        displayName: 'Olivia Rodriguez, RN'
-    },
-    {
-        email: 'michael.chen@medverse.com',
-        password: 'password',
-        role: 'nurse',
-        displayName: 'Michael Chen, RN'
-    },
-    // Lab Techs
-    {
-        email: 'jessica.patel@medverse.com',
-        password: 'password',
-        role: 'lab',
-        displayName: 'Jessica Patel'
-    },
-    {
-        email: 'kevin.harris@medverse.com',
-        password: 'password',
-        role: 'lab',
-        displayName: 'Kevin Harris'
-    },
-    // Radiology Techs
-    {
-        email: 'sarah.johnson@medverse.com',
-        password: 'password',
-        role: 'radiology',
-        displayName: 'Sarah Johnson'
-    },
-    {
-        email: 'david.kim@medverse.com',
-        password: 'password',
-        role: 'radiology',
-        displayName: 'David Kim'
-    },
-    // Billing
-    {
-        email: 'laura.wilson@medverse.com',
-        password: 'password',
-        role: 'billing',
-        displayName: 'Laura Wilson'
-    },
-    {
-        email: 'tom.clark@medverse.com',
-        password: 'password',
-        role: 'billing',
-        displayName: 'Tom Clark'
-    },
-    // Pharmacists
-    {
-        email: 'sandra.dee@medverse.com',
-        password: 'password',
-        role: 'pharmacist',
-        displayName: 'Sandra Dee'
-    },
-    {
-        email: 'peter.jones@medverse.com',
-        password: 'password',
-        role: 'pharmacist',
-        displayName: 'Peter Jones'
+        displayName: 'Olivia Rodriguez, RN',
+        id: 'olivia_rodriguez_rn'
     },
     // Admin
     {
         email: 'super.admin@medverse.com',
         password: 'password',
         role: 'admin',
-        displayName: 'Super Admin'
+        displayName: 'Super Admin',
+        id: 'super_admin'
     },
 ];
 
-export const samplePatients = [
-  {
-    personId: '1',
-    nationalId: '123-456-7890',
-    fullName: 'John Doe',
-    dateOfBirth: '1985-05-15',
-    gender: 'Male',
-    race: 'White',
-    ethnicity: 'Not Hispanic',
-    maritalStatus: 'Married',
-    contactInfo: 'j.doe@email.com',
-    address: '123 Main St, Anytown, USA',
-    emergencyContact: 'Jane Doe, Spouse, 555-1234',
-    primaryProviderId: '11',
-    insuranceNumber: 'UHC12345',
-    allergyFlag: 'Penicillin',
-    activeProblemList: 'Hypertension',
-  },
-  {
-    personId: '2',
-    nationalId: '987-654-3210',
-    fullName: 'Jane Smith',
-    dateOfBirth: '1992-08-22',
-    gender: 'Female',
-    race: 'Black',
-    ethnicity: 'Not Hispanic',
-    maritalStatus: 'Single',
-    contactInfo: 'j.smith@email.com',
-    address: '456 Oak Ave, Anytown, USA',
-    emergencyContact: 'John Smith, Father, 555-5678',
-    primaryProviderId: '12',
-    insuranceNumber: 'BCBS67890',
-    allergyFlag: 'None',
-    activeProblemList: 'Type 2 Diabetes',
-  },
-  {
-    personId: '3',
-    nationalId: '234-567-8901',
-    fullName: 'David Johnson',
-    dateOfBirth: '1955-11-01',
-    gender: 'Male',
-    race: 'Hispanic',
-    ethnicity: 'Hispanic',
-    maritalStatus: 'Divorced',
-    contactInfo: 'd.johnson@email.com',
-    address: '789 Pine St, Anytown, USA',
-    emergencyContact: 'Sarah Johnson, Daughter, 555-8765',
-    primaryProviderId: '13',
-    insuranceNumber: 'AETNA11223',
-    allergyFlag: 'Sulfa drugs',
-    activeProblemList: 'Coronary Artery Disease, Hyperlipidemia',
-  },
-  {
-    personId: '4',
-    nationalId: '345-678-9012',
-    fullName: 'Maria Garcia',
-    dateOfBirth: '2001-03-12',
-    gender: 'Female',
-    race: 'Asian',
-    ethnicity: 'Not Hispanic',
-    maritalStatus: 'Single',
-    contactInfo: 'm.garcia@email.com',
-    address: '101 Maple St, Anytown, USA',
-    emergencyContact: 'Carlos Garcia, Father, 555-4321',
-    primaryProviderId: '14',
-    insuranceNumber: 'CIGNA44556',
-    allergyFlag: 'None',
-    activeProblemList: 'Asthma',
-  },
-    {
-    personId: '5',
-    nationalId: '456-789-0123',
-    fullName: 'Robert Brown',
-    dateOfBirth: '1968-07-30',
-    gender: 'Male',
-    race: 'White',
-    ethnicity: 'Not Hispanic',
-    maritalStatus: 'Married',
-    contactInfo: 'r.brown@email.com',
-    address: '212 Birch Rd, Anytown, USA',
-    emergencyContact: 'Susan Brown, Spouse, 555-1122',
-    primaryProviderId: '11',
-    insuranceNumber: 'UHC98765',
-    allergyFlag: 'None',
-    activeProblemList: 'Osteoarthritis',
-  },
-  {
-    personId: '6',
-    nationalId: '567-890-1234',
-    fullName: 'Linda Williams',
-    dateOfBirth: '1949-12-25',
-    gender: 'Female',
-    race: 'Black',
-    ethnicity: 'Not Hispanic',
-    maritalStatus: 'Widowed',
-    contactInfo: 'l.williams@email.com',
-    address: '333 Cedar Ln, Anytown, USA',
-    emergencyContact: 'Mark Williams, Son, 555-3344',
-    primaryProviderId: '12',
-    insuranceNumber: 'BCBS12398',
-    allergyFlag: 'Iodine',
-    activeProblemList: 'Atrial Fibrillation, Chronic Kidney Disease',
-  },
-  {
-    personId: '7',
-    nationalId: '678-901-2345',
-    fullName: 'Michael Martinez',
-    dateOfBirth: '1998-01-18',
-    gender: 'Male',
-    race: 'Hispanic',
-    ethnicity: 'Hispanic',
-    maritalStatus: 'Single',
-    contactInfo: 'm.martinez@email.com',
-    address: '444 Spruce Ave, Anytown, USA',
-    emergencyContact: 'Maria Martinez, Mother, 555-5566',
-    primaryProviderId: '13',
-    insuranceNumber: 'AETNA33445',
-    allergyFlag: 'None',
-    activeProblemList: 'Migraine',
-  },
-    {
-    personId: '8',
-    nationalId: '789-012-3456',
-    fullName: 'Emily Davis',
-    dateOfBirth: '1980-09-05',
-    gender: 'Female',
-    race: 'White',
-    ethnicity: 'Not Hispanic',
-    maritalStatus: 'Married',
-    contactInfo: 'e.davis@email.com',
-    address: '555 Redwood Dr, Anytown, USA',
-    emergencyContact: 'James Davis, Spouse, 555-7788',
-    primaryProviderId: '14',
-    insuranceNumber: 'CIGNA66778',
-    allergyFlag: 'Aspirin',
-    activeProblemList: 'Depression',
-  },
-  {
-    personId: '9',
-    fullName: 'Chris Lee',
-    dateOfBirth: '1975-02-20',
-    gender: 'Male',
-    race: 'Asian',
-    ethnicity: 'Not Hispanic',
-    contactInfo: 'c.lee@email.com',
-    primaryProviderId: '11',
-    nationalId: '890-123-4567',
-    maritalStatus: 'Single',
-    address: '666 Sequoia Ct, Anytown, USA',
-    emergencyContact: 'David Lee, Brother, 555-9900',
-    insuranceNumber: 'UHC23456',
-    allergyFlag: 'Shellfish',
-    activeProblemList: 'Gout'
-  }
-];
-
-export const sampleEncounters = [
-  {
-    encounterId: '101',
-    personId: '1',
-    facilityId: 'HOS-001',
-    encounterType: 'Outpatient',
-    admissionDatetime: '2023-01-10T09:00:00Z',
-    dischargeDatetime: '2023-01-10T09:45:00Z',
-    attendingProviderId: '11',
-    visitReason: 'Annual Check-up',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '102',
-    personId: '2',
-    facilityId: 'HOS-002',
-    encounterType: 'Inpatient',
-    admissionDatetime: '2023-02-15T11:00:00Z',
-    dischargeDatetime: '2023-02-20T17:00:00Z',
-    attendingProviderId: '12',
-    visitReason: 'Pneumonia',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '103',
-    personId: '3',
-    facilityId: 'HOS-003',
-    encounterType: 'Inpatient',
-    admissionDatetime: '2023-03-01T14:00:00Z',
-    dischargeDatetime: '2023-03-05T11:00:00Z',
-    attendingProviderId: '13',
-    visitReason: 'Chest Pain',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '104',
-    personId: '4',
-    facilityId: 'HOS-004',
-    encounterType: 'Emergency',
-    admissionDatetime: '2023-04-12T18:30:00Z',
-    dischargeDatetime: '2023-04-12T22:00:00Z',
-    attendingProviderId: '14',
-    visitReason: 'Asthma Exacerbation',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '105',
-    personId: '5',
-    facilityId: 'HOS-005',
-    encounterType: 'Outpatient',
-    admissionDatetime: '2023-05-20T10:00:00Z',
-    dischargeDatetime: '2023-05-20T10:45:00Z',
-    attendingProviderId: '11',
-    visitReason: 'Knee Pain Follow-up',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '106',
-    personId: '6',
-    facilityId: 'HOS-006',
-    encounterType: 'Inpatient',
-    admissionDatetime: '2023-06-18T09:15:00Z',
-    dischargeDatetime: '2023-06-25T13:00:00Z',
-    attendingProviderId: '12',
-    visitReason: 'Heart Failure Exacerbation',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '107',
-    personId: '7',
-    facilityId: 'HOS-007',
-    encounterType: 'Telehealth',
-    admissionDatetime: '2023-07-02T11:00:00Z',
-    dischargeDatetime: '2023-07-02T11:20:00Z',
-    attendingProviderId: '13',
-    visitReason: 'Migraine Medication Refill',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '108',
-    personId: '8',
-    facilityId: 'HOS-008',
-    encounterType: 'Outpatient',
-    admissionDatetime: '2023-08-10T16:00:00Z',
-    dischargeDatetime: '2023-08-10T16:50:00Z',
-    attendingProviderId: '14',
-    visitReason: 'Therapy Session',
-    visitStatus: 'Discharged',
-  },
-  {
-    encounterId: '109',
-    personId: '9',
-    facilityId: 'HOS-009',
-    encounterType: 'Outpatient',
-    admissionDatetime: '2023-09-05T13:00:00Z',
-    dischargeDatetime: '2023-09-05T13:30:00Z',
-    attendingProviderId: '11',
-    visitReason: 'Gout Flare-up',
-    visitStatus: 'Discharged',
-  },
-];
-
-export const sampleConditions = [
-  {
-    diagnosisId: '201',
-    personId: '1',
-    encounterId: '101',
-    icd10Code: 'I10',
-    diagnosisType: 'Principal',
-    onsetDate: '2022-05-20',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '202',
-    personId: '2',
-    encounterId: '102',
-    icd10Code: 'J18.9',
-    diagnosisType: 'Principal',
-    onsetDate: '2023-02-15',
-    resolutionDate: '2023-02-25',
-    status: 'Resolved',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '203',
-    personId: '3',
-    encounterId: '103',
-    icd10Code: 'I25.10',
-    diagnosisType: 'Principal',
-    onsetDate: '2023-03-01',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '204',
-    personId: '4',
-    encounterId: '104',
-    icd10Code: 'J45.901',
-    diagnosisType: 'Principal',
-    onsetDate: '2015-01-01',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '205',
-    personId: '5',
-    encounterId: '105',
-    icd10Code: 'M17.11',
-    diagnosisType: 'Principal',
-    onsetDate: '2020-02-10',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '206',
-    personId: '6',
-    encounterId: '106',
-    icd10Code: 'I50.9',
-    diagnosisType: 'Principal',
-    onsetDate: '2019-11-01',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '207',
-    personId: '7',
-    encounterId: '107',
-    icd10Code: 'G43.909',
-    diagnosisType: 'Principal',
-    onsetDate: '2018-06-01',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-    {
-    diagnosisId: '208',
-    personId: '8',
-    encounterId: '108',
-    icd10Code: 'F33.1',
-    diagnosisType: 'Principal',
-    onsetDate: '2022-04-01',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '209',
-    personId: '9',
-    encounterId: '109',
-    icd10Code: 'M10.00',
-    diagnosisType: 'Principal',
-    onsetDate: '2023-09-05',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-   {
-    diagnosisId: '210',
-    personId: '2',
-    encounterId: '102',
-    icd10Code: 'E11.9',
-    diagnosisType: 'Secondary',
-    onsetDate: '2021-11-30',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '211',
-    personId: '3',
-    encounterId: '103',
-    icd10Code: 'E78.5',
-    diagnosisType: 'Secondary',
-    onsetDate: '2021-08-15',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '212',
-    personId: '6',
-    encounterId: '106',
-    icd10Code: 'I48.91',
-    diagnosisType: 'Secondary',
-    onsetDate: '2018-03-10',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  },
-  {
-    diagnosisId: '213',
-    personId: '6',
-    encounterId: '106',
-    icd10Code: 'N18.9',
-    diagnosisType: 'Secondary',
-    onsetDate: '2022-01-20',
-    resolutionDate: '',
-    status: 'Active',
-    certainty: 'Confirmed',
-  }
-];
-
-export const sampleDrugExposures = [
-  {
-    medicationId: '501',
-    personId: '1',
-    encounterId: '101',
-    drugCode: 'RxNorm:856335',
-    drugName: 'Lisinopril 10 MG Oral Tablet',
-    dose: '10mg',
-    startDate: '2022-05-20T08:00:00Z',
-    endDate: '',
-    prescribingPhysicianId: '11',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '502',
-    personId: '2',
-    encounterId: '102',
-    drugCode: 'RxNorm:860975',
-    drugName: 'Metformin 500 MG Oral Tablet',
-    dose: '500mg',
-    startDate: '2021-11-30T09:00:00Z',
-    endDate: '',
-    prescribingPhysicianId: '12',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '503',
-    personId: '3',
-    encounterId: '103',
-    drugCode: 'RxNorm:628365',
-    drugName: 'Atorvastatin 20 MG Oral Tablet',
-    dose: '20mg',
-    startDate: '2023-03-05T10:00:00Z',
-    endDate: '',
-    prescribingPhysicianId: '13',
-    dispenseStatus: 'Dispensed',
-  },
-    {
-    medicationId: '504',
-    personId: '4',
-    encounterId: '104',
-    drugCode: 'RxNorm:318134',
-    drugName: 'Albuterol 0.09 MG/ACTUAT Inhaler',
-    dose: '2 puffs',
-    startDate: '2023-04-12T18:35:00Z',
-    endDate: '',
-    prescribingPhysicianId: '14',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '505',
-    personId: '5',
-    encounterId: '105',
-    drugCode: 'RxNorm:1191001',
-    drugName: 'Celecoxib 200 MG Oral Capsule',
-    dose: '200mg',
-    startDate: '2023-05-20T10:15:00Z',
-    endDate: '2023-06-20T10:15:00Z',
-    prescribingPhysicianId: '11',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '506',
-    personId: '6',
-    encounterId: '106',
-    drugCode: 'RxNorm:310433',
-    drugName: 'Furosemide 40 MG Oral Tablet',
-    dose: '40mg',
-    startDate: '2023-06-18T10:00:00Z',
-    endDate: '',
-    prescribingPhysicianId: '12',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '507',
-    personId: '7',
-    encounterId: '107',
-    drugCode: 'RxNorm:897746',
-    drugName: 'Sumatriptan 100 MG Oral Tablet',
-    dose: '100mg',
-    startDate: '2023-07-02T11:10:00Z',
-    endDate: '',
-    prescribingPhysicianId: '13',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '508',
-    personId: '8',
-    encounterId: '108',
-    drugCode: 'RxNorm:329587',
-    drugName: 'Sertraline 50 MG Oral Tablet',
-    dose: '50mg',
-    startDate: '2022-04-01T09:00:00Z',
-    endDate: '',
-    prescribingPhysicianId: '14',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '509',
-    personId: '9',
-    encounterId: '109',
-    drugCode: 'RxNorm:308375',
-    drugName: 'Allopurinol 300 MG Oral Tablet',
-    dose: '300mg',
-    startDate: '2023-09-05T13:15:00Z',
-    endDate: '',
-    prescribingPhysicianId: '11',
-    dispenseStatus: 'Dispensed',
-  },
-  {
-    medicationId: '510',
-    personId: '2',
-    encounterId: '102',
-    drugCode: 'RxNorm:308192',
-    drugName: 'Azithromycin 250 MG Oral Tablet',
-    dose: '500mg Day 1, 250mg Days 2-5',
-    startDate: '2023-02-15T12:00:00Z',
-    endDate: '2023-02-20T12:00:00Z',
-    prescribingPhysicianId: '12',
-    dispenseStatus: 'Dispensed',
-  }
-];
-
-export const sampleBeds = [
-  {
-    bedId: 'B-101-A',
-    location: 'Ward A, Room 101',
-    status: 'Occupied',
-    patientId: '2',
-    careSiteId: 'HOS-002',
-  },
-  {
-    bedId: 'B-101-B',
-    location: 'Ward A, Room 101',
-    status: 'Available',
-    patientId: null,
-    careSiteId: 'HOS-002',
-  },
-  {
-    bedId: 'B-102-A',
-    location: 'Ward A, Room 102',
-    status: 'Maintenance',
-    patientId: null,
-    careSiteId: 'HOS-002',
-  },
-  {
-    bedId: 'C-201-A',
-    location: 'Ward C, Room 201',
-    status: 'Occupied',
-    patientId: '3',
-    careSiteId: 'HOS-003',
-  },
-  {
-    bedId: 'C-201-B',
-    location: 'Ward C, Room 201',
-    status: 'Occupied',
-    patientId: '6',
-    careSiteId: 'HOS-006',
-  }
-];
-
-export const sampleCareSites = [
+const careSites = [
   { careSiteId: 'HOS-001', careSiteName: 'General Hospital' },
   { careSiteId: 'HOS-002', careSiteName: 'City Medical Center' },
   { careSiteId: 'HOS-003', careSiteName: 'Sunrise Community Clinic' },
@@ -665,242 +48,228 @@ export const sampleCareSites = [
   { careSiteId: 'HOS-010', careSiteName: 'Riverside Rehabilitation Hospital' },
 ];
 
-export const sampleCosts = [
-  {
-    chargeId: 'C-001',
-    personId: '1',
-    encounterId: '101',
-    serviceCode: '99213',
-    description: 'Office Visit Level 3',
-    totalCharge: 150.0,
-    patientResponsibility: 30.0,
-    paymentStatus: 'Paid',
-    claimId: 'CLAIM-101-1',
-  },
-  {
-    chargeId: 'C-002',
-    personId: '2',
-    encounterId: '102',
-    serviceCode: 'DRG-194',
-    description: 'Inpatient Stay - Simple Pneumonia',
-    totalCharge: 12500.0,
-    patientResponsibility: 2500.0,
-    paymentStatus: 'Pending',
-    claimId: 'CLAIM-102-1',
-  },
-  {
-    chargeId: 'C-003',
-    personId: '3',
-    encounterId: '103',
-    serviceCode: 'DRG-280',
-    description: 'Inpatient Stay - Acute Myocardial Infarction',
-    totalCharge: 35000.0,
-    patientResponsibility: 5000.0,
-    paymentStatus: 'Pending',
-    claimId: 'CLAIM-103-1',
-  },
-  {
-    chargeId: 'C-004',
-    personId: '4',
-    encounterId: '104',
-    serviceCode: '99284',
-    description: 'Emergency Dept Visit, Level 4',
-    totalCharge: 800.0,
-    patientResponsibility: 150.0,
-    paymentStatus: 'Paid',
-    claimId: 'CLAIM-104-1',
-  }
-];
+const physicians = baseUsers.filter(u => u.role === 'physician');
 
-export const samplePayerPlanPeriods = [
-  {
-    planId: 'PPP-001',
-    personId: '1',
-    payerId: 'Payer-UHC',
-    coverageStartDate: '2023-01-01',
-    coverageEndDate: '2023-12-31',
-    policyNumber: 'UHC12345',
-  },
-  {
-    planId: 'PPP-002',
-    personId: '2',
-    payerId: 'Payer-BCBS',
-    coverageStartDate: '2023-01-01',
-    coverageEndDate: '2023-12-31',
-    policyNumber: 'BCBS67890',
-  },
-  {
-    planId: 'PPP-003',
-    personId: '3',
-    payerId: 'Payer-AETNA',
-    coverageStartDate: '2023-01-01',
-    coverageEndDate: '2023-12-31',
-    policyNumber: 'AETNA11223',
-  },
-  {
-    planId: 'PPP-004',
-    personId: '4',
-    payerId: 'Payer-CIGNA',
-    coverageStartDate: '2023-01-01',
-    coverageEndDate: '2023-12-31',
-    policyNumber: 'CIGNA44556',
-  },
-];
+// Helper function to get a random item from an array
+const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
 
-export const sampleVisitDetails = [
-  {
-    visitDetailId: 'VD-001',
-    personId: '1',
-    encounterId: '101',
-    serviceCode: '99213',
-    serviceDate: '2023-01-10',
-  },
-  {
-    visitDetailId: 'VD-002',
-    personId: '2',
-    encounterId: '102',
-    serviceCode: '99223',
-    serviceDate: '2023-02-15',
-  },
-  {
-    visitDetailId: 'VD-003',
-    personId: '2',
-    encounterId: '102',
-    serviceCode: '71045',
-    serviceDate: '2023-02-16',
-  },
-  {
-    visitDetailId: 'VD-004',
-    personId: '3',
-    encounterId: '103',
-    serviceCode: '93000',
-    serviceDate: '2023-03-01',
-  },
-  {
-    visitDetailId: 'VD-005',
-    personId: '3',
-    encounterId: '103',
-    serviceCode: '85018',
-    serviceDate: '2023-03-01',
-  }
-];
 
-export const sampleClinicalNotes = [
-    {
-        noteId: "CN-001",
-        encounterId: "101",
-        authorId: "11",
-        noteType: "SOAP",
-        noteText: "Patient presents for annual check-up. Reports feeling well. No new complaints. Vitals stable.",
-        dateTimeCreated: "2023-01-10T09:30:00Z"
-    },
-    {
-        noteId: "CN-002",
-        encounterId: "102",
-        authorId: "12",
-        noteType: "Admission Note",
-        noteText: "Patient admitted with fever, cough, and shortness of breath. Chest X-ray confirms pneumonia. Starting IV antibiotics.",
-        dateTimeCreated: "2023-02-15T11:45:00Z"
-    },
-    {
-        noteId: 'CN-003',
-        encounterId: '103',
-        authorId: '13',
-        noteType: 'Cardiology Consult',
-        noteText: '55 y/o male with chest pain. EKG shows ST elevation. Troponins elevated. Plan for cardiac catheterization.',
-        dateTimeCreated: '2023-03-01T15:00:00Z'
-    },
-    {
-        noteId: 'CN-004',
-        encounterId: '104',
-        authorId: '14',
-        noteType: 'ED Note',
-        noteText: '22 y/o female with severe asthma exacerbation. Given nebulizer treatments with good response. Discharged with steroid taper.',
-        dateTimeCreated: '2023-04-12T21:30:00Z'
+// --- DYNAMIC DATA GENERATION ---
+
+const generatePatients = (count: number) => {
+    const patients = [];
+    for (let i = 0; i < count; i++) {
+        const gender = faker.person.sexType();
+        const fullName = faker.person.fullName({ sex: gender });
+        patients.push({
+            personId: faker.string.uuid(),
+            nationalId: faker.string.nanoid(10),
+            fullName: fullName,
+            dateOfBirth: faker.date.birthdate({ min: 18, max: 85, mode: 'age' }).toISOString().split('T')[0],
+            gender: gender.charAt(0).toUpperCase() + gender.slice(1),
+            race: faker.helpers.arrayElement(['White', 'Black', 'Asian', 'Hispanic', 'Other']),
+            ethnicity: 'Not Hispanic',
+            maritalStatus: faker.helpers.arrayElement(['Married', 'Single', 'Divorced', 'Widowed']),
+            contactInfo: faker.internet.email({firstName: fullName.split(' ')[0], lastName: fullName.split(' ')[1]}),
+            address: faker.location.streetAddress(true),
+            emergencyContact: `${faker.person.fullName()}, ${faker.helpers.arrayElement(['Spouse', 'Parent', 'Sibling', 'Friend'])}, ${faker.phone.number()}`,
+            primaryProviderId: getRandomItem(physicians).id,
+            insuranceNumber: `INS-${faker.string.alphanumeric(8).toUpperCase()}`,
+            allergyFlag: faker.helpers.arrayElement(['None', 'Penicillin', 'Sulfa', 'Aspirin', 'Shellfish']),
+            activeProblemList: '', // Will be populated later
+        });
     }
-];
+    return patients;
+};
 
-export const sampleProcedures = [
-    {
-        procedureId: "PROC-001",
-        personId: "2",
-        encounterId: "102",
-        procedureCode: "CPT:31500",
-        procedureName: "Emergency endotracheal intubation",
-        procedureDateTime: "2023-02-15T12:00:00Z",
-        performingClinicianId: "12"
-    },
-    {
-        procedureId: 'PROC-002',
-        personId: '3',
-        encounterId: '103',
-        procedureCode: 'CPT:92928',
-        procedureName: 'Percutaneous transcatheter placement of intracoronary stent(s)',
-        procedureDateTime: '2023-03-01T16:00:00Z',
-        performingClinicianId: '15' // A new specialist
+const generateEncounters = (patients: any[]) => {
+    const encounters: any[] = [];
+    patients.forEach(patient => {
+        const numEncounters = faker.number.int({ min: 2, max: 8 });
+        const patientCareSites = new Set<string>();
+        while(patientCareSites.size < 2) {
+            patientCareSites.add(getRandomItem(careSites).careSiteId);
+        }
+
+        for (let i = 0; i < numEncounters; i++) {
+            const admissionDate = faker.date.past({ years: 3 });
+            const dischargeDate = new Date(admissionDate.getTime() + faker.number.int({ min: 1, max: 14 }) * 24 * 60 * 60 * 1000);
+            encounters.push({
+                encounterId: faker.string.uuid(),
+                personId: patient.personId,
+                facilityId: getRandomItem(Array.from(patientCareSites)),
+                encounterType: faker.helpers.arrayElement(['Inpatient', 'Outpatient', 'Emergency', 'Telehealth']),
+                admissionDatetime: admissionDate.toISOString(),
+                dischargeDatetime: dischargeDate.toISOString(),
+                attendingProviderId: getRandomItem(physicians).id,
+                visitReason: faker.helpers.arrayElement(['Annual Check-up', 'Follow-up', 'New Complaint', 'Injury', 'Chronic Condition Management']),
+                visitStatus: 'Discharged',
+            });
+        }
+    });
+    return encounters;
+};
+
+const generateConditions = (patients: any[], encounters: any[]) => {
+    const conditions: any[] = [];
+    const icd10Codes = [
+        { code: 'I10', desc: 'Hypertension' }, { code: 'E11.9', desc: 'Type 2 Diabetes' }, { code: 'J45.909', desc: 'Asthma' },
+        { code: 'F33.1', desc: 'Depression' }, { code: 'M10.00', desc: 'Gout' }, { code: 'I25.10', desc: 'Coronary Artery Disease' }
+    ];
+    patients.forEach(patient => {
+        const numConditions = faker.number.int({ min: 1, max: 4 });
+        const patientEncounters = encounters.filter(e => e.personId === patient.personId);
+        for (let i = 0; i < numConditions; i++) {
+            const icd10 = getRandomItem(icd10Codes);
+            const encounter = getRandomItem(patientEncounters);
+            conditions.push({
+                diagnosisId: faker.string.uuid(),
+                personId: patient.personId,
+                encounterId: encounter.encounterId,
+                icd10Code: icd10.code,
+                diagnosisType: 'Principal',
+                onsetDate: faker.date.past({ years: 5 }).toISOString().split('T')[0],
+                status: 'Active',
+                certainty: 'Confirmed',
+            });
+        }
+    });
+    return conditions;
+};
+
+const generateProcedures = (patients: any[], encounters: any[]) => {
+  const procedures = [];
+  const procedureData = [
+    { code: 'CPT:99213', name: 'Office Visit Level 3' },
+    { code: 'CPT:92928', name: 'Stent Placement' },
+    { code: 'CPT:31500', name: 'Endotracheal Intubation' },
+    { code: 'CPT:71045', name: 'Chest X-Ray' }
+  ];
+  encounters.forEach(encounter => {
+    if (Math.random() > 0.5) { // 50% chance of a procedure
+      const proc = getRandomItem(procedureData);
+      procedures.push({
+        procedureId: faker.string.uuid(),
+        personId: encounter.personId,
+        encounterId: encounter.encounterId,
+        procedureCode: proc.code,
+        procedureName: proc.name,
+        procedureDateTime: encounter.admissionDatetime,
+        performingClinicianId: encounter.attendingProviderId,
+      });
     }
-];
+  });
+  return procedures;
+}
 
-export const sampleLabResults = [
-    {
-        labOrderId: "LAB-001",
-        personId: "1",
-        encounterId: "101",
-        testCode: "LOINC:1751-7",
-        resultValue: "4.8 %",
-        resultDate: "2023-01-10T10:00:00Z",
-        resultFlag: "Normal"
-    },
-    {
-        labOrderId: "LAB-002",
-        personId: "2",
-        encounterId: "102",
-        testCode: "LOINC:6690-2",
-        resultValue: "15.2 K/uL",
-        resultDate: "2023-02-15T11:15:00Z",
-        resultFlag: "High"
-    },
-    {
-        labOrderId: 'LAB-003',
-        personId: '3',
-        encounterId: '103',
-        testCode: 'LOINC:30522-7',
-        resultValue: '2.5 ng/mL',
-        resultDate: '2023-03-01T14:30:00Z',
-        resultFlag: 'High'
-    },
-    {
-        labOrderId: 'LAB-004',
-        personId: '6',
-        encounterId: '106',
-        testCode: 'LOINC:2160-0',
-        resultValue: '1.8 mg/dL',
-        resultDate: '2023-06-18T09:45:00Z',
-        resultFlag: 'High'
-    }
-];
+const generateDrugExposures = (patients: any[], encounters: any[]) => {
+  const drugs = [];
+  const drugData = [
+    { name: 'Lisinopril 10 MG', code: 'RxNorm:856335'},
+    { name: 'Metformin 500 MG', code: 'RxNorm:860975'},
+    { name: 'Atorvastatin 20 MG', code: 'RxNorm:628365'},
+    { name: 'Albuterol Inhaler', code: 'RxNorm:318134'}
+  ];
+   patients.forEach(patient => {
+        const numDrugs = faker.number.int({ min: 1, max: 3 });
+        const patientEncounters = encounters.filter(e => e.personId === patient.personId);
+        for(let i=0; i<numDrugs; i++){
+          const drug = getRandomItem(drugData);
+          const encounter = getRandomItem(patientEncounters);
+           drugs.push({
+            medicationId: faker.string.uuid(),
+            personId: patient.personId,
+            encounterId: encounter.encounterId,
+            drugCode: drug.code,
+            drugName: drug.name,
+            dose: 'As prescribed',
+            startDate: encounter.admissionDatetime,
+            endDate: '',
+            prescribingPhysicianId: encounter.attendingProviderId,
+            dispenseStatus: 'Dispensed',
+           });
+        }
+   });
+  return drugs;
+}
 
-export const sampleImagingStudies = [
-    {
-        imagingOrderId: "IMG-001",
-        personId: "2",
-        encounterId: "102",
-        modality: "X-ray",
-        procedureCode: "LOINC:24627-2",
-        impression: "Right lower lobe infiltrate consistent with pneumonia."
-    },
-    {
-        imagingOrderId: 'IMG-002',
-        personId: '5',
-        encounterId: '105',
-        modality: 'MRI',
-        procedureCode: 'LOINC:26209-8',
-        impression: 'Degenerative changes in the medial meniscus of the right knee.'
-    }
-];
+const generateClinicalNotes = (encounters: any[]) => {
+    const notes = [];
+    encounters.forEach(encounter => {
+        notes.push({
+            noteId: faker.string.uuid(),
+            encounterId: encounter.encounterId,
+            personId: encounter.personId, // Add personId for easier lookup
+            authorId: encounter.attendingProviderId,
+            noteType: faker.helpers.arrayElement(['SOAP', 'Progress', 'Admission', 'Discharge']),
+            noteText: faker.lorem.paragraphs(2),
+            dateTimeCreated: encounter.admissionDatetime,
+        });
+    });
+    return notes;
+}
 
-    
+const generatePendingTasks = (users: any[], patients: any[]) => {
+    const tasks = [];
+    const physicianUsers = users.filter(u => u.role === 'physician');
+    physicianUsers.forEach(user => {
+        const numTasks = faker.number.int({ min: 2, max: 5 });
+        for(let i = 0; i < numTasks; i++) {
+            const patient = getRandomItem(patients);
+            tasks.push({
+                taskId: faker.string.uuid(),
+                assignedTo: user.id, // using the static ID
+                description: `Review lab results for ${patient.fullName}`,
+                priority: faker.helpers.arrayElement(['High', 'Medium', 'Low']),
+                dueDate: faker.date.future().toISOString().split('T')[0],
+                status: 'Pending',
+                patientId: patient.personId,
+            });
+        }
+    });
+    return tasks;
+};
 
-    
+
+// Main generation function
+const generateAllData = (patientCount: number) => {
+    const samplePatients = generatePatients(patientCount);
+    const sampleEncounters = generateEncounters(samplePatients);
+    const sampleConditions = generateConditions(samplePatients, sampleEncounters);
+    const sampleProcedures = generateProcedures(samplePatients, sampleEncounters);
+    const sampleDrugExposures = generateDrugExposures(samplePatients, sampleEncounters);
+    const sampleClinicalNotes = generateClinicalNotes(sampleEncounters);
+    const samplePendingTasks = generatePendingTasks(baseUsers, samplePatients);
+
+    // Add active problem list to patients
+    samplePatients.forEach(p => {
+        p.activeProblemList = sampleConditions
+            .filter(c => c.personId === p.personId && c.status === 'Active')
+            .map(c => c.icd10Code)
+            .join(', ');
+    });
+
+    return {
+        sampleUsers: baseUsers,
+        samplePatients,
+        sampleEncounters,
+        sampleConditions,
+        sampleProcedures,
+        sampleDrugExposures,
+        sampleClinicalNotes,
+        samplePendingTasks,
+        sampleCareSites: careSites,
+        // Keep some other static data if needed, or make them dynamic too
+        sampleBeds: [],
+        sampleCosts: [],
+        samplePayerPlanPeriods: [],
+        sampleVisitDetails: [],
+        sampleLabResults: [],
+        sampleImagingStudies: [],
+    };
+};
+
+// Exporting the generator
+export const generatedData = generateAllData(50);
 
     

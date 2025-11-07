@@ -7,8 +7,8 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import type { Patient, Condition } from '@/lib/types';
 import { useEffect, useState } from 'react';
 
@@ -114,3 +114,5 @@ export function RecentPatients() {
     </Card>
   );
 }
+
+    

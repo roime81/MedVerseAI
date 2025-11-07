@@ -3,30 +3,27 @@
 // Example: `npx tsx src/lib/seed.ts`
 
 import { initializeApp, deleteApp } from 'firebase/app';
-import { getFirestore, collection, doc, writeBatch } from 'firebase/firestore';
+import { getFirestore, collection, doc, writeBatch, getDocs, query, where } from 'firebase/firestore';
 import {
   getAuth,
   createUserWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth';
 import { firebaseConfig } from '@/firebase/config';
+import { generatedData } from './sample-data';
 
-import {
+const {
+  sampleUsers,
   samplePatients,
   sampleEncounters,
   sampleConditions,
   sampleDrugExposures,
-  sampleBeds,
-  sampleCareSites,
-  sampleCosts,
-  samplePayerPlanPeriods,
-  sampleVisitDetails,
   sampleClinicalNotes,
   sampleProcedures,
-  sampleLabResults,
-  sampleImagingStudies,
-  sampleUsers,
-} from './sample-data';
+  sampleCareSites,
+  samplePendingTasks,
+} = generatedData;
+
 
 // IMPORTANT: This script is destructive and will overwrite data.
 // It is intended for development and testing purposes only.
@@ -46,53 +43,68 @@ function initializeAdminApp() {
 
 async function seedUsers(auth, db) {
   console.log(`Seeding ${sampleUsers.length} users...`);
+  const physicianUserIds = new Map();
+
   for (const user of sampleUsers) {
+    let authUser;
     try {
-      // 1. Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        user.email,
-        user.password
-      );
-      const authUser = userCredential.user;
-      console.log(`Successfully created auth user: ${authUser.email}`);
+      // Check if user already exists
+      const q = query(collection(db, 'users'), where('email', '==', user.email));
+      const querySnapshot = await getDocs(q);
 
-      // 2. Add displayName to Auth user profile
-      await updateProfile(authUser, { displayName: user.displayName });
-      console.log(`Successfully updated profile for ${authUser.email}`);
+      if (!querySnapshot.empty) {
+        console.warn(`User with email ${user.email} already exists. Skipping creation.`);
+        authUser = { uid: querySnapshot.docs[0].id, email: user.email };
+      } else {
+         const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          user.email,
+          user.password
+        );
+        authUser = userCredential.user;
+        console.log(`Successfully created auth user: ${authUser.email}`);
 
-      // 3. Create the user document in Firestore in a separate batch
-      const userDocBatch = writeBatch(db);
-      const userRef = doc(db, 'users', authUser.uid);
-      const { password, ...userData } = user; // Do not store password in Firestore
-      userDocBatch.set(userRef, { ...userData, uid: authUser.uid });
-      await userDocBatch.commit();
-      console.log(`Successfully created Firestore doc for ${authUser.email}`);
+        await updateProfile(authUser, { displayName: user.displayName });
+        console.log(`Successfully updated profile for ${authUser.email}`);
+        
+        const userRef = doc(db, 'users', authUser.uid);
+        const { password, id, ...userData } = user; // Do not store password or static id
+        await writeBatch(db).set(userRef, { ...userData, uid: authUser.uid }).commit();
+        console.log(`Successfully created Firestore doc for ${authUser.email}`);
+      }
+
+      if (user.role === 'physician') {
+        physicianUserIds.set(user.id, authUser.uid); // Map static ID to actual UID
+      }
+
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         console.warn(
-          `Auth user with email ${user.email} already exists. Skipping auth creation, but will attempt to seed data.`
+          `Auth user with email ${user.email} already exists. Skipping auth creation.`
         );
       } else {
-        // Log other auth errors but continue if possible
         console.error(
-          `Error creating auth user ${user.email}:`,
+          `Error creating user ${user.email}:`,
           error.message
         );
-        // If user creation fails, we must skip to the next user.
-        continue;
       }
+      continue;
     }
   }
+  return physicianUserIds;
 }
 
-async function seedCollections(db) {
+async function seedCollections(db, physicianUserIds) {
   const batch = writeBatch(db);
+
+  // Remap attendingProviderId and authorId from static ID to actual UID
+  const getMappedUid = (staticId) => physicianUserIds.get(staticId) || null;
 
   // Seed Patients
   console.log(`Seeding ${samplePatients.length} patients...`);
   samplePatients.forEach((patient) => {
     const ref = doc(db, 'patients', patient.personId);
+    patient.primaryProviderId = getMappedUid(patient.primaryProviderId);
     batch.set(ref, patient);
   });
 
@@ -106,6 +118,7 @@ async function seedCollections(db) {
       'encounters',
       encounter.encounterId
     );
+    encounter.attendingProviderId = getMappedUid(encounter.attendingProviderId);
     batch.set(ref, encounter);
   });
 
@@ -132,49 +145,30 @@ async function seedCollections(db) {
       'drugExposures',
       drug.medicationId
     );
+    drug.prescribingPhysicianId = getMappedUid(drug.prescribingPhysicianId);
     batch.set(ref, drug);
   });
 
   // Seed Clinical Notes
   console.log(`Seeding ${sampleClinicalNotes.length} clinical notes...`);
   sampleClinicalNotes.forEach((note) => {
-    const encounter = sampleEncounters.find(e => e.encounterId === note.encounterId);
-    if(encounter) {
-        const ref = doc(db, 'patients', encounter.personId, 'clinicalNotes', note.noteId);
-        batch.set(ref, note);
-    }
+     const ref = doc(db, 'patients', note.personId, 'clinicalNotes', note.noteId);
+     note.authorId = getMappedUid(note.authorId);
+     const { personId, ...noteData } = note;
+     batch.set(ref, noteData);
   });
 
   // Seed Procedures
   console.log(`Seeding ${sampleProcedures.length} procedures...`);
   sampleProcedures.forEach((procedure) => {
     const patientRef = doc(db, 'patients', procedure.personId, 'procedures', procedure.procedureId);
+    procedure.performingClinicianId = getMappedUid(procedure.performingClinicianId);
     batch.set(patientRef, procedure);
+    
     const topLevelRef = doc(db, 'procedures', procedure.procedureId);
     batch.set(topLevelRef, procedure);
   });
   
-  // Seed Lab Results
-  console.log(`Seeding ${sampleLabResults.length} lab results...`);
-  sampleLabResults.forEach((labResult) => {
-    const ref = doc(db, 'patients', labResult.personId, 'labResults', labResult.labOrderId);
-    batch.set(ref, labResult);
-  });
-
-  // Seed Imaging Studies
-  console.log(`Seeding ${sampleImagingStudies.length} imaging studies...`);
-  sampleImagingStudies.forEach((study) => {
-    const ref = doc(db, 'patients', study.personId, 'imagingStudies', study.imagingOrderId);
-    batch.set(ref, study);
-  });
-
-  // Seed Beds
-  console.log(`Seeding ${sampleBeds.length} beds...`);
-  sampleBeds.forEach((bed) => {
-    const ref = doc(db, 'beds', bed.bedId);
-    batch.set(ref, bed);
-  });
-
   // Seed Care Sites (Hospitals)
   console.log(`Seeding ${sampleCareSites.length} care sites...`);
   sampleCareSites.forEach((site) => {
@@ -182,26 +176,17 @@ async function seedCollections(db) {
     batch.set(ref, site);
   });
 
-  // Seed Costs
-  console.log(`Seeding ${sampleCosts.length} costs...`);
-  sampleCosts.forEach((cost) => {
-    const ref = doc(db, 'patients', cost.personId, 'costs', cost.chargeId);
-    batch.set(ref, cost);
+  // Seed Pending Tasks
+  console.log(`Seeding ${samplePendingTasks.length} pending tasks...`);
+  samplePendingTasks.forEach((task) => {
+      const userUid = getMappedUid(task.assignedTo);
+      if(userUid) {
+        const ref = doc(db, 'users', userUid, 'tasks', task.taskId);
+        task.assignedTo = userUid;
+        batch.set(ref, task);
+      }
   });
 
-  // Seed Payer Plan Periods
-  console.log(`Seeding ${samplePayerPlanPeriods.length} payer plan periods...`);
-  samplePayerPlanPeriods.forEach((plan) => {
-    const ref = doc(db, 'patients', plan.personId, 'payerPlanPeriods', plan.planId);
-    batch.set(ref, plan);
-  });
-
-  // Seed Visit Details
-  console.log(`Seeding ${sampleVisitDetails.length} visit details...`);
-  sampleVisitDetails.forEach((detail) => {
-    const ref = doc(db, 'patients', detail.personId, 'visitDetails', detail.visitDetailId);
-    batch.set(ref, detail);
-  });
 
   // Commit the master batch for all collections
   console.log('Committing all collection data...');
@@ -213,11 +198,11 @@ async function main() {
   const { app, auth, db } = initializeAdminApp();
 
   try {
-    // We must seed users first and separately, as other data may depend on them.
-    await seedUsers(auth, db);
+    // Seed users and get the mapping of static IDs to actual UIDs
+    const physicianUserIds = await seedUsers(auth, db);
 
-    // Now seed the rest of the collections
-    await seedCollections(db);
+    // Now seed the rest of the collections, passing in the UID map
+    await seedCollections(db, physicianUserIds);
 
     console.log('Database seeded successfully!');
   } catch (error) {
@@ -238,3 +223,5 @@ main()
     console.error('Seed script failed with an unhandled error:', e);
     process.exit(1);
   });
+
+    
