@@ -1,35 +1,38 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
-import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
-import Link from 'next/link';
+import { useAuth } from '@/lib/auth-provider';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
-  const router = useRouter();
+  const { login } = useAuth();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     try {
-      // We are not awaiting this, so we need to handle auth state changes elsewhere
-      initiateEmailSignIn(auth, email, password);
-      toast({
-        title: 'Login Initiated',
-        description: 'You will be redirected shortly.',
-      });
-      // The redirect will be handled by the layout component observing auth state
+      // For this mock, we'll consider any non-empty username a success
+      if (username) {
+        login({ username });
+        toast({
+          title: 'Login Successful',
+          description: `Welcome back, ${username}!`,
+        });
+      } else {
+        throw new Error('Please enter a username.');
+      }
     } catch (error: any) {
       toast({
         title: 'Login Failed',
@@ -44,20 +47,20 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-headline">MedVerseAI Login</CardTitle>
-          <CardDescription>Enter your credentials to access the dashboard</CardDescription>
+          <CardTitle className="text-2xl font-headline">MedVerseAI AD Login</CardTitle>
+          <CardDescription>Enter your hospital network credentials</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
+                id="username"
+                type="text"
+                placeholder="e.g., a.khan"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -81,7 +84,7 @@ export default function LoginPage() {
               ) : (
                 <>
                   <LogIn className="mr-2 h-4 w-4" />
-                  Login
+                  Sign In
                 </>
               )}
             </Button>
@@ -89,10 +92,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex-col gap-4 text-sm">
             <p className="text-muted-foreground">
-                Don't have an account?{' '}
-                <Link href="#" className="text-primary hover:underline">
-                    Sign up
-                </Link>
+                Having trouble? Contact IT Support.
             </p>
         </CardFooter>
       </Card>

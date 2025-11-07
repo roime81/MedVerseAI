@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
-import { FirebaseClientProvider } from '@/firebase';
+import { AuthProvider } from '@/lib/auth-provider';
 
 export const metadata: Metadata = {
   title: 'MedVerseAI',
@@ -23,9 +23,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className={cn("font-body antialiased", "bg-background text-foreground")}>
-        <FirebaseClientProvider>
+        <AuthProvider>
           {children}
-        </FirebaseClientProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
