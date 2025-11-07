@@ -3,6 +3,7 @@
 import { useUser } from '@/firebase';
 import { redirect } from 'next/navigation';
 import PhysicianDashboard from '@/components/dashboard/physician-dashboard';
+import AdminDashboard from '@/components/dashboard/admin-dashboard';
 import { doc, getDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { useEffect, useState } from 'react';
@@ -43,6 +44,8 @@ export default function DashboardPage() {
   switch (role) {
     case 'physician':
       return <PhysicianDashboard />;
+    case 'admin':
+      return <AdminDashboard />;
     // Add cases for other roles here
     // case 'nurse':
     //   return <NurseDashboard />;
