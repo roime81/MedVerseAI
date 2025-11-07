@@ -17,13 +17,8 @@ import {
   initiateEmailSignIn,
 } from '@/firebase/non-blocking-login';
 import { Stethoscope } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
-
-function UserProfile() {
-  redirect('/dashboard');
-  return null; // Redirect will happen before render
-}
 
 export default function Login() {
   const auth = useAuth();
@@ -35,6 +30,10 @@ export default function Login() {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!auth) {
+        setError('Authentication service is not available.');
+        return;
+    }
     if (!email || !password) {
       setError('Please enter both email and password.');
       return;
@@ -45,15 +44,25 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = () => {
+    if (!auth) {
+        setError('Authentication service is not available.');
+        return;
+    }
     initiateGoogleSignIn(auth);
   };
   
+  useEffect(() => {
+    if (user) {
+      redirect('/dashboard');
+    }
+  }, [user]);
+
   if (isUserLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
-
+  
   if (user) {
-    return <UserProfile />;
+    return null;
   }
 
   return (

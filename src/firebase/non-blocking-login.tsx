@@ -59,6 +59,10 @@ export function initiateSignOut(authInstance: Auth): void {
     signOut(authInstance)
      .then(() => {
         console.log("Sign-out successful.");
+        // After successful sign-out, redirect to home page.
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
     })
     .catch((error) => {
         console.error("Sign-out error:", error.message);
