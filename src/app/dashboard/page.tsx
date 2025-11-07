@@ -1,38 +1,58 @@
 'use client';
 
-import PatientsTable from '@/components/dashboard/patients-table';
-import EncountersTable from '@/components/dashboard/encounters-table';
-import ConditionsTable from '@/components/dashboard/conditions-table';
-import DrugExposuresTable from '@/components/dashboard/drug-exposures-table';
-import BedsTable from '@/components/dashboard/beds-table';
-import HospitalsTable from '@/components/dashboard/hospitals-table';
-import CostsTable from '@/components/dashboard/costs-table';
-import PayerPlansTable from '@/components/dashboard/payer-plans-table';
-import VisitDetailsTable from '@/components/dashboard/visit-details-table';
-import ProceduresTable from '@/components/dashboard/procedures-table';
-import LabResultsTable from '@/components/dashboard/lab-results-table';
-import ImagingStudiesTable from '@/components/dashboard/imaging-studies-table';
-import ClinicalNotesTable from '@/components/dashboard/clinical-notes-table';
+import { useUser } from '@/firebase';
+import { redirect } from 'next/navigation';
+import PhysicianDashboard from '@/components/dashboard/physician-dashboard';
+import { doc, getDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { useEffect, useState } from 'react';
 
-
-// MAIN DASHBOARD PAGE
 export default function DashboardPage() {
-  return (
-    <div className="p-4 md:p-8 space-y-8">
-      <h1 className="text-2xl font-bold">Data Tables</h1>
-      <HospitalsTable />
-      <PatientsTable />
-      <EncountersTable />
-      <ConditionsTable />
-      <DrugExposuresTable />
-      <ProceduresTable />
-      <LabResultsTable />
-      <ImagingStudiesTable />
-      <ClinicalNotesTable />
-      <BedsTable />
-      <CostsTable />
-      <PayerPlansTable />
-      <VisitDetailsTable />
-    </div>
-  );
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const [role, setRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      const getUserRole = async () => {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setRole(userDoc.data().role);
+        } else {
+          // Handle case where user doc doesn't exist
+          setRole('default'); 
+        }
+        setLoading(false);
+      };
+      getUserRole();
+    } else if (!isUserLoading) {
+       redirect('/');
+    }
+  }, [user, isUserLoading, firestore]);
+
+  if (isUserLoading || loading) {
+    return <div>Loading dashboard...</div>;
+  }
+  
+  if (!user) {
+    return null;
+  }
+
+  switch (role) {
+    case 'physician':
+      return <PhysicianDashboard />;
+    // Add cases for other roles here
+    // case 'nurse':
+    //   return <NurseDashboard />;
+    // case 'radiology':
+    //   return <RadiologyDashboard />;
+    // case 'lab':
+    //   return <LabDashboard />;
+    // case 'billing':
+    //   return <BillingDashboard />;
+    default:
+      return <PhysicianDashboard />; // Default to physician for now
+  }
 }

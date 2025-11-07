@@ -1,29 +1,33 @@
 'use client';
 import {
-  Auth, // Import Auth type for type hinting
-  signInAnonymously,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  // Assume getAuth and app are initialized elsewhere
+  Auth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
 } from 'firebase/auth';
 
-/** Initiate anonymous sign-in (non-blocking). */
-export function initiateAnonymousSignIn(authInstance: Auth): void {
-  // CRITICAL: Call signInAnonymously directly. Do NOT use 'await signInAnonymously(...)'.
-  signInAnonymously(authInstance);
-  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
+/** Initiates Google sign-in (non-blocking). */
+export function initiateGoogleSignIn(authInstance: Auth): void {
+  const provider = new GoogleAuthProvider();
+  // CRITICAL: Call signInWithPopup directly. Do NOT use 'await'.
+  signInWithPopup(authInstance, provider)
+    .then((result) => {
+        // Handle successful sign-in, maybe log or emit an event
+        console.log("Sign-in successful for:", result.user.displayName);
+    })
+    .catch((error) => {
+        // Handle errors, maybe log or emit an event
+        console.error("Google sign-in error:", error.message);
+    });
 }
 
-/** Initiate email/password sign-up (non-blocking). */
-export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Call createUserWithEmailAndPassword directly. Do NOT use 'await createUserWithEmailAndPassword(...)'.
-  createUserWithEmailAndPassword(authInstance, email, password);
-  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
-}
-
-/** Initiate email/password sign-in (non-blocking). */
-export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Call signInWithEmailAndPassword directly. Do NOT use 'await signInWithEmailAndPassword(...)'.
-  signInWithEmailAndPassword(authInstance, email, password);
-  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
+/** Initiates sign-out (non-blocking). */
+export function initiateSignOut(authInstance: Auth): void {
+    signOut(authInstance)
+     .then(() => {
+        console.log("Sign-out successful.");
+    })
+    .catch((error) => {
+        console.error("Sign-out error:", error.message);
+    });
 }

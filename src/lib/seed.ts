@@ -3,7 +3,8 @@
 // Example: `npx tsx src/lib/seed.ts`
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, writeBatch } from 'firebase/firestore';
+import { getFirestore, collection, doc, writeBatch, Timestamp } from 'firebase/firestore';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseConfig } from '@/firebase/config';
 
 import {
@@ -20,6 +21,7 @@ import {
   sampleProcedures,
   sampleLabResults,
   sampleImagingStudies,
+  sampleUsers,
 } from './sample-data';
 
 async function seedDatabase() {
@@ -28,9 +30,34 @@ async function seedDatabase() {
   // Initialize Firebase
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
+  const auth = getAuth(firebaseApp);
 
   try {
     const batch = writeBatch(db);
+
+    // Seed Users and create Auth accounts
+    console.log(`Seeding ${sampleUsers.length} users...`);
+    for (const user of sampleUsers) {
+      try {
+        // Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
+        const authUser = userCredential.user;
+        console.log(`Successfully created auth user: ${authUser.email}`);
+        
+        // Add user data to Firestore
+        const userRef = doc(db, 'users', authUser.uid);
+        const { password, ...userData } = user; // Don't store password in Firestore
+        batch.set(userRef, { ...userData, uid: authUser.uid });
+
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          console.warn(`Auth user with email ${user.email} already exists. Skipping creation.`);
+        } else {
+          console.error(`Error creating auth user ${user.email}:`, error);
+        }
+      }
+    }
+
 
     // Seed Patients
     console.log(`Seeding ${samplePatients.length} patients...`);
@@ -72,8 +99,11 @@ async function seedDatabase() {
     // Seed Clinical Notes
     console.log(`Seeding ${sampleClinicalNotes.length} clinical notes...`);
     for (const note of sampleClinicalNotes) {
-        const noteRef = doc(collection(db, 'patients', sampleEncounters.find(e => e.encounterId === note.encounterId)!.personId, 'clinicalNotes'), note.noteId);
-        batch.set(noteRef, note);
+        const encounter = sampleEncounters.find(e => e.encounterId === note.encounterId);
+        if (encounter) {
+            const noteRef = doc(collection(db, 'patients', encounter.personId, 'clinicalNotes'), note.noteId);
+            batch.set(noteRef, note);
+        }
     }
 
     // Seed Procedures
@@ -155,5 +185,6 @@ async function seedDatabase() {
 
 seedDatabase().then(() => {
     // Manually exit the process because the Firebase connection keeps it alive.
-    process.exit();
+    console.log('Seed script finished. Exiting.');
+    process.exit(0);
 });

@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'firebase.google.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      }
     ],
   },
 };

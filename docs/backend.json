@@ -1,5 +1,21 @@
 {
   "entities": {
+    "User": {
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the application with a specific role.",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "role": {
+          "type": "string",
+          "enum": ["physician", "nurse", "radiology", "lab", "billing", "admin"],
+          "description": "The role of the user, which determines their permissions and dashboard."
+        },
+        "displayName": { "type": "string", "description": "User's display name." }
+      },
+      "required": ["uid", "email", "role"]
+    },
     "Patient": {
       "title": "Patient",
       "type": "object",
@@ -552,6 +568,12 @@
     }
   },
   "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Stores user profiles and roles."
+    },
     "/patients/{patientId}": {
       "schema": {
         "$ref": "#/entities/Patient"
@@ -639,7 +661,7 @@
   },
   "auth": {
     "providers": [
-      "password"
+      "google"
     ]
   }
 }
