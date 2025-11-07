@@ -449,7 +449,7 @@ export default function PhysicianDashboard() {
                   <div className="space-y-2">
                       {allTasks.map((task, i) => (
                           <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
-                              <div onClick={() => handleTaskClick(task.mrn)}>
+                              <div onClick={() => handleTaskClick(task.mrn)} className="flex-grow">
                                   <p className="font-semibold text-sm">{task.description}</p>
                                   <p className="text-xs text-muted-foreground">
                                     Patient:{" "}
