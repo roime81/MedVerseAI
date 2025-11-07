@@ -92,7 +92,7 @@ export function useCollection<T = any>(
           internalQuery._query.collectionGroup ??
           (memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : internalQuery._query.path.canonicalString())
+            : internalQuery._query.path?.canonicalString());
 
         const contextualError = new FirestorePermissionError({
           operation: 'list',

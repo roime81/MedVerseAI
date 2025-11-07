@@ -1,118 +1,110 @@
 export const samplePatients = [
   {
     personId: '1',
-    genderConceptId: 'M',
-    yearOfBirth: 1985,
-    monthOfBirth: 5,
-    dayOfBirth: 15,
-    raceConceptId: 'White',
-    ethnicityConceptId: 'Not Hispanic',
-    locationId: '101',
-    providerId: '11',
-    careSiteId: '1',
+    nationalId: '123-456-7890',
+    fullName: 'John Doe',
+    dateOfBirth: '1985-05-15',
+    gender: 'Male',
+    race: 'White',
+    ethnicity: 'Not Hispanic',
+    maritalStatus: 'Married',
+    contactInfo: 'j.doe@email.com',
+    address: '123 Main St, Anytown, USA',
+    emergencyContact: 'Jane Doe, Spouse, 555-1234',
+    primaryProviderId: '11',
+    insuranceNumber: 'UHC12345',
   },
   {
     personId: '2',
-    genderConceptId: 'F',
-    yearOfBirth: 1992,
-    monthOfBirth: 8,
-    dayOfBirth: 22,
-    raceConceptId: 'Black',
-    ethnicityConceptId: 'Not Hispanic',
-    locationId: '102',
-    providerId: '12',
-    careSiteId: '1',
+    nationalId: '987-654-3210',
+    fullName: 'Jane Smith',
+    dateOfBirth: '1992-08-22',
+    gender: 'Female',
+    race: 'Black',
+    ethnicity: 'Not Hispanic',
+    maritalStatus: 'Single',
+    contactInfo: 'j.smith@email.com',
+    address: '456 Oak Ave, Anytown, USA',
+    emergencyContact: 'John Smith, Father, 555-5678',
+    primaryProviderId: '12',
+    insuranceNumber: 'BCBS67890',
   },
 ];
 
 export const sampleEncounters = [
   {
-    visitOccurrenceId: '101',
+    encounterId: '101',
     personId: '1',
-    visitConceptId: 'Outpatient',
-    visitStartDatetime: '2023-01-10T09:00:00Z',
-    visitEndDatetime: '2023-01-10T09:45:00Z',
-    careSiteId: '1',
+    facilityId: 'HOS-001',
+    encounterType: 'Outpatient',
+    admissionDatetime: '2023-01-10T09:00:00Z',
+    dischargeDatetime: '2023-01-10T09:45:00Z',
+    attendingProviderId: '11',
+    visitReason: 'Annual Check-up',
+    visitStatus: 'Discharged',
   },
   {
-    visitOccurrenceId: '102',
+    encounterId: '102',
     personId: '2',
-    visitConceptId: 'Inpatient',
-    visitStartDatetime: '2023-02-15T11:00:00Z',
-    visitEndDatetime: '2023-02-20T17:00:00Z',
-    careSiteId: '1',
+    facilityId: 'HOS-001',
+    encounterType: 'Inpatient',
+    admissionDatetime: '2023-02-15T11:00:00Z',
+    dischargeDatetime: '2023-02-20T17:00:00Z',
+    attendingProviderId: '12',
+    visitReason: 'Pneumonia',
+    visitStatus: 'Discharged',
   },
 ];
 
 export const sampleConditions = [
   {
-    conditionOccurrenceId: '201',
+    diagnosisId: '201',
     personId: '1',
-    conditionConceptId: 'Hypertension',
-    conditionStartDate: '2022-05-20',
-    conditionEndDate: '',
+    encounterId: '101',
+    icd10Code: 'I10',
+    diagnosisType: 'Principal',
+    onsetDate: '2022-05-20',
+    resolutionDate: '',
+    status: 'Active',
+    certainty: 'Confirmed',
   },
   {
-    conditionOccurrenceId: '202',
+    diagnosisId: '202',
     personId: '2',
-    conditionConceptId: 'Type 2 Diabetes',
-    conditionStartDate: '2021-11-30',
-    conditionEndDate: '',
-  },
-];
-
-export const sampleObservations = [
-  {
-    observationId: '301',
-    personId: '1',
-    observationConceptId: 'Smoking status',
-    observationDate: '2023-01-10',
-    valueAsString: 'Former smoker',
-  },
-  {
-    observationId: '302',
-    personId: '2',
-    observationConceptId: 'Family history of heart disease',
-    observationDate: '2023-02-15',
-    valueAsString: 'Yes',
-  },
-];
-
-export const sampleMeasurements = [
-  {
-    measurementId: '401',
-    personId: '1',
-    measurementConceptId: 'Blood Pressure',
-    measurementDatetime: '2023-01-10T09:15:00Z',
-    valueAsNumber: 140,
-    unitConceptId: 'mmHg',
-  },
-  {
-    measurementId: '402',
-    personId: '2',
-    measurementConceptId: 'HbA1c',
-    measurementDatetime: '2023-02-15T11:30:00Z',
-    valueAsNumber: 7.5,
-    unitConceptId: '%',
+    encounterId: '102',
+    icd10Code: 'E11.9',
+    diagnosisType: 'Principal',
+    onsetDate: '2021-11-30',
+    resolutionDate: '',
+    status: 'Active',
+    certainty: 'Confirmed',
   },
 ];
 
 export const sampleDrugExposures = [
   {
-    drugExposureId: '501',
+    medicationId: '501',
     personId: '1',
-    drugConceptId: 'Lisinopril',
-    drugExposureStartDatetime: '2022-05-20T08:00:00Z',
-    drugExposureEndDatetime: '',
-    doseUnitConceptId: 'mg',
+    encounterId: '101',
+    drugCode: 'RxNorm:856335',
+    drugName: 'Lisinopril 10 MG Oral Tablet',
+    dose: '10mg',
+    startDate: '2022-05-20T08:00:00Z',
+    endDate: '',
+    prescribingPhysicianId: '11',
+    dispenseStatus: 'Dispensed',
   },
   {
-    drugExposureId: '502',
+    medicationId: '502',
     personId: '2',
-    drugConceptId: 'Metformin',
-    drugExposureStartDatetime: '2021-11-30T09:00:00Z',
-    drugExposureEndDatetime: '',
-    doseUnitConceptId: 'mg',
+    encounterId: '102',
+    drugCode: 'RxNorm:860975',
+    drugName: 'Metformin 500 MG Oral Tablet',
+    dose: '500mg',
+    startDate: '2021-11-30T09:00:00Z',
+    endDate: '',
+    prescribingPhysicianId: '12',
+    dispenseStatus: 'Dispensed',
   },
 ];
 
@@ -162,43 +154,45 @@ export const sampleCareSites = [
 
 export const sampleCosts = [
   {
-    costId: 'C-001',
+    chargeId: 'C-001',
     personId: '1',
-    costEventId: '101',
-    costDomainId: 'Visit',
-    cost: 150.0,
-    paidByPayer: 120.0,
-    paidByPatient: 30.0,
-    revenueCode: '0450',
+    encounterId: '101',
+    serviceCode: '99213',
+    description: 'Office Visit Level 3',
+    totalCharge: 150.0,
+    patientResponsibility: 30.0,
+    paymentStatus: 'Paid',
+    claimId: 'CLAIM-101-1',
   },
   {
-    costId: 'C-002',
+    chargeId: 'C-002',
     personId: '2',
-    costEventId: '102',
-    costDomainId: 'Visit',
-    cost: 12500.0,
-    paidByPayer: 10000.0,
-    paidByPatient: 2500.0,
-    revenueCode: '0121',
+    encounterId: '102',
+    serviceCode: 'DRG-194',
+    description: 'Inpatient Stay - Simple Pneumonia',
+    totalCharge: 12500.0,
+    patientResponsibility: 2500.0,
+    paymentStatus: 'Pending',
+    claimId: 'CLAIM-102-1',
   },
 ];
 
 export const samplePayerPlanPeriods = [
   {
-    payerPlanPeriodId: 'PPP-001',
+    planId: 'PPP-001',
     personId: '1',
-    payerPlanPeriodStartDate: '2023-01-01',
-    payerPlanPeriodEndDate: '2023-12-31',
-    payerSourceName: 'United Health',
-    planSourceName: 'PPO-Gold',
+    payerId: 'Payer-UHC',
+    coverageStartDate: '2023-01-01',
+    coverageEndDate: '2023-12-31',
+    policyNumber: 'UHC12345',
   },
   {
-    payerPlanPeriodId: 'PPP-002',
+    planId: 'PPP-002',
     personId: '2',
-    payerPlanPeriodStartDate: '2023-01-01',
-    payerPlanPeriodEndDate: '2023-12-31',
-    payerSourceName: 'Blue Cross',
-    planSourceName: 'HMO-Silver',
+    payerId: 'Payer-BCBS',
+    coverageStartDate: '2023-01-01',
+    coverageEndDate: '2023-12-31',
+    policyNumber: 'BCBS67890',
   },
 ];
 
@@ -206,27 +200,85 @@ export const sampleVisitDetails = [
   {
     visitDetailId: 'VD-001',
     personId: '1',
-    visitOccurrenceId: '101',
-    visitDetailConceptId: 'Office Visit',
-    visitDetailStartDate: '2023-01-10',
-    careSiteId: '1',
+    encounterId: '101',
+    serviceCode: '99213',
+    serviceDate: '2023-01-10',
   },
   {
     visitDetailId: 'VD-002',
     personId: '2',
-    visitOccurrenceId: '102',
-    visitDetailConceptId: 'Inpatient Stay',
-    visitDetailStartDate: '2023-02-15',
-    careSiteId: '1',
+    encounterId: '102',
+    serviceCode: '99223',
+    serviceDate: '2023-02-15',
   },
   {
     visitDetailId: 'VD-003',
     personId: '2',
-    visitOccurrenceId: '102',
-    visitDetailConceptId: 'X-Ray',
-    visitDetailStartDate: '2023-02-16',
-    careSiteId: '1',
+    encounterId: '102',
+    serviceCode: '71045',
+    serviceDate: '2023-02-16',
   },
 ];
 
-    
+export const sampleClinicalNotes = [
+    {
+        noteId: "CN-001",
+        encounterId: "101",
+        authorId: "11",
+        noteType: "SOAP",
+        noteText: "Patient presents for annual check-up. Reports feeling well. No new complaints. Vitals stable.",
+        dateTimeCreated: "2023-01-10T09:30:00Z"
+    },
+    {
+        noteId: "CN-002",
+        encounterId: "102",
+        authorId: "12",
+        noteType: "Admission Note",
+        noteText: "Patient admitted with fever, cough, and shortness of breath. Chest X-ray confirms pneumonia. Starting IV antibiotics.",
+        dateTimeCreated: "2023-02-15T11:45:00Z"
+    }
+];
+
+export const sampleProcedures = [
+    {
+        procedureId: "PROC-001",
+        personId: "2",
+        encounterId: "102",
+        procedureCode: "CPT:31500",
+        procedureName: "Emergency endotracheal intubation",
+        procedureDateTime: "2023-02-15T12:00:00Z",
+        performingClinicianId: "12"
+    }
+];
+
+export const sampleLabResults = [
+    {
+        labOrderId: "LAB-001",
+        personId: "1",
+        encounterId: "101",
+        testCode: "LOINC:1751-7",
+        resultValue: "4.8 %",
+        resultDate: "2023-01-10T10:00:00Z",
+        resultFlag: "Normal"
+    },
+    {
+        labOrderId: "LAB-002",
+        personId: "2",
+        encounterId: "102",
+        testCode: "LOINC:6690-2",
+        resultValue: "15.2 K/uL",
+        resultDate: "2023-02-15T11:15:00Z",
+        resultFlag: "High"
+    }
+];
+
+export const sampleImagingStudies = [
+    {
+        imagingOrderId: "IMG-001",
+        personId: "2",
+        encounterId: "102",
+        modality: "X-ray",
+        procedureCode: "LOINC:24627-2",
+        impression: "Right lower lobe infiltrate consistent with pneumonia."
+    }
+];

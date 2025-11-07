@@ -10,14 +10,16 @@ import {
   samplePatients,
   sampleEncounters,
   sampleConditions,
-  sampleObservations,
-  sampleMeasurements,
   sampleDrugExposures,
   sampleBeds,
   sampleCareSites,
   sampleCosts,
   samplePayerPlanPeriods,
   sampleVisitDetails,
+  sampleClinicalNotes,
+  sampleProcedures,
+  sampleLabResults,
+  sampleImagingStudies,
 } from './sample-data';
 
 async function seedDatabase() {
@@ -42,7 +44,7 @@ async function seedDatabase() {
     for (const encounter of sampleEncounters) {
       const encounterRef = doc(
         collection(db, 'patients', encounter.personId, 'encounters'),
-        encounter.visitOccurrenceId
+        encounter.encounterId
       );
       batch.set(encounterRef, encounter);
     }
@@ -52,29 +54,9 @@ async function seedDatabase() {
     for (const condition of sampleConditions) {
       const conditionRef = doc(
         collection(db, 'patients', condition.personId, 'conditions'),
-        condition.conditionOccurrenceId
+        condition.diagnosisId
       );
       batch.set(conditionRef, condition);
-    }
-
-    // Seed Observations
-    console.log(`Seeding ${sampleObservations.length} observations...`);
-    for (const observation of sampleObservations) {
-      const observationRef = doc(
-        collection(db, 'patients', observation.personId, 'observations'),
-        observation.observationId
-      );
-      batch.set(observationRef, observation);
-    }
-
-    // Seed Measurements
-    console.log(`Seeding ${sampleMeasurements.length} measurements...`);
-    for (const measurement of sampleMeasurements) {
-      const measurementRef = doc(
-        collection(db, 'patients', measurement.personId, 'measurements'),
-        measurement.measurementId
-      );
-      batch.set(measurementRef, measurement);
     }
 
     // Seed Drug Exposures
@@ -82,9 +64,39 @@ async function seedDatabase() {
     for (const drug of sampleDrugExposures) {
       const drugRef = doc(
         collection(db, 'patients', drug.personId, 'drugExposures'),
-        drug.drugExposureId
+        drug.medicationId
       );
       batch.set(drugRef, drug);
+    }
+    
+    // Seed Clinical Notes
+    console.log(`Seeding ${sampleClinicalNotes.length} clinical notes...`);
+    for (const note of sampleClinicalNotes) {
+        const noteRef = doc(collection(db, 'patients', sampleEncounters.find(e => e.encounterId === note.encounterId)!.personId, 'clinicalNotes'), note.noteId);
+        batch.set(noteRef, note);
+    }
+
+    // Seed Procedures
+    console.log(`Seeding ${sampleProcedures.length} procedures...`);
+    for (const procedure of sampleProcedures) {
+        const procedureRef = doc(collection(db, 'patients', procedure.personId, 'procedures'), procedure.procedureId);
+        batch.set(procedureRef, procedure);
+        const topLevelProcedureRef = doc(db, 'procedures', procedure.procedureId);
+        batch.set(topLevelProcedureRef, procedure);
+    }
+
+    // Seed Lab Results
+    console.log(`Seeding ${sampleLabResults.length} lab results...`);
+    for (const labResult of sampleLabResults) {
+        const labResultRef = doc(collection(db, 'patients', labResult.personId, 'labResults'), labResult.labOrderId);
+        batch.set(labResultRef, labResult);
+    }
+
+    // Seed Imaging Studies
+    console.log(`Seeding ${sampleImagingStudies.length} imaging studies...`);
+    for (const study of sampleImagingStudies) {
+        const studyRef = doc(collection(db, 'patients', study.personId, 'imagingStudies'), study.imagingOrderId);
+        batch.set(studyRef, study);
     }
 
     // Seed Beds
@@ -106,7 +118,7 @@ async function seedDatabase() {
     for (const cost of sampleCosts) {
       const costRef = doc(
         collection(db, 'patients', cost.personId, 'costs'),
-        cost.costId
+        cost.chargeId
       );
       batch.set(costRef, cost);
     }
@@ -118,7 +130,7 @@ async function seedDatabase() {
     for (const plan of samplePayerPlanPeriods) {
       const planRef = doc(
         collection(db, 'patients', plan.personId, 'payerPlanPeriods'),
-        plan.payerPlanPeriodId
+        plan.planId
       );
       batch.set(planRef, plan);
     }
@@ -145,5 +157,3 @@ seedDatabase().then(() => {
     // Manually exit the process because the Firebase connection keeps it alive.
     process.exit();
 });
-
-    

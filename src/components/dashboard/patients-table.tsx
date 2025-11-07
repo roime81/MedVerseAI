@@ -20,17 +20,21 @@ export default function PatientsTable() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Birth Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {isLoading && <tr><td colSpan={3}>Loading...</td></tr>}
+            {isLoading && <tr><td colSpan={5}>Loading...</td></tr>}
             {patients?.map((patient) => (
               <tr key={patient.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{patient.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.genderConceptId}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${patient.yearOfBirth}-${patient.monthOfBirth}-${patient.dayOfBirth}`}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.fullName}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.dateOfBirth}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.gender}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.contactInfo}</td>
               </tr>
             ))}
           </tbody>

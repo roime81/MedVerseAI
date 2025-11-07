@@ -21,18 +21,22 @@ export default function EncountersTable() {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admission Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discharge Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {isLoading && <tr><td colSpan={4}>Loading...</td></tr>}
+            {isLoading && <tr><td colSpan={6}>Loading...</td></tr>}
             {encounters?.map((item) => (
               <tr key={item.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.personId}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.visitStartDatetime}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.visitEndDatetime}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.encounterType}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.admissionDatetime}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.dischargeDatetime}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.visitReason}</td>
               </tr>
             ))}
           </tbody>

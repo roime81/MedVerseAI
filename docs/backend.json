@@ -9,45 +9,60 @@
           "type": "string",
           "description": "Unique identifier for the Patient entity."
         },
-        "genderConceptId": {
+        "nationalId": {
           "type": "string",
-          "description": "Gender concept of the patient."
+          "description": "Government-issued identifier."
         },
-        "yearOfBirth": {
-          "type": "number",
-          "description": "The year the patient was born."
+        "fullName": {
+          "type": "string",
+          "description": "Patient's full name."
         },
-        "monthOfBirth": {
-          "type": "number",
-          "description": "The month the patient was born."
+        "dateOfBirth": {
+          "type": "string",
+          "format": "date",
+          "description": "Patient's date of birth."
         },
-        "dayOfBirth": {
-          "type": "number",
-          "description": "The day the patient was born."
+        "gender": {
+          "type": "string",
+          "description": "Gender of the patient."
         },
-        "raceConceptId": {
+        "race": {
           "type": "string",
           "description": "Race classification of the patient."
         },
-        "ethnicityConceptId": {
+        "ethnicity": {
           "type": "string",
           "description": "Ethnicity classification of the patient."
         },
-        "locationId": {
+        "maritalStatus": {
           "type": "string",
-          "description": "Link to the patient's address."
+          "description": "Civil status of the patient."
         },
-        "providerId": {
+        "contactInfo": {
           "type": "string",
-          "description": "Primary care provider for the patient."
+          "description": "Patient's phone or email."
         },
-        "careSiteId": {
+        "address": {
           "type": "string",
-          "description": "Hospital or clinic site associated with the patient."
+          "description": "Patient's full address."
+        },
+        "emergencyContact": {
+          "type": "string",
+          "description": "Emergency contact information."
+        },
+        "primaryProviderId": {
+          "type": "string",
+          "description": "Assigned primary care physician."
+        },
+        "insuranceNumber": {
+          "type": "string",
+          "description": "Link to insurance table."
         }
       },
       "required": [
-        "personId"
+        "personId",
+        "fullName",
+        "dateOfBirth"
       ]
     },
     "Encounter": {
@@ -55,7 +70,7 @@
       "type": "object",
       "description": "Represents a patient encounter or visit.",
       "properties": {
-        "visitOccurrenceId": {
+        "encounterId": {
           "type": "string",
           "description": "Unique identifier for the Encounter entity."
         },
@@ -63,27 +78,39 @@
           "type": "string",
           "description": "Link to the Patient."
         },
-        "visitConceptId": {
+        "facilityId": {
+          "type": "string",
+          "description": "Hospital or clinic unit where the encounter occurred."
+        },
+        "encounterType": {
           "type": "string",
           "description": "Type of visit (inpatient, outpatient, emergency)."
         },
-        "visitStartDatetime": {
+        "admissionDatetime": {
           "type": "string",
           "format": "date-time",
           "description": "Start time of the visit."
         },
-        "visitEndDatetime": {
+        "dischargeDatetime": {
           "type": "string",
           "format": "date-time",
           "description": "End time of the visit."
         },
-        "careSiteId": {
+        "attendingProviderId": {
           "type": "string",
-          "description": "Facility where the encounter occurred."
+          "description": "Doctor in charge of the visit."
+        },
+        "visitReason": {
+          "type": "string",
+          "description": "The initial reason for the visit."
+        },
+        "visitStatus": {
+          "type": "string",
+          "description": "Status of the visit (e.g., Active, Discharged)."
         }
       },
       "required": [
-        "visitOccurrenceId",
+        "encounterId",
         "personId"
       ]
     },
@@ -92,107 +119,47 @@
       "type": "object",
       "description": "Represents a patient's medical condition or diagnosis.",
       "properties": {
-        "conditionOccurrenceId": {
+        "diagnosisId": {
           "type": "string",
-          "description": "Unique identifier for the Condition entity."
+          "description": "Unique identifier for the Diagnosis entity."
         },
         "personId": {
           "type": "string",
           "description": "Link to the Patient."
         },
-        "conditionConceptId": {
+        "encounterId": {
           "type": "string",
-          "description": "SNOMED/ICD-10 code for the condition."
+          "description": "Link to the Encounter when diagnosed."
         },
-        "conditionStartDate": {
+        "icd10Code": {
+          "type": "string",
+          "description": "ICD-10 or SNOMED code for the condition."
+        },
+        "diagnosisType": {
+          "type": "string",
+          "description": "Principal or Secondary diagnosis."
+        },
+        "onsetDate": {
           "type": "string",
           "format": "date",
           "description": "Onset date of the condition."
         },
-        "conditionEndDate": {
+        "resolutionDate": {
           "type": "string",
           "format": "date",
           "description": "Resolution date of the condition."
+        },
+        "status": {
+          "type": "string",
+          "description": "Active or Resolved."
+        },
+        "certainty": {
+          "type": "string",
+          "description": "Confirmed or Suspected."
         }
       },
       "required": [
-        "conditionOccurrenceId",
-        "personId"
-      ]
-    },
-    "Observation": {
-      "title": "Observation",
-      "type": "object",
-      "description": "Represents a clinical observation about a patient.",
-      "properties": {
-        "observationId": {
-          "type": "string",
-          "description": "Unique identifier for the Observation entity."
-        },
-        "personId": {
-          "type": "string",
-          "description": "Link to the Patient."
-        },
-        "observationConceptId": {
-          "type": "string",
-          "description": "Type of observation."
-        },
-        "observationDate": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Date and time of the observation."
-        },
-        "valueAsNumber": {
-          "type": "number",
-          "description": "Numeric result of the observation."
-        },
-        "valueAsString": {
-          "type": "string",
-          "description": "String result of the observation."
-        },
-        "unitConceptId": {
-          "type": "string",
-          "description": "Unit of measurement for the observation."
-        }
-      },
-      "required": [
-        "observationId",
-        "personId"
-      ]
-    },
-    "Measurement": {
-      "title": "Measurement",
-      "type": "object",
-      "description": "Represents a vital sign or lab measurement.",
-      "properties": {
-        "measurementId": {
-          "type": "string",
-          "description": "Unique identifier for the Measurement entity."
-        },
-        "personId": {
-          "type": "string",
-          "description": "Link to the Patient."
-        },
-        "measurementConceptId": {
-          "type": "string",
-          "description": "LOINC code for the measurement."
-        },
-        "measurementDatetime": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Date and time of the measurement."
-        },
-        "valueAsNumber": {
-          "type": "number",
-          "description": "Numeric result of the measurement."
-        },
-        "unitConceptId": {
-          "type": "string",
-          "description": "Unit of measurement (mmHg, mmol/L)."
-        }
-      },
-      "required": [
-        "measurementId",
+        "diagnosisId",
         "personId"
       ]
     },
@@ -201,35 +168,51 @@
       "type": "object",
       "description": "Represents a patient's drug exposure or medication.",
       "properties": {
-        "drugExposureId": {
+        "medicationId": {
           "type": "string",
-          "description": "Unique identifier for the DrugExposure entity."
+          "description": "Unique identifier for the Medication order."
         },
         "personId": {
           "type": "string",
           "description": "Link to the Patient."
         },
-        "drugConceptId": {
+        "encounterId": {
+          "type": "string",
+          "description": "Link to the Encounter when prescribed."
+        },
+        "drugCode": {
           "type": "string",
           "description": "RxNorm / ATC code for the drug."
         },
-        "drugExposureStartDatetime": {
+        "drugName": {
+          "type": "string",
+          "description": "Name of the medication."
+        },
+        "dose": {
+          "type": "string",
+          "description": "Dosage details (e.g., '10mg')."
+        },
+        "startDate": {
           "type": "string",
           "format": "date-time",
           "description": "Start time of the drug exposure."
         },
-        "drugExposureEndDatetime": {
+        "endDate": {
           "type": "string",
           "format": "date-time",
           "description": "End time of the drug exposure."
         },
-        "doseUnitConceptId": {
+        "prescribingPhysicianId": {
           "type": "string",
-          "description": "Unit of measurement for the drug dose (mg, ml)."
+          "description": "ID of the prescribing doctor."
+        },
+        "dispenseStatus": {
+          "type": "string",
+          "description": "Dispensed or Not dispensed."
         }
       },
       "required": [
-        "drugExposureId",
+        "medicationId",
         "personId"
       ]
     },
@@ -294,43 +277,47 @@
       "type": "object",
       "description": "Represents billing and cost information for a clinical event.",
       "properties": {
-        "costId": {
+        "chargeId": {
           "type": "string",
-          "description": "Unique identifier for the Cost entity."
+          "description": "Unique identifier for the charge line."
         },
         "personId": {
           "type": "string",
           "description": "Identifier of the patient associated with this cost."
         },
-        "costEventId": {
+        "encounterId": {
           "type": "string",
-          "description": "ID of the clinical event this cost is for (e.g., visit_occurrence_id)."
+          "description": "ID of the encounter this cost is for."
         },
-        "costDomainId": {
+        "serviceCode": {
           "type": "string",
-          "description": "The domain of the clinical event (e.g., 'Visit', 'Procedure')."
+          "description": "Local or CPT code for the service."
         },
-        "cost": {
+        "description": {
+          "type": "string",
+          "description": "Description of the service or item."
+        },
+        "totalCharge": {
           "type": "number",
           "description": "The total charge for the event."
         },
-        "paidByPayer": {
+        "patientResponsibility": {
           "type": "number",
-          "description": "Amount paid by the insurance payer."
+          "description": "Amount paid by the patient (copay, deductible)."
         },
-        "paidByPatient": {
-          "type": "number",
-          "description": "Amount paid by the patient (copay, coinsurance, deductible)."
-        },
-        "revenueCode": {
+        "paymentStatus": {
           "type": "string",
-          "description": "Revenue code for the service."
+          "description": "Pending, Paid, or Denied."
+        },
+        "claimId": {
+          "type": "string",
+          "description": "Link to the claim submission."
         }
       },
       "required": [
-        "costId",
+        "chargeId",
         "personId",
-        "costEventId"
+        "encounterId"
       ]
     },
     "PayerPlanPeriod": {
@@ -338,7 +325,7 @@
       "type": "object",
       "description": "Represents a patient's insurance coverage timeline.",
       "properties": {
-        "payerPlanPeriodId": {
+        "planId": {
           "type": "string",
           "description": "Unique identifier for the PayerPlanPeriod entity."
         },
@@ -346,29 +333,29 @@
           "type": "string",
           "description": "Identifier of the patient."
         },
-        "payerPlanPeriodStartDate": {
+        "payerId": {
+          "type": "string",
+          "description": "ID of the insurance company."
+        },
+        "coverageStartDate": {
           "type": "string",
           "format": "date",
           "description": "Start date of the coverage."
         },
-        "payerPlanPeriodEndDate": {
+        "coverageEndDate": {
           "type": "string",
           "format": "date",
           "description": "End date of the coverage."
         },
-        "payerSourceName": {
+        "policyNumber": {
           "type": "string",
-          "description": "Name of the insurance payer (e.g., 'Blue Cross')."
-        },
-        "planSourceName": {
-          "type": "string",
-          "description": "Name of the insurance plan (e.g., 'PPO Gold')."
+          "description": "Policy identifier."
         }
       },
       "required": [
-        "payerPlanPeriodId",
+        "planId",
         "personId",
-        "payerPlanPeriodStartDate"
+        "coverageStartDate"
       ]
     },
     "VisitDetail": {
@@ -384,28 +371,175 @@
           "type": "string",
           "description": "Identifier of the patient."
         },
-        "visitOccurrenceId": {
+        "encounterId": {
           "type": "string",
           "description": "Identifier of the parent visit/encounter."
         },
-        "visitDetailConceptId": {
+        "serviceCode": {
           "type": "string",
           "description": "Concept identifying the service or product on the claim line."
         },
-        "visitDetailStartDate": {
+        "serviceDate": {
           "type": "string",
           "format": "date",
           "description": "Start date of the service on the claim line."
-        },
-        "careSiteId": {
-          "type": "string",
-          "description": "Identifier for the care site where the service was provided."
         }
       },
       "required": [
         "visitDetailId",
         "personId",
-        "visitOccurrenceId"
+        "encounterId"
+      ]
+    },
+    "ClinicalNote": {
+      "title": "ClinicalNote",
+      "type": "object",
+      "description": "Represents clinical documentation like doctor or nurse notes.",
+      "properties": {
+        "noteId": {
+          "type": "string",
+          "description": "Unique identifier for the note."
+        },
+        "encounterId": {
+          "type": "string",
+          "description": "Link to the Encounter."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "ID of the clinician who wrote the note."
+        },
+        "noteType": {
+          "type": "string",
+          "description": "SOAP, Progress, Admission, Discharge."
+        },
+        "noteText": {
+          "type": "string",
+          "description": "The unstructured text of the note."
+        },
+        "dateTimeCreated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the note was created."
+        }
+      },
+      "required": [
+        "noteId",
+        "encounterId"
+      ]
+    },
+    "Procedure": {
+      "title": "Procedure",
+      "type": "object",
+      "description": "Represents a medical procedure or operation.",
+      "properties": {
+        "procedureId": {
+          "type": "string",
+          "description": "Unique identifier for the procedure."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Link to the Patient."
+        },
+        "encounterId": {
+          "type": "string",
+          "description": "Link to the Encounter."
+        },
+        "procedureCode": {
+          "type": "string",
+          "description": "CPT/ICD-9/10-PCS code for the procedure."
+        },
+        "procedureName": {
+          "type": "string",
+          "description": "Description of the procedure."
+        },
+        "procedureDateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date and time the procedure was performed."
+        },
+        "performingClinicianId": {
+          "type": "string",
+          "description": "ID of the clinician who performed the procedure."
+        }
+      },
+      "required": [
+        "procedureId",
+        "personId"
+      ]
+    },
+    "LabResult": {
+      "title": "LabResult",
+      "type": "object",
+      "description": "Represents a laboratory or diagnostic test result.",
+      "properties": {
+        "labOrderId": {
+          "type": "string",
+          "description": "Unique identifier for the lab order."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Link to the Patient."
+        },
+        "encounterId": {
+          "type": "string",
+          "description": "Link to the Encounter."
+        },
+        "testCode": {
+          "type": "string",
+          "description": "LOINC code for the test."
+        },
+        "resultValue": {
+          "type": "string",
+          "description": "The resulting value of the test."
+        },
+        "resultDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date and time the result was available."
+        },
+        "resultFlag": {
+          "type": "string",
+          "description": "Flag for the result (e.g., High, Low, Normal)."
+        }
+      },
+      "required": [
+        "labOrderId",
+        "personId"
+      ]
+    },
+    "ImagingStudy": {
+      "title": "ImagingStudy",
+      "type": "object",
+      "description": "Represents an imaging or radiology order.",
+      "properties": {
+        "imagingOrderId": {
+          "type": "string",
+          "description": "Unique identifier for the imaging order."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Link to the Patient."
+        },
+        "encounterId": {
+          "type": "string",
+          "description": "Link to the Encounter."
+        },
+        "modality": {
+          "type": "string",
+          "description": "CT, MRI, X-ray, etc."
+        },
+        "procedureCode": {
+          "type": "string",
+          "description": "LOINC or RadLex code for the study."
+        },
+        "impression": {
+          "type": "string",
+          "description": "Key findings from the radiologist."
+        }
+      },
+      "required": [
+        "imagingOrderId",
+        "personId"
       ]
     }
   },
@@ -427,18 +561,6 @@
         "$ref": "#/entities/Condition"
       },
       "description": "Sub-collection for a patient's conditions."
-    },
-    "/patients/{patientId}/observations/{observationId}": {
-      "schema": {
-        "$ref": "#/entities/Observation"
-      },
-      "description": "Sub-collection for a patient's observations."
-    },
-    "/patients/{patientId}/measurements/{measurementId}": {
-      "schema": {
-        "$ref": "#/entities/Measurement"
-      },
-      "description": "Sub-collection for a patient's measurements."
     },
     "/patients/{patientId}/drugExposures/{drugExposureId}": {
       "schema": {
@@ -464,6 +586,30 @@
       },
       "description": "Sub-collection for a patient's visit claim line details."
     },
+    "/patients/{patientId}/clinicalNotes/{noteId}": {
+      "schema": {
+        "$ref": "#/entities/ClinicalNote"
+      },
+      "description": "Sub-collection for a patient's clinical notes."
+    },
+    "/patients/{patientId}/procedures/{procedureId}": {
+      "schema": {
+        "$ref": "#/entities/Procedure"
+      },
+      "description": "Sub-collection for a patient's procedures."
+    },
+    "/patients/{patientId}/labResults/{labResultId}": {
+      "schema": {
+        "$ref": "#/entities/LabResult"
+      },
+      "description": "Sub-collection for a patient's lab results."
+    },
+    "/patients/{patientId}/imagingStudies/{imagingStudyId}": {
+      "schema": {
+        "$ref": "#/entities/ImagingStudy"
+      },
+      "description": "Sub-collection for a patient's imaging studies."
+    },
     "/beds/{bedId}": {
       "schema": {
         "$ref": "#/entities/Bed"
@@ -475,6 +621,12 @@
         "$ref": "#/entities/CareSite"
       },
       "description": "Stores information about healthcare facilities (hospitals)."
+    },
+    "/procedures/{procedureId}": {
+      "schema": {
+        "$ref": "#/entities/Procedure"
+      },
+      "description": "Top-level collection of all procedures."
     }
   },
   "auth": {
@@ -483,5 +635,3 @@
     ]
   }
 }
-
-    

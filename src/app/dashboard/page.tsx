@@ -3,14 +3,16 @@
 import PatientsTable from '@/components/dashboard/patients-table';
 import EncountersTable from '@/components/dashboard/encounters-table';
 import ConditionsTable from '@/components/dashboard/conditions-table';
-import ObservationsTable from '@/components/dashboard/observations-table';
-import MeasurementsTable from '@/components/dashboard/measurements-table';
 import DrugExposuresTable from '@/components/dashboard/drug-exposures-table';
 import BedsTable from '@/components/dashboard/beds-table';
 import HospitalsTable from '@/components/dashboard/hospitals-table';
 import CostsTable from '@/components/dashboard/costs-table';
 import PayerPlansTable from '@/components/dashboard/payer-plans-table';
 import VisitDetailsTable from '@/components/dashboard/visit-details-table';
+import ProceduresTable from '@/components/dashboard/procedures-table';
+import LabResultsTable from '@/components/dashboard/lab-results-table';
+import ImagingStudiesTable from '@/components/dashboard/imaging-studies-table';
+import ClinicalNotesTable from '@/components/dashboard/clinical-notes-table';
 
 
 // MAIN DASHBOARD PAGE
@@ -22,9 +24,11 @@ export default function DashboardPage() {
       <PatientsTable />
       <EncountersTable />
       <ConditionsTable />
-      <ObservationsTable />
-      <MeasurementsTable />
       <DrugExposuresTable />
+      <ProceduresTable />
+      <LabResultsTable />
+      <ImagingStudiesTable />
+      <ClinicalNotesTable />
       <BedsTable />
       <CostsTable />
       <PayerPlansTable />
@@ -32,5 +36,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

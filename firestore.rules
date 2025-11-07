@@ -20,14 +20,6 @@ service cloud.firestore {
         allow read, write: if isSignedIn();
       }
 
-      match /observations/{observationId} {
-        allow read, write: if isSignedIn();
-      }
-
-      match /measurements/{measurementId} {
-        allow read, write: if isSignedIn();
-      }
-
       match /drugExposures/{drugExposureId} {
         allow read, write: if isSignedIn();
       }
@@ -43,6 +35,22 @@ service cloud.firestore {
       match /visitDetails/{visitDetailId} {
         allow read, write: if isSignedIn();
       }
+      
+      match /clinicalNotes/{noteId} {
+        allow read, write: if isSignedIn();
+      }
+
+      match /procedures/{procedureId} {
+        allow read, write: if isSignedIn();
+      }
+      
+      match /labResults/{labResultId} {
+        allow read, write: if isSignedIn();
+      }
+      
+      match /imagingStudies/{imagingStudyId} {
+        allow read, write: if isSignedIn();
+      }
     }
     
     // Rules for collection group queries
@@ -50,12 +58,6 @@ service cloud.firestore {
       allow list: if isSignedIn();
     }
     match /{path=**}/conditions/{conditionId} {
-      allow list: if isSignedIn();
-    }
-    match /{path=**}/observations/{observationId} {
-      allow list: if isSignedIn();
-    }
-    match /{path=**}/measurements/{measurementId} {
       allow list: if isSignedIn();
     }
     match /{path=**}/drugExposures/{drugExposureId} {
@@ -70,6 +72,19 @@ service cloud.firestore {
     match /{path=**}/visitDetails/{visitDetailId} {
       allow list: if isSignedIn();
     }
+    match /{path=**}/clinicalNotes/{noteId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/procedures/{procedureId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/labResults/{labResultId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/imagingStudies/{imagingStudyId} {
+      allow list: if isSignedIn();
+    }
+
 
     // Beds collection for occupancy management
     match /beds/{bedId} {
@@ -80,7 +95,10 @@ service cloud.firestore {
     match /careSites/{careSiteId} {
       allow read: if isSignedIn();
     }
+    
+    // Procedures collection for all procedures
+    match /procedures/{procedureId} {
+        allow read, write: if isSignedIn();
+    }
   }
 }
-
-    
