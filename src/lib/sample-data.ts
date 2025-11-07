@@ -5,6 +5,7 @@ export type Patient = {
   ward: string;
   bed: string;
   status: 'Occupied' | 'Discharging' | 'Admitted';
+  consultant?: string;
 };
 
 export type Ward = {
@@ -54,11 +55,26 @@ const wardTypes = [
   'Intensive Care Unit'
 ];
 
+const consultants: { [key: string]: string[] } = {
+    Cardiology: ["Dr. Evans", "Dr. Chen"],
+    Orthopedics: ["Dr. Rodriguez", "Dr. Patel"],
+    Neurology: ["Dr. Kim", "Dr. Singh"],
+    Oncology: ["Dr. Williams", "Dr. Gupta"],
+    Pediatrics: ["Dr. Allen", "Dr. Lee"],
+    Maternity: ["Dr. Carter", "Dr. Wong"],
+    "General Surgery": ["Dr. Baker", "Dr. Nguyen"],
+    "Intensive Care Unit": ["Dr. Clark", "Dr. Scott"],
+};
+
 const firstNames = ["John", "Jane", "Peter", "Mary", "David", "Sarah", "Michael", "Jennifer", "Robert", "Emily", "William", "Jessica", "James", "Ashley", "Charles", "Amanda", "Joseph", "Melissa", "Daniel", "Laura"];
 const lastNames = ["Smith", "Doe", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez"];
 
 const hospitals: Hospital[] = [];
 let patientIdCounter = 1;
+
+// Create a pool of patient names to allow for duplicates across hospitals
+const patientNames = Array.from({ length: 400 }, () => `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`);
+
 
 hospitalNames.forEach(hospitalName => {
   const hospitalWards: Ward[] = [];
@@ -84,13 +100,16 @@ hospitalNames.forEach(hospitalName => {
     const ward = hospitalWards[Math.floor(Math.random() * hospitalWards.length)];
     if (ward.occupiedBeds < ward.totalBeds) {
       const statusOptions: Patient['status'][] = ['Occupied', 'Discharging', 'Admitted'];
+      const wardConsultants = consultants[ward.name] || ["Dr. General"];
+
       const patient: Patient = {
         id: `P${String(patientIdCounter).padStart(4, '0')}`,
-        name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
+        name: patientNames[Math.floor(Math.random() * patientNames.length)],
         hospital: hospitalName,
         ward: ward.name,
         bed: `${ward.name.substring(0,1)}-${Math.floor(Math.random() * ward.totalBeds) + 101}`,
         status: statusOptions[Math.floor(Math.random() * statusOptions.length)],
+        consultant: wardConsultants[Math.floor(Math.random() * wardConsultants.length)],
       };
       
       if(patient.status === 'Occupied') {

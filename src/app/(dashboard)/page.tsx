@@ -16,10 +16,32 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { allWards, allPatients, Patient } from '@/lib/sample-data';
+import { User, Users } from 'lucide-react';
+
+// Helper function to find patients who visited multiple hospitals
+const getMultiHospitalPatients = () => {
+  const patientVisits: { [key: string]: { hospitals: Set<string>, patient: Patient, count: number } } = {};
+
+  allPatients.forEach(patient => {
+    if (!patientVisits[patient.name]) {
+      patientVisits[patient.name] = {
+        hospitals: new Set(),
+        patient,
+        count: 0,
+      };
+    }
+    patientVisits[patient.name].hospitals.add(patient.hospital);
+    patientVisits[patient.name].count = patientVisits[patient.name].hospitals.size;
+  });
+  
+  return Object.values(patientVisits).filter(p => p.count > 3);
+};
+
 
 export default function BedManagementPage() {
   const wards = allWards;
   const recentActivity = allPatients.slice(0, 5);
+  const multiHospitalPatients = getMultiHospitalPatients();
   
   const totalBeds = wards.reduce((sum, ward) => sum + ward.totalBeds, 0);
   const occupiedBeds = wards.reduce((sum, ward) => sum + ward.occupiedBeds, 0);
@@ -85,6 +107,43 @@ export default function BedManagementPage() {
              <p className="mt-2 text-sm text-muted-foreground">
               Highest priority: Cardiology C-105
             </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-1">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Users /> Frequent Visitors</CardTitle>
+            <CardDescription>Patients who have visited more than 3 different hospital facilities.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Patient Name</TableHead>
+                  <TableHead>Attending Consultant</TableHead>
+                  <TableHead className="text-center">No. of Hospitals Visited</TableHead>
+                  <TableHead>Last Seen Ward</TableHead>
+                  <TableHead>Last Seen At</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {multiHospitalPatients.length > 0 ? multiHospitalPatients.map(({ patient, count }) => (
+                  <TableRow key={patient.id}>
+                    <TableCell className="font-medium flex items-center gap-2"><User size={16} /> {patient.name}</TableCell>
+                    <TableCell>{patient.consultant}</TableCell>
+                    <TableCell className="text-center">{count}</TableCell>
+                    <TableCell>{patient.ward}</TableCell>
+                    <TableCell>{patient.hospital}</TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">No patients have visited more than 3 hospitals.</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
