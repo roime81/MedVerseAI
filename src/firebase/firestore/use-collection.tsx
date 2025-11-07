@@ -86,25 +86,38 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (error: FirestoreError) => {
-        const internalQuery = memoizedTargetRefOrQuery as unknown as InternalQuery;
-        // This logic extracts the path from either a ref or a query
-        const path: string =
-          internalQuery._query.collectionGroup ??
-          (memoizedTargetRefOrQuery.type === 'collection'
-            ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : internalQuery._query.path?.canonicalString());
+        // Handle Firestore query errors, including missing index errors
+        if (error.code === 'failed-precondition' && error.message.includes('index')) {
+          console.error("Firestore query failed:", error.message);
+          // Create a more informative error message for the developer
+          const helpfulError = new Error(
+            `Query failed. Firestore requires a composite index for this query. ` +
+            `Please check the browser's developer console for a link to create the index in the Firebase console. Original error: ${error.message}`
+          );
+          setError(helpfulError);
+        } else if (error.code === 'permission-denied') {
+          const internalQuery = memoizedTargetRefOrQuery as unknown as InternalQuery;
+          // This logic extracts the path from either a ref or a query
+          const path: string =
+            internalQuery._query.collectionGroup ??
+            (memoizedTargetRefOrQuery.type === 'collection'
+              ? (memoizedTargetRefOrQuery as CollectionReference).path
+              : internalQuery._query.path?.canonicalString());
 
-        const contextualError = new FirestorePermissionError({
-          operation: 'list',
-          path,
-        })
+          const contextualError = new FirestorePermissionError({
+            operation: 'list',
+            path,
+          })
 
-        setError(contextualError)
+          setError(contextualError)
+           // trigger global error propagation
+          errorEmitter.emit('permission-error', contextualError);
+        } else {
+            setError(error);
+        }
+
         setData(null)
         setIsLoading(false)
-
-        // trigger global error propagation
-        errorEmitter.emit('permission-error', contextualError);
       }
     );
 
