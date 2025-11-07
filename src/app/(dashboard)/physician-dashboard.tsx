@@ -433,7 +433,7 @@ export default function PhysicianDashboard() {
               <CardContent>
                   <div className="space-y-4">
                       {allTasks.slice(0, 4).map((task, i) => (
-                          <div key={i} className="flex items-start justify-between p-3 rounded-lg border">
+                          <div key={i} className="flex items-start justify-between p-3 rounded-lg border cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => handleOpenChart(task.mrn)}>
                             <div className="flex-1">
                                   <p className="font-semibold text-sm">{task.description} for <span className="font-bold">{task.patient}</span></p>
                                   <p className="text-xs text-muted-foreground">{task.time}</p>
