@@ -56,7 +56,10 @@ export default function PhysicianDashboard() {
   
   const { data: recentPatients, isLoading: patientsLoading } = useCollection<PatientData>(recentPatientsQuery);
   
-  const tasksQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'tasks'), limit(5)) : null, [firestore]);
+  const tasksQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.displayName) return null;
+    return query(collection(firestore, 'tasks'), limit(5));
+  }, [firestore, user?.displayName]);
   const { data: allTasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
   
   const schedule = useMemo(() => {
@@ -66,11 +69,11 @@ export default function PhysicianDashboard() {
     const statuses = ['Completed', 'In Progress', 'Waiting', 'Scheduled', 'Scheduled'];
     
     return allPatients.slice(0, 5).map((patient, index) => ({
-      time: scheduleTimes[index],
+      time: scheduleTimes[index % scheduleTimes.length],
       name: patient.name,
       age: patient.dob ? new Date().getFullYear() - new Date(patient.dob).getFullYear() : 0,
       reason: reasons[index % reasons.length],
-      status: statuses[index],
+      status: statuses[index % statuses.length],
       mrn: patient.mrn,
       id: patient.id
     }));
@@ -209,7 +212,8 @@ export default function PhysicianDashboard() {
     currentPage * PATIENTS_PER_PAGE
   );
   
-  if (patientsLoading || tasksLoading || allPatientsLoading) {
+  const isLoading = patientsLoading || tasksLoading || allPatientsLoading || !user?.displayName;
+  if (isLoading) {
     return <div className="flex items-center justify-center p-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div>;
   }
 
@@ -492,3 +496,5 @@ export default function PhysicianDashboard() {
     </>
   );
 }
+
+    
