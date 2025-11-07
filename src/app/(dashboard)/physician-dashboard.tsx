@@ -447,11 +447,24 @@ export default function PhysicianDashboard() {
               </CardHeader>
               <CardContent>
                   <div className="space-y-2">
-                      {allTasks.slice(0, 5).map((task, i) => (
-                          <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
-                              <div>
+                      {allTasks.map((task, i) => (
+                          <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
+                              <div onClick={() => handleTaskClick(task.mrn)}>
                                   <p className="font-semibold text-sm">{task.description}</p>
-                                  <p className="text-xs text-muted-foreground">Patient: {task.patient} &bull; Due: {task.time}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Patient:{" "}
+                                    <Button
+                                        variant="link"
+                                        className="p-0 h-auto text-xs"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenChart(task.mrn);
+                                        }}
+                                    >
+                                        {task.patient}
+                                    </Button>{" "}
+                                    &bull; Due: {task.time}
+                                  </p>
                               </div>
                               {getPriorityBadge(task.priority)}
                           </div>
