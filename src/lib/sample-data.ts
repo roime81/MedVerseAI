@@ -20,6 +20,7 @@ export type Patient = {
   hospital: string;
   consultant: string;
   status: 'Occupied' | 'Discharging' | 'Admitted';
+  mrn?: string;
 };
 
 export type Ward = {
@@ -39,19 +40,19 @@ export type Task = {
 
 
 export const allPatients: Patient[] = [
-  { id: 1, name: 'Jane Doe', ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied' },
-  { id: 2, name: 'John Smith', ward: 'Orthopedics', hospital: 'City General', consultant: 'Dr. Chen', status: 'Occupied' },
-  { id: 3, name: 'Peter Jones', ward: 'Neurology', hospital: 'St. Lukes', consultant: 'Dr. Rodriguez', status: 'Occupied' },
-  { id: 4, name: 'Mary Johnson', ward: 'Pediatrics', hospital: 'St. Lukes', consultant: 'Dr. Williams', status: 'Discharging' },
-  { id: 5, name: 'David Williams', ward: 'Oncology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Admitted' },
-  { id: 6, name: 'Sarah Brown', ward: 'Cardiology', hospital: 'MetroWest', consultant: 'Dr. Evans', status: 'Occupied' },
-  { id: 7, name: 'Michael Davis', ward: 'Geriatrics', hospital: 'MetroWest', consultant: 'Dr. Smith', status: 'Occupied' },
-  { id: 8, name: 'Emily Miller', ward: 'ICU', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied' },
-  { id: 9, name: 'Jessica Garcia', ward: 'Maternity', hospital: 'St. Lukes', consultant: 'Dr. Jones', status: 'Discharging' },
-  { id: 10, name: 'James Rodriguez', ward: 'Surgery', hospital: 'City General', consultant: 'Dr. Chen', status: 'Admitted' },
-  { id: 11, name: 'Jane Doe', ward: 'Psychiatry', hospital: 'MetroWest', consultant: 'Dr. Rodriguez', status: 'Occupied' },
-  { id: 12, name: 'John Smith', ward: 'Cardiology', hospital: 'St. Lukes', consultant: 'Dr. Evans', status: 'Occupied' },
-  { id: 13, name: 'Peter Jones', ward: 'Oncology', hospital: 'City General', consultant: 'Dr. Rodriguez', status: 'Discharging' },
+  { id: 1, name: 'Jane Doe', ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0001' },
+  { id: 2, name: 'John Smith', ward: 'Orthopedics', hospital: 'City General', consultant: 'Dr. Chen', status: 'Occupied', mrn: 'MRN-0002' },
+  { id: 3, name: 'Peter Jones', ward: 'Neurology', hospital: 'St. Lukes', consultant: 'Dr. Rodriguez', status: 'Occupied', mrn: 'MRN-0003' },
+  { id: 4, name: 'Mary Johnson', ward: 'Pediatrics', hospital: 'St. Lukes', consultant: 'Dr. Williams', status: 'Discharging', mrn: 'MRN-0004' },
+  { id: 5, name: 'David Williams', ward: 'Oncology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Admitted', mrn: 'MRN-0005' },
+  { id: 6, name: 'Sarah Brown', ward: 'Cardiology', hospital: 'MetroWest', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0006' },
+  { id: 7, name: 'Michael Davis', ward: 'Geriatrics', hospital: 'MetroWest', consultant: 'Dr. Smith', status: 'Occupied', mrn: 'MRN-0007' },
+  { id: 8, name: 'Emily Miller', ward: 'ICU', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0008' },
+  { id: 9, name: 'Jessica Garcia', ward: 'Maternity', hospital: 'St. Lukes', consultant: 'Dr. Jones', status: 'Discharging', mrn: 'MRN-0009' },
+  { id: 10, name: 'James Rodriguez', ward: 'Surgery', hospital: 'City General', consultant: 'Dr. Chen', status: 'Admitted', mrn: 'MRN-0010' },
+  { id: 11, name: 'Jane Doe', ward: 'Psychiatry', hospital: 'MetroWest', consultant: 'Dr. Rodriguez', status: 'Occupied', mrn: 'MRN-0011' },
+  { id: 12, name: 'John Smith', ward: 'Cardiology', hospital: 'St. Lukes', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0012' },
+  { id: 13, name: 'Peter Jones', ward: 'Oncology', hospital: 'City General', consultant: 'Dr. Rodriguez', status: 'Discharging', mrn: 'MRN-0013' },
 ];
 
 export const allWards: Ward[] = [

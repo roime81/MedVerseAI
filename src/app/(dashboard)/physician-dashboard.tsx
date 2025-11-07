@@ -1,17 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2, FileClock, ClipboardCheck, Pill } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2, FileClock, ClipboardCheck, Pill, Search } from "lucide-react";
 import { allPatients, Patient, allTasks } from "@/lib/sample-data";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
 import { PatientDetailSheet } from './patient-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TreatmentJourney } from './treatment-journey';
+import { Input } from '@/components/ui/input';
 
 
 const kpiData = [
@@ -291,18 +292,22 @@ const initialRecentPatients: RecentPatient[] = [
   },
 ];
 
+const PATIENTS_PER_PAGE = 5;
+
 export default function PhysicianDashboard() {
   const [isFormOpen, setFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showAllPatients, setShowAllPatients] = useState(false);
+  const [showAllPatientsDialog, setShowAllPatientsDialog] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
   const [selectedPatientForJourney, setSelectedPatientForJourney] = useState<RecentPatient | null>(null);
-  const [showActivePatients, setShowActivePatients] = useState(false);
+  const [showActivePatientsDialog, setShowActivePatientsDialog] = useState(false);
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
   const [selectedAppointmentStatus, setSelectedAppointmentStatus] = useState<string | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   
   const handleSavePatient = (data: PatientRegistrationData) => {
     setIsSaving(true);
@@ -315,7 +320,8 @@ export default function PhysicianDashboard() {
         consultant: 'Dr. Anderson',
         status: 'Admitted',
       };
-      allPatients.push(newPatient);
+      // This is a mock update. In a real app, this would be a state update.
+      // allPatients.push(newPatient);
 
       toast({
         title: 'Patient Registered',
@@ -327,15 +333,14 @@ export default function PhysicianDashboard() {
   };
   
   const handleOpenChart = (mrn: string, status?: string) => {
-    const patient = recentPatients.find(p => p.mrn === mrn);
+    const patient = recentPatients.find(p => p.mrn === mrn) || allPatients.find(p => p.mrn === mrn);
     if (patient) {
-        setSelectedPatient(patient);
+        setSelectedPatient(patient as RecentPatient);
         setSelectedAppointmentStatus(status);
     } else {
-        // Find in a broader list if needed or handle not found case
         toast({
             title: 'Patient Not Found',
-            description: 'The selected patient\'s detailed chart is not available in the recent list.',
+            description: 'The selected patient\'s detailed chart is not available.',
             variant: 'destructive',
         })
     }
@@ -343,7 +348,7 @@ export default function PhysicianDashboard() {
 
   const handleKpiClick = (id: string) => {
     if (id === 'patients') {
-      setShowActivePatients(true);
+      setShowActivePatientsDialog(true);
     }
   };
 
@@ -463,6 +468,18 @@ const treatmentJourneyLee: JourneyTask[] = [
     ? treatmentJourneyLee 
     : treatmentJourneyMartinez;
 
+  const filteredPatients = useMemo(() => {
+    return allPatients.filter(patient =>
+      patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (patient.mrn && patient.mrn.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(filteredPatients.length / PATIENTS_PER_PAGE);
+  const paginatedPatients = filteredPatients.slice(
+    (currentPage - 1) * PATIENTS_PER_PAGE,
+    currentPage * PATIENTS_PER_PAGE
+  );
 
   return (
     <>
@@ -543,7 +560,7 @@ const treatmentJourneyLee: JourneyTask[] = [
               </CardHeader>
               <CardContent>
                   <div className="space-y-2">
-                      {allTasks.map((task, i) => (
+                      {allTasks.slice(0,5).map((task, i) => (
                           <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
                               <div className="flex-grow">
                                   <p className="font-semibold text-sm">{task.description}</p>
@@ -574,7 +591,7 @@ const treatmentJourneyLee: JourneyTask[] = [
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Recent Patients</CardTitle>
-                <Button variant="link" size="sm" onClick={() => setShowAllPatients(true)}>View All</Button>
+                <Button variant="link" size="sm" onClick={() => { setSearchQuery(''); setCurrentPage(1); setShowAllPatientsDialog(true); }}>View All</Button>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentPatients.map((patient, i) => (
@@ -620,45 +637,83 @@ const treatmentJourneyLee: JourneyTask[] = [
           </DialogContent>
       </Dialog>
       
-      <Dialog open={showAllPatients} onOpenChange={setShowAllPatients}>
+      <Dialog open={showAllPatientsDialog} onOpenChange={setShowAllPatientsDialog}>
         <DialogContent className="max-w-4xl">
             <DialogHeader>
                 <DialogTitle>All Patients</DialogTitle>
                 <DialogDescription>A complete list of all patients in the system.</DialogDescription>
+                 <div className="relative pt-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search by name or MRN..." 
+                        className="pl-9" 
+                        value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                    />
+                </div>
             </DialogHeader>
              <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Name</TableHead>
+                        <TableHead>MRN</TableHead>
                         <TableHead>Ward</TableHead>
-                        <TableHead>Hospital</TableHead>
-                        <TableHead>Consultant</TableHead>
                         <TableHead>Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {allPatients.map((patient) => (
-                        <TableRow key={patient.id} className="cursor-pointer">
+                    {paginatedPatients.map((patient) => (
+                        <TableRow 
+                            key={patient.id} 
+                            className="cursor-pointer"
+                            onClick={() => {
+                                handleOpenChart(patient.mrn || '');
+                                setShowAllPatientsDialog(false);
+                            }}
+                        >
                             <TableCell className="font-medium">{patient.name}</TableCell>
+                            <TableCell>{patient.mrn}</TableCell>
                             <TableCell>{patient.ward}</TableCell>
-                            <TableCell>{patient.hospital}</TableCell>
-                            <TableCell>{patient.consultant}</TableCell>
                             <TableCell>{getPatientStatusBadge(patient.status)}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+            <DialogFooter className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                    Showing page {currentPage} of {totalPages}
+                </p>
+                <div className="flex gap-2">
+                    <Button 
+                        variant="outline"
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </Button>
+                    <Button 
+                        variant="outline"
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
       
-      <Dialog open={showActivePatients} onOpenChange={setShowActivePatients}>
+      <Dialog open={showActivePatientsDialog} onOpenChange={setShowActivePatientsDialog}>
         <DialogContent className="max-w-4xl">
             <DialogHeader className="flex-row items-center justify-between">
                 <div>
                     <DialogTitle>Active Patients</DialogTitle>
                     <DialogDescription>A list of recently active patients.</DialogDescription>
                 </div>
-                 <Button variant="link" onClick={() => { setShowActivePatients(false); setShowAllPatients(true); }}>View All Patients</Button>
+                 <Button variant="link" onClick={() => { setShowActivePatientsDialog(false); setShowAllPatientsDialog(true); }}>View All Patients</Button>
             </DialogHeader>
              <Table>
                 <TableHeader>
@@ -673,7 +728,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                     {recentPatients.map((patient) => (
                         <TableRow key={patient.mrn} className="cursor-pointer" onClick={() => {
                             setSelectedPatient(patient);
-                            setShowActivePatients(false);
+                            setShowActivePatientsDialog(false);
                         }}>
                             <TableCell className="font-medium">
                                 <Button variant="link" className="p-0 h-auto">{patient.name}</Button>
