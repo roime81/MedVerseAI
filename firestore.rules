@@ -6,29 +6,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    match /patients/{document=**} {
-      allow read: if isSignedIn();
-      allow write: if false; 
-    }
-
-    match /wards/{document=**} {
-      allow read: if isSignedIn();
-      allow write: if false;
-    }
-
-    match /tasks/{document=**} {
-      allow read: if isSignedIn();
-      allow write: if false;
-    }
-
-    match /staffProfiles/{document=**} {
-      allow read: if isSignedIn();
-      allow write: if false;
-    }
-    
-    // Default deny all other collections
-    match /{path=**}/{document=**} {
-      allow read, write: if false;
+    // Allow signed-in users to read from any of these collections
+    match /{collection}/{document=**} {
+      allow read: if isSignedIn() && collection in ['patients', 'wards', 'tasks', 'staffProfiles'];
+      allow write: if false; // Default to no write access from client
     }
   }
 }
