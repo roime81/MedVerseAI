@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
-  BrainCircuit, Bed, Stethoscope, Calendar, Pill, Video, FolderArchive,
+  BrainCircuit, Bed, Stethoscope, Calendar, Pill, Video, FolderArchive, LogOut,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -11,6 +11,9 @@ import {
 } from '@/components/ui/sidebar';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
+import { useUser, useAuth } from '@/firebase';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const navItems = [
   { href: '/', label: 'Bed Management', icon: Bed, tooltip: 'Bed Management' },
@@ -23,6 +26,11 @@ const navItems = [
 
 function AppHeader() {
   const userAvatar = placeholderImages.find(p => p.id === 'user-avatar');
+  const auth = useAuth();
+
+  const handleLogout = () => {
+    auth.signOut();
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background/80 px-4 backdrop-blur-sm">
@@ -30,10 +38,20 @@ function AppHeader() {
       <div className="flex-1" />
       <h1 className="font-headline text-xl font-semibold sm:hidden text-primary">MedVerseAI</h1>
       <div className="flex-1" />
-      <Avatar>
-        <AvatarImage src={userAvatar?.imageUrl} data-ai-hint="person face" />
-        <AvatarFallback>AK</AvatarFallback>
-      </Avatar>
+       <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Avatar className="cursor-pointer">
+            <AvatarImage src={userAvatar?.imageUrl} data-ai-hint="person face" />
+            <AvatarFallback>AK</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }
@@ -44,6 +62,25 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
+
+  React.useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+            <BrainCircuit className="size-12 text-primary animate-pulse" />
+            <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider defaultOpen>
