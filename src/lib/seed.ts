@@ -205,10 +205,12 @@ async function seedCollections(db, physicianUserIds) {
   // Update physician documents with their associated care sites
   console.log('Updating physicians with associated care sites...');
   for (const [physicianUid, careSiteIds] of physicianCareSites.entries()) {
-    const userRef = doc(db, 'users', physicianUid);
-    await updateDoc(userRef, {
-      associatedCareSites: Array.from(careSiteIds)
-    });
+    if (physicianUid) {
+      const userRef = doc(db, 'users', physicianUid);
+      await updateDoc(userRef, {
+        associatedCareSites: Array.from(careSiteIds)
+      });
+    }
   }
 }
 

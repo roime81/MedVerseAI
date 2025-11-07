@@ -49,6 +49,8 @@ const careSites = [
 ];
 
 const physicians = baseUsers.filter(u => u.role === 'physician');
+const drCarterId = 'dr_emily_carter';
+const drCarterHospitalIds = ['HOS-001', 'HOS-002']; // General Hospital & City Medical Center
 
 // Helper function to get a random item from an array
 const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -61,6 +63,10 @@ const generatePatients = (count: number) => {
     for (let i = 0; i < count; i++) {
         const gender = faker.person.sexType();
         const fullName = faker.person.fullName({ sex: gender });
+
+        // Assign first 5 patients to Dr. Carter, rest are random
+        const primaryProviderId = i < 5 ? drCarterId : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
+
         patients.push({
             personId: faker.string.uuid(),
             nationalId: faker.string.nanoid(10),
@@ -73,7 +79,7 @@ const generatePatients = (count: number) => {
             contactInfo: faker.internet.email({firstName: fullName.split(' ')[0], lastName: fullName.split(' ')[1]}),
             address: faker.location.streetAddress(true),
             emergencyContact: `${faker.person.fullName()}, ${faker.helpers.arrayElement(['Spouse', 'Parent', 'Sibling', 'Friend'])}, ${faker.phone.number()}`,
-            primaryProviderId: getRandomItem(physicians).id,
+            primaryProviderId: primaryProviderId,
             insuranceNumber: `INS-${faker.string.alphanumeric(8).toUpperCase()}`,
             allergyFlag: faker.helpers.arrayElement(['None', 'Penicillin', 'Sulfa', 'Aspirin', 'Shellfish']),
             activeProblemList: '', // Will be populated later
@@ -86,22 +92,34 @@ const generateEncounters = (patients: any[]) => {
     const encounters: any[] = [];
     patients.forEach(patient => {
         const numEncounters = faker.number.int({ min: 2, max: 8 });
-        const patientCareSites = new Set<string>();
-        while(patientCareSites.size < 2) {
-            patientCareSites.add(getRandomItem(careSites).careSiteId);
+        
+        let facilityIds: string[];
+        if (patient.primaryProviderId === drCarterId) {
+            facilityIds = drCarterHospitalIds; // Ensure Dr. Carter's patients go to her hospitals
+        } else {
+            const patientCareSites = new Set<string>();
+            while(patientCareSites.size < 2) {
+                patientCareSites.add(getRandomItem(careSites).careSiteId);
+            }
+            facilityIds = Array.from(patientCareSites);
         }
 
         for (let i = 0; i < numEncounters; i++) {
             const admissionDate = faker.date.past({ years: 3 });
             const dischargeDate = new Date(admissionDate.getTime() + faker.number.int({ min: 1, max: 14 }) * 24 * 60 * 60 * 1000);
+            
+            const attendingProviderId = patient.primaryProviderId === drCarterId
+                ? drCarterId
+                : getRandomItem(physicians).id;
+
             encounters.push({
                 encounterId: faker.string.uuid(),
                 personId: patient.personId,
-                facilityId: getRandomItem(Array.from(patientCareSites)),
+                facilityId: getRandomItem(facilityIds),
                 encounterType: faker.helpers.arrayElement(['Inpatient', 'Outpatient', 'Emergency', 'Telehealth']),
                 admissionDatetime: admissionDate.toISOString(),
                 dischargeDatetime: dischargeDate.toISOString(),
-                attendingProviderId: getRandomItem(physicians).id,
+                attendingProviderId: attendingProviderId,
                 visitReason: faker.helpers.arrayElement(['Annual Check-up', 'Follow-up', 'New Complaint', 'Injury', 'Chronic Condition Management']),
                 visitStatus: 'Discharged',
             });
@@ -119,6 +137,8 @@ const generateConditions = (patients: any[], encounters: any[]) => {
     patients.forEach(patient => {
         const numConditions = faker.number.int({ min: 1, max: 4 });
         const patientEncounters = encounters.filter(e => e.personId === patient.personId);
+        if (patientEncounters.length === 0) return;
+
         for (let i = 0; i < numConditions; i++) {
             const icd10 = getRandomItem(icd10Codes);
             const encounter = getRandomItem(patientEncounters);
@@ -148,6 +168,9 @@ const generateProcedures = (patients: any[], encounters: any[]) => {
   encounters.forEach(encounter => {
     if (Math.random() > 0.5) { // 50% chance of a procedure
       const proc = getRandomItem(procedureData);
+      
+      const performingClinicianId = encounter.attendingProviderId;
+
       procedures.push({
         procedureId: faker.string.uuid(),
         personId: encounter.personId,
@@ -155,7 +178,7 @@ const generateProcedures = (patients: any[], encounters: any[]) => {
         procedureCode: proc.code,
         procedureName: proc.name,
         procedureDateTime: encounter.admissionDatetime,
-        performingClinicianId: encounter.attendingProviderId,
+        performingClinicianId: performingClinicianId,
       });
     }
   });
@@ -173,6 +196,8 @@ const generateDrugExposures = (patients: any[], encounters: any[]) => {
    patients.forEach(patient => {
         const numDrugs = faker.number.int({ min: 1, max: 3 });
         const patientEncounters = encounters.filter(e => e.personId === patient.personId);
+        if (patientEncounters.length === 0) return;
+
         for(let i=0; i<numDrugs; i++){
           const drug = getRandomItem(drugData);
           const encounter = getRandomItem(patientEncounters);
@@ -212,16 +237,37 @@ const generateClinicalNotes = (encounters: any[]) => {
 const generatePendingTasks = (users: any[], patients: any[]) => {
     const tasks = [];
     const physicianUsers = users.filter(u => u.role === 'physician');
-    physicianUsers.forEach(user => {
-        const numTasks = faker.number.int({ min: 2, max: 5 });
+    
+    // Create specific tasks for Dr. Carter for her patients
+    const drCarter = physicianUsers.find(u => u.id === drCarterId);
+    const drCarterPatients = patients.filter(p => p.primaryProviderId === drCarterId);
+    if (drCarter && drCarterPatients.length > 0) {
+        for(let i = 0; i < 3; i++) { // Create 3 tasks for Dr. Carter
+            const patient = drCarterPatients[i % drCarterPatients.length];
+            tasks.push({
+                taskId: faker.string.uuid(),
+                assignedTo: drCarter.id,
+                description: `Review ${faker.helpers.arrayElement(['chest X-Ray', 'blood test', 'MRI results'])} for ${patient.fullName}`,
+                priority: faker.helpers.arrayElement(['High', 'Medium', 'Low']),
+                dueDate: faker.date.future({days: 14}).toISOString().split('T')[0],
+                status: 'Pending',
+                patientId: patient.personId,
+            });
+        }
+    }
+
+    // Create random tasks for other physicians
+    const otherPhysicians = physicianUsers.filter(u => u.id !== drCarterId);
+    otherPhysicians.forEach(user => {
+        const numTasks = faker.number.int({ min: 1, max: 3 });
         for(let i = 0; i < numTasks; i++) {
             const patient = getRandomItem(patients);
             tasks.push({
                 taskId: faker.string.uuid(),
                 assignedTo: user.id, // using the static ID
-                description: `Review lab results for ${patient.fullName}`,
-                priority: faker.helpers.arrayElement(['High', 'Medium', 'Low']),
-                dueDate: faker.date.future().toISOString().split('T')[0],
+                description: `Follow up on patient inquiry from ${patient.fullName}`,
+                priority: faker.helpers.arrayElement(['Medium', 'Low']),
+                dueDate: faker.date.future({days: 30}).toISOString().split('T')[0],
                 status: 'Pending',
                 patientId: patient.personId,
             });
@@ -271,5 +317,3 @@ const generateAllData = (patientCount: number) => {
 
 // Exporting the generator
 export const generatedData = generateAllData(50);
-
-    
