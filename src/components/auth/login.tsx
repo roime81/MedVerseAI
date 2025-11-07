@@ -5,18 +5,22 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAuth, useUser } from '@/firebase';
 import {
   initiateGoogleSignIn,
   initiateSignOut,
+  initiateEmailSignIn
 } from '@/firebase/non-blocking-login';
 import { Stethoscope } from 'lucide-react';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { redirect } from 'next/navigation';
 
@@ -59,6 +63,25 @@ export default function Login() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+    try {
+      initiateEmailSignIn(auth, email, password, (err) => {
+        setError(err || 'Failed to sign in. Please check your credentials.');
+      });
+    } catch (e) {
+       setError('An unexpected error occurred.');
+    }
+  };
 
   const handleGoogleSignIn = () => {
     initiateGoogleSignIn(auth);
@@ -73,10 +96,6 @@ export default function Login() {
         const userDoc = await getDoc(userRef);
   
         if (!userDoc.exists()) {
-          // This is a simplified example. In a real app, you'd have a
-          // more robust way of assigning roles, perhaps through a backend
-          // function or a dedicated user management UI for admins.
-          // Here, we default to 'physician' for any new user.
           await setDoc(
             userRef,
             {
@@ -84,7 +103,7 @@ export default function Login() {
               email: user.email,
               displayName: user.displayName,
               photoURL: user.photoURL,
-              role: 'physician', // Default role for new sign-ups
+              role: 'physician',
             },
             { merge: true }
           );
@@ -116,6 +135,45 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
+          <form onSubmit={handleEmailSignIn} className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+             {error && <p className="text-sm text-red-500">{error}</p>}
+            <Button type="submit" className="w-full">
+              Sign In
+            </Button>
+          </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
           <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
             <svg
               className="w-4 h-4 mr-2"
@@ -139,5 +197,3 @@ export default function Login() {
     </div>
   );
 }
-
-    
