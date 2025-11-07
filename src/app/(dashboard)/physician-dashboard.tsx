@@ -9,6 +9,8 @@ import { allPatients, Patient } from "@/lib/sample-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
+import { PatientDetailSheet } from './patient-detail-sheet';
+
 
 const kpiData = [
     { title: "Today's Appointments", value: 12, icon: Calendar, color: "text-blue-500" },
@@ -32,10 +34,117 @@ const tasks = [
     { description: 'Review imaging results', time: '3 hours ago', priority: 'Low' },
 ];
 
-const initialRecentPatients = [
-    { name: 'James Martinez', lastSeen: '2 days ago', alerts: 2, conditions: ['Hypertension', 'Type 2 Diabetes']},
-    { name: 'Patricia Brown', lastSeen: '5 days ago', alerts: 0, conditions: ['Asthma']},
-    { name: 'David Lee', lastSeen: '1 week ago', alerts: 1, conditions: ['COPD', 'High Cholesterol']},
+export type RecentPatient = {
+  name: string;
+  lastSeen: string;
+  alerts: number;
+  mrn: string;
+  dob: string;
+  gender: 'Male' | 'Female' | 'Other';
+  ssnLast4: string;
+  maritalStatus: 'Married' | 'Single' | 'Divorced' | 'Widowed';
+  contact: {
+    phone: string;
+    email: string;
+    address: {
+      line1: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+  };
+  emergencyContact: {
+    name: string;
+    phone: string;
+  };
+  insurance: {
+    provider: string;
+    policyNumber: string;
+    groupNumber: string;
+    status: 'Active' | 'Inactive';
+  };
+  conditions: {
+    name: string;
+    stage: string;
+    code: string;
+    diagnosedDate: string;
+  }[];
+};
+
+const initialRecentPatients: RecentPatient[] = [
+  {
+    name: 'James Martinez',
+    lastSeen: '2 days ago',
+    alerts: 2,
+    mrn: 'MRN-0847',
+    dob: '1965-03-12',
+    gender: 'Male',
+    ssnLast4: '4521',
+    maritalStatus: 'Married',
+    contact: {
+      phone: '(555) 234-8901',
+      email: 'james.martinez@email.com',
+      address: {
+        line1: '456 Oak Avenue, Apt 3B',
+        city: 'New York',
+        state: 'NY',
+        zip: '10002',
+      },
+    },
+    emergencyContact: {
+      name: 'Maria Martinez',
+      phone: '(555) 234-8902',
+    },
+    insurance: {
+      provider: 'Medicare',
+      policyNumber: 'MED-847521963',
+      groupNumber: 'GRP-NY-001',
+      status: 'Active',
+    },
+    conditions: [
+      { name: 'Hypertension', stage: '(Stage 2)', code: 'I10', diagnosedDate: '2018-01-15' },
+      { name: 'Type 2 Diabetes Mellitus', stage: '', code: 'E11.9', diagnosedDate: '2019-06-20' },
+    ],
+  },
+  {
+    name: 'Patricia Brown',
+    lastSeen: '5 days ago',
+    alerts: 0,
+    mrn: 'MRN-0921',
+    dob: '1980-08-25',
+    gender: 'Female',
+    ssnLast4: '7890',
+    maritalStatus: 'Single',
+    contact: {
+      phone: '(555) 555-1234',
+      email: 'patricia.brown@email.com',
+      address: { line1: '789 Pine St', city: 'Someville', state: 'CA', zip: '90210' },
+    },
+    emergencyContact: { name: 'John Brown', phone: '(555) 555-5678' },
+    insurance: { provider: 'Blue Shield PPO', policyNumber: 'BS-12345', groupNumber: 'BS-GRP-1', status: 'Active' },
+    conditions: [{ name: 'Asthma', stage: '', code: 'J45', diagnosedDate: '2010-05-10' }],
+  },
+  {
+    name: 'David Lee',
+    lastSeen: '1 week ago',
+    alerts: 1,
+    mrn: 'MRN-1055',
+    dob: '1955-11-02',
+    gender: 'Male',
+    ssnLast4: '3456',
+    maritalStatus: 'Widowed',
+    contact: {
+      phone: '(555) 987-6543',
+      email: 'david.lee@email.com',
+      address: { line1: '123 Maple Dr', city: 'Anytown', state: 'TX', zip: '75001' },
+    },
+    emergencyContact: { name: 'Susan Lee', phone: '(555) 987-1111' },
+    insurance: { provider: 'Aetna', policyNumber: 'AET-98765', groupNumber: 'AET-GRP-2', status: 'Active' },
+    conditions: [
+      { name: 'COPD', stage: '', code: 'J44.9', diagnosedDate: '2021-02-01' },
+      { name: 'High Cholesterol', stage: '', code: 'E78.5', diagnosedDate: '2020-11-11' },
+    ],
+  },
 ];
 
 
@@ -44,10 +153,10 @@ export default function PhysicianDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
+  const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
   
   const handleSavePatient = (data: PatientRegistrationData) => {
     setIsSaving(true);
-    // Simulate API call
     setTimeout(() => {
       const newPatient: Patient = {
         id: allPatients.length + 1,
@@ -57,10 +166,6 @@ export default function PhysicianDashboard() {
         consultant: 'Dr. Anderson',
         status: 'Admitted',
       };
-      // In a real app, you'd send this to a server. Here we just log it.
-      console.log('New Patient Registered:', newPatient);
-      
-      // Add to sample data (for demonstration purposes)
       allPatients.push(newPatient);
 
       toast({
@@ -94,138 +199,152 @@ export default function PhysicianDashboard() {
 
   return (
     <>
-    <div className="space-y-6 animate-fade-in">
-      <header className="flex items-center justify-between">
-        <div>
-            <h1 className="font-headline text-3xl font-bold tracking-tight">
-            Welcome back, Dr. Anderson
-            </h1>
-            <p className="text-muted-foreground">
-            Here's what's happening today
-            </p>
+      <div className="space-y-6 animate-fade-in">
+        <header className="flex items-center justify-between">
+          <div>
+              <h1 className="font-headline text-3xl font-bold tracking-tight">
+              Welcome back, Dr. Anderson
+              </h1>
+              <p className="text-muted-foreground">
+              Here's what's happening today
+              </p>
+          </div>
+          <Button onClick={() => setFormOpen(true)}>
+              <FilePlus2 className="mr-2 h-4 w-4" />
+              New Patient Record
+          </Button>
+        </header>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {kpiData.map((kpi) => (
+              <Card key={kpi.title} className="flex items-center p-4">
+                  <div className={`mr-4 p-3 rounded-lg bg-secondary ${kpi.color}`}>
+                      <kpi.icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                      <p className="text-sm text-muted-foreground">{kpi.title}</p>
+                      <p className="text-2xl font-bold">{kpi.value}</p>
+                  </div>
+              </Card>
+          ))}
         </div>
-        <Button onClick={() => setFormOpen(true)}>
-            <FilePlus2 className="mr-2 h-4 w-4" />
-            New Patient Record
-        </Button>
-      </header>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {kpiData.map((kpi) => (
-             <Card key={kpi.title} className="flex items-center p-4">
-                <div className={`mr-4 p-3 rounded-lg bg-secondary ${kpi.color}`}>
-                    <kpi.icon className="h-6 w-6" />
-                </div>
-                <div>
-                    <p className="text-sm text-muted-foreground">{kpi.title}</p>
-                    <p className="text-2xl font-bold">{kpi.value}</p>
-                </div>
-            </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Today's Schedule */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Today's Schedule</CardTitle>
-            <Button variant="outline" size="sm">
-                <Calendar className="mr-2 h-4 w-4"/>
-                View Full Calendar
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-                {schedule.map((appt, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
-                        <div className="flex items-center gap-4">
-                            <span className="font-semibold text-sm w-12 text-muted-foreground">{appt.time}</span>
-                             <Avatar className="h-10 w-10">
-                                <AvatarFallback>{appt.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-semibold text-base">{appt.name}</p>
-                                <p className="text-sm text-muted-foreground">{appt.age} yrs • {appt.reason}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                           {getStatusBadge(appt.status)}
-                           <Button variant="ghost">Open Chart</Button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-
-         {/* Pending Tasks */}
-        <Card>
-            <CardHeader>
-                <CardTitle>Pending Tasks</CardTitle>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Today's Schedule */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Today's Schedule</CardTitle>
+              <Button variant="outline" size="sm">
+                  <Calendar className="mr-2 h-4 w-4"/>
+                  View Full Calendar
+              </Button>
             </CardHeader>
             <CardContent>
-                <div className="space-y-4">
-                    {tasks.map((task, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
-                           <div>
-                                <p className="font-semibold text-sm">{task.description}</p>
-                                <p className="text-xs text-muted-foreground">{task.time}</p>
+              <div className="space-y-4">
+                  {schedule.map((appt, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
+                          <div className="flex items-center gap-4">
+                              <span className="font-semibold text-sm w-12 text-muted-foreground">{appt.time}</span>
+                              <Avatar className="h-10 w-10">
+                                  <AvatarFallback>{appt.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                  <p className="font-semibold text-base">{appt.name}</p>
+                                  <p className="text-sm text-muted-foreground">{appt.age} yrs • {appt.reason}</p>
+                              </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getStatusBadge(appt.status)}
+                            <Button variant="ghost">Open Chart</Button>
+                          </div>
+                      </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pending Tasks */}
+          <Card>
+              <CardHeader>
+                  <CardTitle>Pending Tasks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <div className="space-y-4">
+                      {tasks.map((task, i) => (
+                          <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
+                            <div>
+                                  <p className="font-semibold text-sm">{task.description}</p>
+                                  <p className="text-xs text-muted-foreground">{task.time}</p>
+                              </div>
+                            {getPriorityBadge(task.priority)}
+                          </div>
+                      ))}
+                  </div>
+              </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Patients */}
+        <Card>
+            <CardHeader>
+                <CardTitle>Recent Patients</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recentPatients.map((patient, i) => (
+                    <Card 
+                      key={i} 
+                      className="p-4 hover:bg-secondary/50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedPatient(patient)}
+                    >
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                  <AvatarFallback>{patient.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                  <p className="font-semibold">{patient.name}</p>
+                                  <p className="text-sm text-muted-foreground">{patient.lastSeen}</p>
+                              </div>
                             </div>
-                           {getPriorityBadge(task.priority)}
+                            {patient.alerts > 0 && <Badge variant="destructive" className="flex items-center justify-center rounded-full h-6 w-6 p-0">{patient.alerts}</Badge>}
                         </div>
-                    ))}
-                </div>
+                        <div className="mt-3 flex flex-wrap gap-1">
+                            {patient.conditions.slice(0, 2).map((cond, j) => (
+                                <Badge key={j} variant="outline" className="text-xs">{cond.name}</Badge>
+                            ))}
+                        </div>
+                    </Card>
+                ))}
             </CardContent>
         </Card>
       </div>
-
-       {/* Recent Patients */}
-      <Card>
-          <CardHeader>
-              <CardTitle>Recent Patients</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentPatients.map((patient, i) => (
-                  <Card key={i} className="p-4 hover:bg-secondary/50 transition-colors">
-                      <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                                <AvatarFallback>{patient.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-semibold">{patient.name}</p>
-                                <p className="text-sm text-muted-foreground">{patient.lastSeen}</p>
-                            </div>
-                          </div>
-                          {patient.alerts > 0 && <Badge variant="destructive" className="flex items-center justify-center rounded-full h-6 w-6 p-0">{patient.alerts}</Badge>}
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-1">
-                          {patient.conditions.map((cond, j) => (
-                              <Badge key={j} variant="outline" className="text-xs">{cond}</Badge>
-                          ))}
-                      </div>
-                  </Card>
-              ))}
-          </CardContent>
-      </Card>
-    </div>
-    
-    <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>New Patient Registration</DialogTitle>
-            <DialogDescription>
-              Complete the form below to register a new patient in the system.
-            </DialogDescription>
-          </DialogHeader>
-          <PatientRegistrationForm 
-            onSubmit={handleSavePatient}
-            onCancel={() => setFormOpen(false)}
-            isSaving={isSaving}
-          />
-        </DialogContent>
+      
+      <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>New Patient Registration</DialogTitle>
+              <DialogDescription>
+                Complete the form below to register a new patient in the system.
+              </DialogDescription>
+            </DialogHeader>
+            <PatientRegistrationForm 
+              onSubmit={handleSavePatient}
+              onCancel={() => setFormOpen(false)}
+              isSaving={isSaving}
+            />
+          </DialogContent>
       </Dialog>
+
+      <PatientDetailSheet 
+        patient={selectedPatient}
+        isOpen={!!selectedPatient}
+        onOpenChange={(isOpen) => {
+            if (!isOpen) {
+                setSelectedPatient(null);
+            }
+        }}
+      />
     </>
   );
 }
