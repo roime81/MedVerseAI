@@ -1,3 +1,4 @@
+
 'use client';
 import * as React from 'react';
 import {
@@ -10,9 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import {
-  ChevronsLeft,
   ChevronsRight,
-  MoreVertical,
   Search,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -83,7 +82,7 @@ export default function DashboardLayout({
                   <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
                   <AvatarFallback>
                     {user?.name
-                      .split(' ')
+                      ?.split(' ')
                       .map((n) => n[0])
                       .join('')}
                   </AvatarFallback>
