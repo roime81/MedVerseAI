@@ -1,0 +1,227 @@
+/**
+ * @file Firestore Security Rules for MedVerseAI
+ * @version 2
+ *
+ * @Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for patient data, ensuring only authorized
+ * users (doctors, hospital staff) can access patient records. Care site, provider, and location
+ * data are publicly readable.
+ *
+ * @Data Structure:
+ * - Patient-specific data is nested under `/users/{userId}/patients/{patientId}`, with subcollections
+ *   for encounters, conditions, observations, measurements, and drug exposures.
+ * - Care sites, providers, and locations are stored in top-level collections (`/care_sites`,
+ *   `/providers`, `/locations`).
+ *
+ * @Key Security Decisions:
+ * - Patient data is strictly controlled by user ownership.
+ * - Care sites, providers, and locations are publicly readable.
+ * - Listing operations are secured based on user ownership for patient data and are public for other entities.
+ *
+ * @Denormalization for Authorization:
+ * - User ownership is enforced by nesting patient data under `/users/{userId}`.
+ *   This avoids `get()` calls to verify ownership.
+ *
+ * @Structural Segregation:
+ * - Patient-specific and public data are stored in separate collections to ensure proper
+ *   access control and simplify security rules.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Allows a user to manage their own patient records.
+     * @path /users/{userId}/patients/{patientId}
+     * @allow (create) User 'user_abc' can create a patient record with personId equal to 'patient_123'.
+     * @deny (create) User 'user_xyz' cannot create a patient record under '/users/user_abc/patients/patient_123'.
+     * @allow (get) User 'user_abc' can read patient record 'patient_123' under their own user ID.
+     * @allow (list) User 'user_abc' can list patient records under their own user ID.
+     * @allow (update) User 'user_abc' can update patient record 'patient_123' under their own user ID.
+     * @allow (delete) User 'user_abc' can delete patient record 'patient_123' under their own user ID.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/patients/{patientId} {
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.personId == patientId;
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.personId == resource.data.personId;
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows a user to manage encounters for their patients.
+     * @path /users/{userId}/patients/{patientId}/encounters/{encounterId}
+     * @allow (create) User 'user_abc' can create an encounter record 'encounter_456' for patient 'patient_123' under their own user ID.
+     * @deny (create) User 'user_xyz' cannot create an encounter record under '/users/user_abc/patients/patient_123/encounters/encounter_456'.
+     * @allow (get) User 'user_abc' can read encounter record 'encounter_456' under their own user ID.
+     * @allow (list) User 'user_abc' can list encounter records under their own user ID.
+     * @allow (update) User 'user_abc' can update encounter record 'encounter_456' under their own user ID.
+     * @allow (delete) User 'user_abc' can delete encounter record 'encounter_456' under their own user ID.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/patients/{patientId}/encounters/{encounterId} {
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.personId == patientId;
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.personId == resource.data.personId;
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows a user to manage conditions for their patients.
+     * @path /users/{userId}/patients/{patientId}/conditions/{conditionId}
+     * @allow (create) User 'user_abc' can create a condition record 'condition_789' for patient 'patient_123' under their own user ID.
+     * @deny (create) User 'user_xyz' cannot create a condition record under '/users/user_abc/patients/patient_123/conditions/condition_789'.
+     * @allow (get) User 'user_abc' can read condition record 'condition_789' under their own user ID.
+     * @allow (list) User 'user_abc' can list condition records under their own user ID.
+     * @allow (update) User 'user_abc' can update condition record 'condition_789' under their own user ID.
+     * @allow (delete) User 'user_abc' can delete condition record 'condition_789' under their own user ID.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/patients/{patientId}/conditions/{conditionId} {
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.personId == patientId;
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.personId == resource.data.personId;
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows a user to manage observations for their patients.
+     * @path /users/{userId}/patients/{patientId}/observations/{observationId}
+     * @allow (create) User 'user_abc' can create an observation record 'observation_101' for patient 'patient_123' under their own user ID.
+     * @deny (create) User 'user_xyz' cannot create an observation record under '/users/user_abc/patients/patient_123/observations/observation_101'.
+     * @allow (get) User 'user_abc' can read observation record 'observation_101' under their own user ID.
+     * @allow (list) User 'user_abc' can list observation records under their own user ID.
+     * @allow (update) User 'user_abc' can update observation record 'observation_101' under their own user ID.
+     * @allow (delete) User 'user_abc' can delete observation record 'observation_101' under their own user ID.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/patients/{patientId}/observations/{observationId} {
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows a user to manage measurements for their patients.
+     * @path /users/{userId}/patients/{patientId}/measurements/{measurementId}
+     * @allow (create) User 'user_abc' can create a measurement record 'measurement_121' for patient 'patient_123' under their own user ID.
+     * @deny (create) User 'user_xyz' cannot create a measurement record under '/users/user_abc/patients/patient_123/measurements/measurement_121'.
+     * @allow (get) User 'user_abc' can read measurement record 'measurement_121' under their own user ID.
+     * @allow (list) User 'user_abc' can list measurement records under their own user ID.
+     * @allow (update) User 'user_abc' can update measurement record 'measurement_121' under their own user ID.
+     * @allow (delete) User 'user_abc' can delete measurement record 'measurement_121' under their own user ID.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/patients/{patientId}/measurements/{measurementId} {
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows a user to manage drug exposures for their patients.
+     * @path /users/{userId}/patients/{patientId}/drugExposures/{drugExposureId}
+     * @allow (create) User 'user_abc' can create a drug exposure record 'drugExposure_131' for patient 'patient_123' under their own user ID.
+     * @deny (create) User 'user_xyz' cannot create a drug exposure record under '/users/user_abc/patients/patient_123/drugExposures/drugExposure_131'.
+     * @allow (get) User 'user_abc' can read drug exposure record 'drugExposure_131' under their own user ID.
+     * @allow (list) User 'user_abc' can list drug exposure records under their own user ID.
+     * @allow (update) User 'user_abc' can update drug exposure record 'drugExposure_131' under their own user ID.
+     * @allow (delete) User 'user_abc' can delete drug exposure record 'drugExposure_131' under their own user ID.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId}/patients/{patientId}/drugExposures/{drugExposureId} {
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows public read access to care site information.
+     * @path /care_sites/{careSiteId}
+     * @allow (get) Any user can read care site information.
+     * @allow (list) Any user can list care sites.
+     * @deny (create) No one can create care site information.
+     * @deny (update) No one can update care site information.
+     * @deny (delete) No one can delete care site information.
+     * @principle Allows public read access.
+     */
+    match /care_sites/{careSiteId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to provider information.
+     * @path /providers/{providerId}
+     * @allow (get) Any user can read provider information.
+     * @allow (list) Any user can list providers.
+     * @deny (create) No one can create provider information.
+     * @deny (update) No one can update provider information.
+     * @deny (delete) No one can delete provider information.
+     * @principle Allows public read access.
+     */
+    match /providers/{providerId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to location information.
+     * @path /locations/{locationId}
+     * @allow (get) Any user can read location information.
+     * @allow (list) Any user can list locations.
+     * @deny (create) No one can create location information.
+     * @deny (update) No one can update location information.
+     * @deny (delete) No one can delete location information.
+     * @principle Allows public read access.
+     */
+    match /locations/{locationId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+
+  /**
+   * @description Checks if the user is signed in.
+   * @return True if the user is signed in, false otherwise.
+   */
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  /**
+   * @description Checks if the user is the owner of the resource.
+   * @param {string} userId The user ID to check against.
+   * @return True if the user is the owner, false otherwise.
+   */
+  function isOwner(userId) {
+    return request.auth.uid == userId;
+  }
+
+  /**
+   * @description Checks if the user is the owner of the resource and the resource exists.
+   * @param {string} userId The user ID to check against.
+   * @return True if the user is the owner and the resource exists, false otherwise.
+   */
+  function isExistingOwner(userId) {
+    return isOwner(userId) && resource != null;
+  }
+}
