@@ -4,28 +4,52 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Calendar, Activity, Users, Clock } from 'lucide-react';
+import { Calendar, AlertCircle, Users, Clock } from 'lucide-react';
+
+const summaryData = [
+  {
+    title: "Today's Appointments",
+    value: 12,
+    icon: Calendar,
+    color: 'text-blue-500',
+    borderColor: 'border-blue-500',
+  },
+  {
+    title: 'Pending Tasks',
+    value: 8,
+    icon: AlertCircle,
+    color: 'text-orange-500',
+    borderColor: 'border-orange-500',
+  },
+  {
+    title: 'Active Patients',
+    value: 156,
+    icon: Users,
+    color: 'text-green-500',
+    borderColor: 'border-green-500',
+  },
+  {
+    title: 'Avg. Wait Time',
+    value: '15 min',
+    icon: Clock,
+    color: 'text-purple-500',
+    borderColor: 'border-purple-500',
+  },
+];
 
 export function SummaryCards() {
-  const summaries = [
-    { title: "Today's Appointments", value: 12, icon: Calendar },
-    { title: 'Pending Tasks', value: 8, icon: Activity },
-    { title: 'Active Patients', value: 156, icon: Users },
-    { title: 'Avg. Wait Time', value: '15 min', icon: Clock },
-  ];
-
   return (
-    <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-      {summaries.map((summary, index) => (
-        <Card key={index}>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {summaryData.map((summary, index) => (
+        <Card key={index} className={`border-l-4 ${summary.borderColor} shadow-sm`}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               {summary.title}
             </CardTitle>
-            <summary.icon className="h-4 w-4 text-muted-foreground" />
+            <summary.icon className={`h-5 w-5 ${summary.color}`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.value}</div>
+            <div className="text-2xl font-bold text-gray-800">{summary.value}</div>
           </CardContent>
         </Card>
       ))}

@@ -1,53 +1,23 @@
 import { PhysicianHeader } from '@/components/dashboard/physician/header';
+import { RecentPatients } from '@/components/dashboard/physician/recent-patients';
 import { SummaryCards } from '@/components/dashboard/physician/summary-cards';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { TodaysSchedule } from '@/components/dashboard/physician/todays-schedule';
+import { PendingTasks } from '@/components/dashboard/physician/pending-tasks';
 
 export default function PhysicianDashboard() {
   return (
-    <div className="grid flex-1 items-start gap-4 md:gap-8">
+    <div className="flex flex-col gap-6">
       <PhysicianHeader />
       <SummaryCards />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Today's Schedule</CardTitle>
-            <CardDescription>
-              You have 12 appointments scheduled for today.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Placeholder for schedule */}
-          </CardContent>
-        </Card>
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Pending Tasks</CardTitle>
-            <CardDescription>
-              You have 8 tasks to complete.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Placeholder for tasks */}
-          </CardContent>
-        </Card>
-          <Card className="col-span-7">
-          <CardHeader>
-            <CardTitle>Recent Patients</CardTitle>
-            <CardDescription>
-              Patients you've recently seen.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Placeholder for recent patients */}
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <TodaysSchedule />
+        </div>
+        <div className="lg:col-span-1">
+          <PendingTasks />
+        </div>
       </div>
+      <RecentPatients />
     </div>
   );
 }

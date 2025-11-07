@@ -5,22 +5,16 @@ import { PlusCircle } from 'lucide-react';
 
 export function PhysicianHeader() {
   const { user } = useUser();
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-start justify-between">
       <div>
-        <h1 className="font-grotesk text-3xl font-bold">
+        <h1 className="text-2xl font-bold text-gray-800">
           Welcome back, {user?.displayName || 'Doctor'}
         </h1>
-        <p className="text-muted-foreground">{currentDate}</p>
+        <p className="text-muted-foreground">Here's what's happening today</p>
       </div>
-      <Button>
+      <Button className="bg-primary hover:bg-primary/90">
         <PlusCircle className="mr-2 h-4 w-4" />
         New Patient Record
       </Button>

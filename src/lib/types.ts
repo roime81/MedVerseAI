@@ -20,17 +20,27 @@ export interface Patient {
     lastSeen?: string;
 }
 
-export interface Encounter {
-    id: string;
-    encounterId: string;
-    personId: string;
-    facilityId?: string;
-    encounterType?: string;
-    admissionDatetime: string;
-    dischargeDatetime?: string;
-    attendingProviderId?: string;
-    visitReason?: string;
-    visitStatus?: 'Scheduled' | 'In Progress' | 'Completed' | 'Waiting' | 'Cancelled';
+export interface Appointment {
+  time: string;
+  patient: {
+    initials: string;
+    name: string;
+    age: number;
+    reason: string;
+  };
+  status: 'Completed' | 'In Progress' | 'Waiting' | 'Scheduled';
 }
 
-// Add other type definitions as needed, e.g., for User, Condition, etc.
+export interface PendingTask {
+  description: string;
+  time: string;
+  priority: 'High' | 'Medium' | 'Low';
+}
+
+export interface RecentPatient {
+  initials: string;
+  name: string;
+  lastSeen: string;
+  conditions: string[];
+  alerts: number;
+}
