@@ -372,7 +372,7 @@ export function PatientDetailSheet({
                     </CardHeader>
                     <CardContent className="space-y-2">
                         {patient.immunizationHistory.map((shot, index) => (
-                            <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm">
+                            <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm bg-secondary/30">
                                 <div>
                                     <p className="font-semibold">{shot.vaccine}</p>
                                     <p className="text-xs text-muted-foreground">Administered by {shot.administeredBy}</p>
@@ -403,7 +403,7 @@ export function PatientDetailSheet({
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {patient.familyHistory.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm">
+                          <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm bg-secondary/30">
                               <div>
                                   <p className="font-semibold">{item.condition}</p>
                                   <p className="text-xs text-muted-foreground">{item.relation}</p>
