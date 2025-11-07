@@ -1,22 +1,25 @@
 'use client';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useFirebase } from '@/firebase';
 import AdminDashboard from './admin-dashboard';
 import PhysicianDashboard from './physician-dashboard';
 import NurseDashboard from './nurse-dashboard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { doc } from 'firebase/firestore';
 
-const emailToRole: { [key: string]: string } = {
-    'admin@medverse.com': 'Admin',
-    'physician@medverse.com': 'Physician',
-    'nurse@medverse.com': 'Nurse',
-    'roimepuniran@gmail.com': 'Admin',
-};
 
 export default function Home() {
   const { user, isUserLoading } = useUser();
+  const { firestore } = useFirebase();
   const router = useRouter();
+
+  const profileRef = useMemo(() => {
+    if (!user?.email || !firestore) return null;
+    return doc(firestore, 'staffProfiles', user.email);
+  }, [user?.email, firestore]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -24,7 +27,9 @@ export default function Home() {
     }
   }, [isUserLoading, user, router]);
 
-  if (isUserLoading || !user) {
+  const isLoading = isUserLoading || isProfileLoading;
+
+  if (isLoading || !user || !profile) {
     return (
       <div className="space-y-6">
         <header>
@@ -44,7 +49,7 @@ export default function Home() {
     );
   }
 
-  const role = user.email ? emailToRole[user.email] || 'Physician' : 'Physician';
+  const role = (profile as any)?.role || 'Physician';
 
   switch (role) {
     case 'Admin':

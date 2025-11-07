@@ -2,50 +2,30 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Video, Phone, Clock } from 'lucide-react';
+import { Video, Phone, Clock, Loader2 } from 'lucide-react';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
+import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { TelehealthAppointment } from '@/lib/sample-data';
 
-const appointments = [
-  {
-    patientName: 'Robert Brown',
-    time: '10:00 AM - 10:20 AM',
-    status: 'Upcoming',
-    avatarId: 'tele-patient-1',
-  },
-  {
-    patientName: 'Emily Davis',
-    time: '10:30 AM - 10:50 AM',
-    status: 'Waiting',
-    avatarId: 'tele-patient-2',
-  },
-  {
-    patientName: 'Michael Wilson',
-    time: '11:00 AM - 11:20 AM',
-    status: 'Upcoming',
-    avatarId: 'tele-patient-3',
-  },
-];
-
-const completedAppointments = [
-    { patientName: 'Jessica Martinez', time: '09:00 AM', notes: 'Follow-up in 2 weeks.', avatarId: 'tele-patient-4' },
-    { patientName: 'William Taylor', time: '09:30 AM', notes: 'Prescription for antibiotics sent.', avatarId: 'tele-patient-5' }
-]
 
 export default function TelehealthPage() {
-  const [avatars, setAvatars] = useState<any>({});
+    const { firestore } = useFirebase();
 
-  useEffect(() => {
-    const avatarMap: any = {};
-    const allAppts = [...appointments, ...completedAppointments];
-    allAppts.forEach(appt => {
-      avatarMap[appt.avatarId] = placeholderImages.find(p => p.id === appt.avatarId)?.imageUrl || '';
-    });
-    setAvatars(avatarMap);
-  }, [])
+    const appointmentsQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'telehealthAppointments');
+    }, [firestore]);
 
-  const getAvatarUrl = (id: string) => avatars[id] || '';
+    const { data: allAppointments, isLoading } = useCollection<TelehealthAppointment>(appointmentsQuery);
+
+    const appointments = allAppointments?.filter(a => a.status !== 'Completed') || [];
+    const completedAppointments = allAppointments?.filter(a => a.status === 'Completed') || [];
+
+  const getAvatarUrl = (id: string) => {
+    return placeholderImages.find(p => p.id === id)?.imageUrl || '';
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -63,7 +43,11 @@ export default function TelehealthPage() {
           <CardTitle>Today's Virtual Appointments</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {appointments.map((appt, index) => (
+          {isLoading ? (
+             <div className="flex items-center justify-center p-8 md:col-span-3">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : appointments.map((appt, index) => (
             <Card key={index} className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
@@ -100,7 +84,11 @@ export default function TelehealthPage() {
               <CardTitle>Completed Consultations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {completedAppointments.map((appt, i) => (
+            {isLoading ? (
+                 <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : completedAppointments.map((appt, i) => (
                 <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-card border transition-colors hover:bg-secondary/50">
                     <div className="flex items-center gap-4">
                         <Avatar className="h-10 w-10">

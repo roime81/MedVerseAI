@@ -24,8 +24,9 @@ import {
   Hospital,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
+import { useUser, useAuth as useFirebaseAuth, useDoc, useFirebase, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 
 const allMenuItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['Admin', 'Physician', 'Nurse'] },
@@ -41,28 +42,27 @@ const allMenuItems = [
   { href: '/admin', icon: Settings, label: 'Admin', roles: ['Admin'] },
 ];
 
-// This is a mock mapping. In a real app, you'd get this from user profile/claims.
-const emailToRole: { [key: string]: string } = {
-    'admin@medverse.com': 'Admin',
-    'physician@medverse.com': 'Physician',
-    'nurse@medverse.com': 'Nurse',
-    'roimepuniran@gmail.com': 'Admin',
-};
-
-
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
   const auth = useFirebaseAuth();
   const { state } = useSidebar();
+  const { firestore } = useFirebase();
+
+  const profileRef = useMemoFirebase(() => {
+    if (!user?.email || !firestore) return null;
+    return doc(firestore, 'staffProfiles', user.email);
+  }, [user?.email, firestore]);
+
+  const { data: profile } = useDoc(profileRef);
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
   };
   
-  const userRole = user?.email ? emailToRole[user.email] : 'Patient';
+  const userRole = (profile as any)?.role || 'Patient';
 
   let menuItems = allMenuItems.filter(item => {
     if (!item.roles || !userRole) return false;

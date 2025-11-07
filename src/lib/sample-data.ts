@@ -1,16 +1,23 @@
 
+
 export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
   'Dr. Anderson': {
     name: 'Dr. Sarah Anderson',
-    role: 'Physician, Cardiology',
-    email: 's.anderson@medverse.com',
+    role: 'Physician',
+    email: 'physician@medverse.com',
     avatarId: 'staff-dr-anderson',
   },
   'Nurse Smith': {
     name: 'Michael Smith, RN',
-    role: 'Registered Nurse, Cardiology',
-    email: 'm.smith@medverse.com',
+    role: 'Nurse',
+    email: 'nurse@medverse.com',
     avatarId: 'staff-nurse-smith',
+  },
+  'Admin User': {
+    name: 'Admin User',
+    role: 'Admin',
+    email: 'admin@medverse.com',
+    avatarId: 'user-avatar',
   }
 };
 
@@ -55,6 +62,34 @@ export type Task = {
   time: string;
   priority: 'High' | 'Medium' | 'Low';
 };
+
+export type Claim = {
+  id: string;
+  patient: string;
+  created: string;
+  total: number;
+  provider: string;
+  status: 'active' | 'cancelled' | 'draft' | 'entered-in-error';
+};
+
+export type ImagingStudy = {
+  id: string;
+  patient: string;
+  study: string;
+  date: string;
+  imageUrl?: string;
+  imageHint?: string;
+  description?: string;
+};
+
+export type TelehealthAppointment = {
+  patientName: string;
+  time: string;
+  status: 'Upcoming' | 'Waiting' | 'Completed';
+  avatarId: string;
+  notes?: string;
+};
+
 
 const firstNames = ["John", "Jane", "Peter", "Mary", "David", "Sarah", "Michael", "Emily", "Jessica", "James", "Robert", "Patricia", "Linda", "William", "Elizabeth", "Richard", "Susan", "Joseph", "Karen", "Thomas"];
 const lastNames = ["Smith", "Doe", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Garcia", "Rodriguez", "Wilson", "Martinez", "Anderson", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson"];
@@ -101,6 +136,7 @@ const generateAllPatients = (): Patient[] => {
     // Add multi-hospital history to 70% of patients
     for (let i = 0; i < 700; i++) {
         const patient = patients[i];
+        if (!patient) continue;
         const currentHospital = patient.hospital;
         let otherHospital = currentHospital;
         while(otherHospital === currentHospital) {
@@ -143,4 +179,51 @@ export const allTasks: Task[] = [
     { description: 'Review imaging results', patient: 'David Lee', mrn: 'MRN-1055', time: '3 hours ago', priority: 'Low' },
     { description: 'Call patient family for update', patient: 'Sarah Johnson', mrn: 'MRN-0921', time: '4 hours ago', priority: 'Low' },
     { description: 'Prepare for team huddle', patient: 'System Task', mrn: 'N/A', time: '4 hours ago', priority: 'Medium' },
+];
+
+export const allClaims: Claim[] = [
+  { id: 'CL-001284', patient: 'Jane Doe', created: '2024-07-22', total: 450.75, provider: 'Blue Shield PPO', status: 'active' },
+  { id: 'CL-001283', patient: 'Jane Doe', created: '2024-06-15', total: 125.0, provider: 'Blue Shield PPO', status: 'active' },
+  { id: 'CL-001280', patient: 'Jane Doe', created: '2024-05-30', total: 890.5, provider: 'Blue Shield PPO', status: 'cancelled' },
+  { id: 'CL-001279', patient: 'Jane Doe', created: '2024-05-1', total: 75.00, provider: 'Blue Shield PPO', status: 'draft' },
+];
+
+export const allImagingStudies: ImagingStudy[] = [
+  { id: 'imaging-1', patient: 'John Doe', study: 'Chest X-Ray', date: '2024-07-21' },
+  { id: 'imaging-2', patient: 'Jane Smith', study: 'Brain MRI', date: '2024-07-20' },
+  { id: 'imaging-3', patient: 'Peter Jones', study: 'Knee Arthroscopy', date: '2024-07-19' },
+  { id: 'imaging-4', patient: 'Mary Johnson', study: 'Abdominal Ultrasound', date: '2024-07-18' },
+  { id: 'imaging-5', patient: 'David Williams', study: 'Dental X-Ray', date: '2024-07-17' },
+  { id: 'imaging-6', patient: 'Sarah Brown', study: 'Thorax CT Scan', date: '2024-07-16' },
+];
+
+export const allTelehealthAppointments: TelehealthAppointment[] = [
+  { patientName: 'Robert Brown', time: '10:00 AM - 10:20 AM', status: 'Upcoming', avatarId: 'tele-patient-1' },
+  { patientName: 'Emily Davis', time: '10:30 AM - 10:50 AM', status: 'Waiting', avatarId: 'tele-patient-2' },
+  { patientName: 'Michael Wilson', time: '11:00 AM - 11:20 AM', status: 'Upcoming', avatarId: 'tele-patient-3' },
+  { patientName: 'Jessica Martinez', time: '09:00 AM', notes: 'Follow-up in 2 weeks.', avatarId: 'tele-patient-4', status: 'Completed' },
+  { patientName: 'William Taylor', time: '09:30 AM', notes: 'Prescription for antibiotics sent.', avatarId: 'tele-patient-5', status: 'Completed' }
+];
+
+export const allMedicationsList = [
+  { value: "lisinopril", label: "Lisinopril" },
+  { value: "metformin", label: "Metformin" },
+  { value: "aspirin", label: "Aspirin" },
+  { value: "atorvastatin", label: "Atorvastatin" },
+  { value: "simvastatin", label: "Simvastatin" },
+  { value: "levothyroxine", label: "Levothyroxine" },
+  { value: "amlodipine", label: "Amlodipine" },
+  { value: "hydrochlorothiazide", label: "Hydrochlorothiazide" },
+  { value: "ibuprofen", label: "Ibuprofen" },
+  { value: "acetaminophen", label: "Acetaminophen" },
+  { value: "warfarin", label: "Warfarin" },
+  { value: "clopidogrel", label: "Clopidogrel" },
+  { value: "sertraline", label: "Sertraline" },
+];
+
+export const initialPatientMedications = [
+  { id: 1, name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', status: 'Active' },
+  { id: 2, name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', status: 'Active' },
+  { id: 3, name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', status: 'Unverified' },
+  { id: 4, name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily', status: 'Discontinued' },
 ];

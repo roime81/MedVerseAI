@@ -189,6 +189,48 @@
         "avatarId": { "type": "string" }
       },
       "required": ["name", "role", "email", "avatarId"]
+    },
+    "Claim": {
+      "title": "Claim",
+      "type": "object",
+      "description": "Represents a billing claim.",
+      "properties": {
+        "id": { "type": "string" },
+        "patient": { "type": "string" },
+        "created": { "type": "string", "format": "date" },
+        "total": { "type": "number" },
+        "provider": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "cancelled", "draft", "entered-in-error"] }
+      },
+      "required": ["id", "patient", "created", "total", "provider", "status"]
+    },
+    "ImagingStudy": {
+      "title": "ImagingStudy",
+      "type": "object",
+      "description": "Represents a medical imaging study.",
+      "properties": {
+        "id": { "type": "string" },
+        "patient": { "type": "string" },
+        "study": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "imageUrl": { "type": "string" },
+        "imageHint": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "patient", "study", "date", "imageUrl"]
+    },
+    "TelehealthAppointment": {
+      "title": "TelehealthAppointment",
+      "type": "object",
+      "description": "Represents a telehealth appointment.",
+      "properties": {
+        "patientName": { "type": "string" },
+        "time": { "type": "string" },
+        "status": { "type": "string", "enum": ["Upcoming", "Waiting", "Completed"] },
+        "avatarId": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["patientName", "time", "status", "avatarId"]
     }
   },
   "auth": {
@@ -225,6 +267,27 @@
         "definition": {
             "schema": { "$ref": "#/backend/entities/StaffProfile" },
             "description": "Stores staff profile information."
+        }
+      },
+      {
+        "path": "/claims/{claimId}",
+        "definition": {
+          "schema": { "$ref": "#/backend/entities/Claim" },
+          "description": "Stores billing claims."
+        }
+      },
+      {
+        "path": "/imagingStudies/{studyId}",
+        "definition": {
+          "schema": { "$ref": "#/backend/entities/ImagingStudy" },
+          "description": "Stores medical imaging studies."
+        }
+      },
+      {
+        "path": "/telehealthAppointments/{appointmentId}",
+        "definition": {
+          "schema": { "$ref": "#/backend/entities/TelehealthAppointment" },
+          "description": "Stores telehealth appointments."
         }
       }
     ]

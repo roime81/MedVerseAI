@@ -3,33 +3,22 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Filter } from 'lucide-react';
-import { placeholderImages } from '@/lib/placeholder-images';
+import { Search, Filter, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
+import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { ImagingStudy } from '@/lib/sample-data';
 
-const imagingStudies = [
-  { id: 'imaging-1', patient: 'John Doe', study: 'Chest X-Ray', date: '2024-07-21' },
-  { id: 'imaging-2', patient: 'Jane Smith', study: 'Brain MRI', date: '2024-07-20' },
-  { id: 'imaging-3', patient: 'Peter Jones', study: 'Knee Arthroscopy', date: '2024-07-19' },
-  { id: 'imaging-4', patient: 'Mary Johnson', study: 'Abdominal Ultrasound', date: '2024-07-18' },
-  { id: 'imaging-5', patient: 'David Williams', study: 'Dental X-Ray', date: '2024-07-17' },
-  { id: 'imaging-6', patient: 'Sarah Brown', study: 'Thorax CT Scan', date: '2024-07-16' },
-];
 
 export default function ImagingPage() {
-  const [studies, setStudies] = useState<any[]>([]);
+  const { firestore } = useFirebase();
 
-  useEffect(() => {
-    const getStudy = (id: string) => {
-      const studyData = imagingStudies.find(s => s.id === id);
-      const imageData = placeholderImages.find(p => p.id === id);
-      if (!studyData || !imageData) return null;
-      return { ...studyData, ...imageData };
-    };
+  const studiesQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'imagingStudies');
+  }, [firestore]);
 
-    setStudies(imagingStudies.map(s => getStudy(s.id)).filter(Boolean as any));
-  }, []);
+  const { data: studies, isLoading } = useCollection<ImagingStudy>(studiesQuery);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -53,29 +42,35 @@ export default function ImagingPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {studies.map((study) => (
-          study && <Card key={study.id} className="overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-            <CardContent className="p-0">
-              <div className="relative aspect-[4/5] bg-secondary">
-                <Image
-                  src={study.imageUrl}
-                  alt={study.description}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  data-ai-hint={study.imageHint}
-                />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                 <Badge variant="secondary" className="absolute top-2 right-2">{study.date}</Badge>
-              </div>
-            </CardContent>
-            <CardFooter className="flex-col items-start p-4">
-              <p className="font-semibold">{study.study}</p>
-              <p className="text-sm text-muted-foreground">Patient: {study.patient}</p>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+        {isLoading ? (
+            <div className="flex items-center justify-center p-16">
+              <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {(studies || []).map((study) => (
+                study && study.imageUrl && <Card key={study.id} className="overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+                    <CardContent className="p-0">
+                    <div className="relative aspect-[4/5] bg-secondary">
+                        <Image
+                        src={study.imageUrl}
+                        alt={study.description || study.study}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint={study.imageHint}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <Badge variant="secondary" className="absolute top-2 right-2">{study.date}</Badge>
+                    </div>
+                    </CardContent>
+                    <CardFooter className="flex-col items-start p-4">
+                    <p className="font-semibold">{study.study}</p>
+                    <p className="text-sm text-muted-foreground">Patient: {study.patient}</p>
+                    </CardFooter>
+                </Card>
+                ))}
+            </div>
+        )}
     </div>
   );
 }

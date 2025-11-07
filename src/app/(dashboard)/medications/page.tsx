@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,6 +25,9 @@ import { Input } from '@/components/ui/input';
 import { Combobox } from '@/components/ui/combobox';
 import { analyzeDrugInteractions, AnalyzeDrugInteractionsOutput } from '@/ai/flows/analyze-drug-interactions';
 import { useToast } from '@/hooks/use-toast';
+import { useDoc, useFirebase, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { allMedicationsList } from '@/lib/sample-data';
 
 
 type MedicationStatus = 'Active' | 'On Hold' | 'Discontinued' | 'Unverified';
@@ -37,37 +40,31 @@ type Medication = {
   status: MedicationStatus;
 };
 
-const allMedications = [
-  { value: "lisinopril", label: "Lisinopril" },
-  { value: "metformin", label: "Metformin" },
-  { value: "aspirin", label: "Aspirin" },
-  { value: "atorvastatin", label: "Atorvastatin" },
-  { value: "simvastatin", label: "Simvastatin" },
-  { value: "levothyroxine", label: "Levothyroxine" },
-  { value: "amlodipine", label: "Amlodipine" },
-  { value: "hydrochlorothiazide", label: "Hydrochlorothiazide" },
-  { value: "ibuprofen", label: "Ibuprofen" },
-  { value: "acetaminophen", label: "Acetaminophen" },
-  { value: "warfarin", label: "Warfarin" },
-  { value: "clopidogrel", label: "Clopidogrel" },
-  { value: "sertraline", label: "Sertraline" },
-];
+// This represents all available medications in a pharmacy, for example.
+// In a real app, this would also come from a database.
+const allMedications = allMedicationsList;
 
-
-const initialMedications: Medication[] = [
-  { id: 1, name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', status: 'Active' },
-  { id: 2, name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', status: 'Active' },
-  { id: 3, name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', status: 'Unverified' },
-  { id: 4, name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily', status: 'Discontinued' },
-];
 
 export default function MedicationsPage() {
-  const [medications, setMedications] = useState<Medication[]>(initialMedications);
+  const { firestore } = useFirebase();
+  const { toast } = useToast();
+
+  // For this demo, we'll hardcode the patient MRN. In a real app, this would be dynamic.
+  const patientMrn = 'MRN-1001'; 
+
+  const patientRef = useMemoFirebase(() => {
+    if (!firestore || !patientMrn) return null;
+    return doc(firestore, 'patients', patientMrn);
+  }, [firestore, patientMrn]);
+
+  const { data: patient, isLoading: isPatientLoading } = useDoc(patientRef);
+  
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const [newMedication, setNewMedication] = useState({ name: '', dosage: '', frequency: '' });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalyzeDrugInteractionsOutput | null>(null);
-  const { toast } = useToast();
+  
+  const medications = useMemo(() => (patient as any)?.medications || [], [patient]);
 
   const getStatusBadge = (status: MedicationStatus) => {
     switch (status) {
@@ -94,16 +91,16 @@ export default function MedicationsPage() {
     setAnalysisResult(null);
 
     try {
-        const currentMeds = medications.filter(m => m.status === 'Active').map(m => `${m.name} ${m.dosage}`);
+        const currentMeds = medications.filter((m: Medication) => m.status === 'Active').map((m: Medication) => `${m.name} ${m.dosage}`);
         const result = await analyzeDrugInteractions({
             currentMedications: currentMeds,
             newMedication: `${newMedication.name} ${newMedication.dosage}`,
         });
         setAnalysisResult(result);
         
-        if (result.riskLevel === 'None') {
-             // If no risk, add medication right away
-            setMedications(prev => [...prev, { ...newMedication, id: prev.length + 1, status: 'Active' }]);
+        if (result.riskLevel === 'None' && patientRef) {
+            const newMed: Medication = { ...newMedication, id: medications.length + 1, status: 'Active' };
+            updateDocumentNonBlocking(patientRef, { medications: [...medications, newMed] });
             toast({ title: "Medication Added", description: `${newMedication.name} added to the list.` });
             setAddDialogOpen(false);
         }
@@ -117,10 +114,13 @@ export default function MedicationsPage() {
   };
   
   const confirmAddMedication = () => {
-     setMedications(prev => [...prev, { ...newMedication, id: prev.length + 1, status: 'Active' }]);
-     toast({ title: "Medication Added", description: `${newMedication.name} was added despite the warning.` });
-     setAddDialogOpen(false);
-     setAnalysisResult(null);
+     if (patientRef) {
+        const newMed: Medication = { ...newMedication, id: medications.length + 1, status: 'Active' };
+        updateDocumentNonBlocking(patientRef, { medications: [...medications, newMed] });
+        toast({ title: "Medication Added", description: `${newMedication.name} was added despite the warning.` });
+        setAddDialogOpen(false);
+        setAnalysisResult(null);
+     }
   }
 
   const InteractionAnalysisResult = () => {
@@ -166,12 +166,12 @@ export default function MedicationsPage() {
             Medication Reconciliation
           </h1>
           <p className="text-muted-foreground">
-            Pharmacist: Dr. Alex Carter | Patient: Jane Doe | MRN: 12345678
+            Pharmacist: Dr. Alex Carter | Patient: {isPatientLoading ? '...' : (patient as any)?.name} | MRN: {patientMrn}
           </p>
         </div>
         <div className="mt-4 flex shrink-0 gap-2 md:mt-0">
             <Button variant="outline"><CheckCircle2 className="mr-2 h-4 w-4"/>Reconcile All</Button>
-            <Button onClick={() => { setAnalysisResult(null); setAddDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4"/>Add Medication</Button>
+            <Button onClick={() => { setAnalysisResult(null); setNewMedication({ name: '', dosage: '', frequency: '' }); setAddDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4"/>Add Medication</Button>
         </div>
       </header>
 
@@ -182,42 +182,48 @@ export default function MedicationsPage() {
             <CardDescription>List of medications recorded for the patient.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Medication</TableHead>
-                  <TableHead>Dosage</TableHead>
-                  <TableHead>Frequency</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead><span className="sr-only">Actions</span></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {medications.map((med) => (
-                  <TableRow key={med.id} className="transition-colors hover:bg-secondary/50">
-                    <TableCell className="font-medium">{med.name}</TableCell>
-                    <TableCell>{med.dosage}</TableCell>
-                    <TableCell>{med.frequency}</TableCell>
-                    <TableCell>{getStatusBadge(med.status)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Verify</DropdownMenuItem>
-                          <DropdownMenuItem>Put on Hold</DropdownMenuItem>
-                          <DropdownMenuItem>Discontinue</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {isPatientLoading ? (
+                 <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : (
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Medication</TableHead>
+                    <TableHead>Dosage</TableHead>
+                    <TableHead>Frequency</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead><span className="sr-only">Actions</span></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {medications.map((med: Medication) => (
+                    <TableRow key={med.id} className="transition-colors hover:bg-secondary/50">
+                        <TableCell className="font-medium">{med.name}</TableCell>
+                        <TableCell>{med.dosage}</TableCell>
+                        <TableCell>{med.frequency}</TableCell>
+                        <TableCell>{getStatusBadge(med.status)}</TableCell>
+                        <TableCell>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Verify</DropdownMenuItem>
+                            <DropdownMenuItem>Put on Hold</DropdownMenuItem>
+                            <DropdownMenuItem>Discontinue</DropdownMenuItem>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            )}
           </CardContent>
         </Card>
       </div>
