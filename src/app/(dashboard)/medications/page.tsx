@@ -5,13 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { PlusCircle, CheckCircle2, AlertTriangle, MoreHorizontal, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { PlusCircle, CheckCircle2, AlertTriangle, MoreHorizontal, ShieldCheck, ShieldAlert, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Combobox } from '@/components/ui/combobox';
+import { analyzeDrugInteractions, AnalyzeDrugInteractionsOutput } from '@/ai/flows/analyze-drug-interactions';
+import { useToast } from '@/hooks/use-toast';
+
 
 type MedicationStatus = 'Active' | 'On Hold' | 'Discontinued' | 'Unverified';
 
@@ -23,6 +37,23 @@ type Medication = {
   status: MedicationStatus;
 };
 
+const allMedications = [
+  { value: "lisinopril", label: "Lisinopril" },
+  { value: "metformin", label: "Metformin" },
+  { value: "aspirin", label: "Aspirin" },
+  { value: "atorvastatin", label: "Atorvastatin" },
+  { value: "simvastatin", label: "Simvastatin" },
+  { value: "levothyroxine", label: "Levothyroxine" },
+  { value: "amlodipine", label: "Amlodipine" },
+  { value: "hydrochlorothiazide", label: "Hydrochlorothiazide" },
+  { value: "ibuprofen", label: "Ibuprofen" },
+  { value: "acetaminophen", label: "Acetaminophen" },
+  { value: "warfarin", label: "Warfarin" },
+  { value: "clopidogrel", label: "Clopidogrel" },
+  { value: "sertraline", label: "Sertraline" },
+];
+
+
 const initialMedications: Medication[] = [
   { id: 1, name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', status: 'Active' },
   { id: 2, name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', status: 'Active' },
@@ -32,6 +63,11 @@ const initialMedications: Medication[] = [
 
 export default function MedicationPage() {
   const [medications, setMedications] = useState<Medication[]>(initialMedications);
+  const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+  const [newMedication, setNewMedication] = useState({ name: '', dosage: '', frequency: '' });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalyzeDrugInteractionsOutput | null>(null);
+  const { toast } = useToast();
 
   const getStatusBadge = (status: MedicationStatus) => {
     switch (status) {
@@ -47,6 +83,80 @@ export default function MedicationPage() {
         return <Badge>{status}</Badge>;
     }
   };
+  
+  const handleAddMedication = async () => {
+    if (!newMedication.name || !newMedication.dosage || !newMedication.frequency) {
+        toast({ title: "Missing Information", description: "Please fill out all medication details.", variant: "destructive" });
+        return;
+    }
+    
+    setIsAnalyzing(true);
+    setAnalysisResult(null);
+
+    try {
+        const currentMeds = medications.filter(m => m.status === 'Active').map(m => `${m.name} ${m.dosage}`);
+        const result = await analyzeDrugInteractions({
+            currentMedications: currentMeds,
+            newMedication: `${newMedication.name} ${newMedication.dosage}`,
+        });
+        setAnalysisResult(result);
+        
+        if (result.riskLevel === 'None') {
+             // If no risk, add medication right away
+            setMedications(prev => [...prev, { ...newMedication, id: prev.length + 1, status: 'Active' }]);
+            toast({ title: "Medication Added", description: `${newMedication.name} added to the list.` });
+            setAddDialogOpen(false);
+        }
+
+    } catch (error) {
+        console.error("Interaction analysis failed:", error);
+        toast({ title: "Analysis Failed", description: "Could not analyze drug interactions. Please try again.", variant: "destructive" });
+    } finally {
+        setIsAnalyzing(false);
+    }
+  };
+  
+  const confirmAddMedication = () => {
+     setMedications(prev => [...prev, { ...newMedication, id: prev.length + 1, status: 'Active' }]);
+     toast({ title: "Medication Added", description: `${newMedication.name} was added despite the warning.` });
+     setAddDialogOpen(false);
+     setAnalysisResult(null);
+  }
+
+  const InteractionAnalysisResult = () => {
+    if (isAnalyzing) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-2 p-8 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin"/>
+                <p>Analyzing interactions...</p>
+            </div>
+        )
+    }
+    
+    if (!analysisResult) return null;
+
+    const getRiskIcon = () => {
+        switch(analysisResult.riskLevel) {
+            case "High": return <ShieldAlert className="h-6 w-6 text-red-500" />;
+            case "Moderate": return <ShieldAlert className="h-6 w-6 text-yellow-500" />;
+            case "Low": return <ShieldCheck className="h-6 w-6 text-blue-500" />;
+            case "None": return <ShieldCheck className="h-6 w-6 text-green-500" />;
+        }
+    }
+
+    return (
+        <div className="mt-4 space-y-4">
+             <h3 className="font-semibold text-lg">Interaction Analysis Complete</h3>
+            <Alert variant={analysisResult.riskLevel === 'High' ? 'destructive' : 'default'}>
+                {getRiskIcon()}
+                <AlertTitle>Risk Level: {analysisResult.riskLevel}</AlertTitle>
+                <AlertDescription>{analysisResult.summary}</AlertDescription>
+            </Alert>
+            <p className="text-sm text-muted-foreground">{analysisResult.details}</p>
+        </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -56,17 +166,17 @@ export default function MedicationPage() {
             Medication Reconciliation
           </h1>
           <p className="text-muted-foreground">
-            Patient: Jane Doe | MRN: 12345678
+            Pharmacist: Dr. Alex Carter | Patient: Jane Doe | MRN: 12345678
           </p>
         </div>
         <div className="mt-4 flex shrink-0 gap-2 md:mt-0">
-            <Button><CheckCircle2 className="mr-2 h-4 w-4"/>Reconcile All</Button>
-            <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4"/>Add Medication</Button>
+            <Button variant="outline"><CheckCircle2 className="mr-2 h-4 w-4"/>Reconcile All</Button>
+            <Button onClick={() => { setAnalysisResult(null); setAddDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4"/>Add Medication</Button>
         </div>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Current Medications</CardTitle>
             <CardDescription>List of medications recorded for the patient.</CardDescription>
@@ -110,30 +220,57 @@ export default function MedicationPage() {
             </Table>
           </CardContent>
         </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Drug Interaction Check</CardTitle>
-                <CardDescription>Powered by a real-time drug database.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <Alert>
-                  <ShieldCheck className="h-4 w-4" />
-                  <AlertTitle>No Significant Interactions</AlertTitle>
-                  <AlertDescription>
-                    The current active medication list shows no significant drug-drug interactions.
-                  </AlertDescription>
-                </Alert>
-                <Alert variant="destructive">
-                  <ShieldAlert className="h-4 w-4" />
-                  <AlertTitle>Minor Interaction Warning</AlertTitle>
-                  <AlertDescription>
-                    Lisinopril & Aspirin: Monitor for potential renal function changes.
-                  </AlertDescription>
-                </Alert>
-                 <Button variant="secondary" className="w-full">Run Full Analysis</Button>
-            </CardContent>
-        </Card>
       </div>
+
+       <Dialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Medication</DialogTitle>
+            <DialogDescription>
+              Enter new medication details to check for interactions before adding.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {!analysisResult ? (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="med-name">Medication Name</Label>
+                <Combobox
+                    items={allMedications}
+                    value={newMedication.name}
+                    onChange={(value) => setNewMedication(prev => ({...prev, name: allMedications.find(m => m.value === value)?.label || ''}))}
+                    placeholder="Select medication..."
+                    searchPlaceholder="Search medications..."
+                    notfoundtext="No medications found."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="med-dosage">Dosage</Label>
+                <Input id="med-dosage" placeholder="e.g., 100mg" value={newMedication.dosage} onChange={(e) => setNewMedication(prev => ({...prev, dosage: e.target.value}))}/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="med-frequency">Frequency</Label>
+                <Input id="med-frequency" placeholder="e.g., Twice daily" value={newMedication.frequency} onChange={(e) => setNewMedication(prev => ({...prev, frequency: e.target.value}))}/>
+              </div>
+            </div>
+           ) : (
+             <InteractionAnalysisResult />
+           )}
+
+          <DialogFooter>
+            {analysisResult && analysisResult.riskLevel !== 'None' ? (
+                 <div className="w-full flex flex-col sm:flex-row-reverse gap-2">
+                    <Button type="button" onClick={confirmAddMedication}>Add Anyway</Button>
+                    <Button type="button" variant="outline" onClick={() => setAnalysisResult(null)}>Go Back & Edit</Button>
+                 </div>
+            ) : (
+                <Button type="button" onClick={handleAddMedication} disabled={isAnalyzing}>
+                    {isAnalyzing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</> : 'Analyze & Add'}
+                </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
