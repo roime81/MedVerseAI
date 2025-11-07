@@ -12,8 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PatientDetailSheet } from './patient-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { useCollection, useFirebase, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
+import { useCollection, useDoc, useFirebase, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
+import { collection, query, where, orderBy, limit, doc } from 'firebase/firestore';
 import type { Patient as PatientData, Task } from '@/lib/sample-data';
 
 
@@ -31,35 +31,43 @@ const PATIENTS_PER_PAGE = 5;
 export default function PhysicianDashboard() {
   const { firestore } = useFirebase();
   const { user } = useUser();
+  const { toast } = useToast();
 
   const [isFormOpen, setFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showAllPatientsDialog, setShowAllPatientsDialog] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
-  const { toast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
   const [selectedAppointmentStatus, setSelectedAppointmentStatus] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const profileRef = useMemoFirebase(() => {
+    if (!user?.email || !firestore) return null;
+    return doc(firestore, 'staffProfiles', user.email);
+  }, [user?.email, firestore]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
+  const physicianName = (profile as any)?.name;
+
   const physicianPatientsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.displayName) return null;
-    return query(collection(firestore, 'patients'), where('consultant', '==', user.displayName));
-  }, [firestore, user?.displayName]);
+    if (!firestore || !physicianName) return null;
+    return query(collection(firestore, 'patients'), where('consultant', '==', physicianName));
+  }, [firestore, physicianName]);
 
   const { data: allPatients, isLoading: allPatientsLoading } = useCollection<PatientData>(physicianPatientsQuery);
 
   const recentPatientsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.displayName) return null;
-    return query(collection(firestore, 'patients'), where('consultant', '==', user.displayName), orderBy('lastSeen', 'desc'), limit(3));
-  }, [firestore, user?.displayName]);
+    if (!firestore || !physicianName) return null;
+    return query(collection(firestore, 'patients'), where('consultant', '==', physicianName), orderBy('lastSeen', 'desc'), limit(3));
+  }, [firestore, physicianName]);
   
   const { data: recentPatients, isLoading: patientsLoading } = useCollection<PatientData>(recentPatientsQuery);
   
   const tasksQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.displayName) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'tasks'), limit(5));
-  }, [firestore, user?.displayName]);
+  }, [firestore]);
   const { data: allTasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
   
   const schedule = useMemo(() => {
@@ -81,7 +89,7 @@ export default function PhysicianDashboard() {
 
 
   const handleSavePatient = async (data: PatientRegistrationData) => {
-    if(!firestore) return;
+    if(!firestore || !physicianName) return;
     setIsSaving(true);
 
     const newPatient: Partial<PatientData> = {
@@ -112,7 +120,7 @@ export default function PhysicianDashboard() {
         },
         status: 'Admitted',
         ward: 'General Medicine',
-        consultant: user?.displayName || 'Dr. Sarah Anderson',
+        consultant: physicianName,
         hospital: 'City General',
         lastSeen: new Date().toLocaleDateString(),
         alerts: 0,
@@ -212,7 +220,7 @@ export default function PhysicianDashboard() {
     currentPage * PATIENTS_PER_PAGE
   );
   
-  const isLoading = patientsLoading || tasksLoading || allPatientsLoading || !user?.displayName;
+  const isLoading = patientsLoading || tasksLoading || allPatientsLoading || isProfileLoading || !physicianName;
   if (isLoading) {
     return <div className="flex items-center justify-center p-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div>;
   }
@@ -223,7 +231,7 @@ export default function PhysicianDashboard() {
         <header className="flex items-center justify-between">
           <div>
               <h1 className="font-headline text-3xl font-bold tracking-tight">
-              Welcome back, {user?.displayName || 'Dr. Anderson'}
+              Welcome back, {physicianName}
               </h1>
               <p className="text-muted-foreground">
               Here's what's happening today
@@ -496,5 +504,3 @@ export default function PhysicianDashboard() {
     </>
   );
 }
-
-    

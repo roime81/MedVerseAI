@@ -8,10 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
-import { useAuth, useFirebase } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import type { staffProfiles } from '@/lib/sample-data';
+import { useAuth } from '@/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 
 export default function LoginPage() {
@@ -19,31 +17,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('password'); // Default password for mock users
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
-  const { firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
-
-  const updateUserProfile = async (user: User) => {
-    if (!firestore) return;
-    try {
-      const profileDoc = await getDoc(doc(firestore, 'staffProfiles', user.email!));
-      if (profileDoc.exists()) {
-        const profileData = profileDoc.data();
-        await updateProfile(user, { displayName: profileData.name });
-        console.log("User profile updated with displayName:", profileData.name);
-      }
-    } catch (e) {
-      console.error("Could not update user profile", e);
-    }
-  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        await updateUserProfile(userCredential.user);
+        await signInWithEmailAndPassword(auth, email, password);
         toast({
           title: `Login Successful`,
           description: `Welcome back!`,
@@ -52,8 +34,7 @@ export default function LoginPage() {
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await updateUserProfile(userCredential.user);
+                await createUserWithEmailAndPassword(auth, email, password);
                 toast({
                   title: `Account Created & Logged In`,
                   description: `Welcome to MedVerseAI!`,
@@ -144,5 +125,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
