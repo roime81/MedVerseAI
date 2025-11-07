@@ -14,46 +14,15 @@ import { Label } from '@/components/ui/label';
 import { useAuth, useUser } from '@/firebase';
 import {
   initiateGoogleSignIn,
-  initiateSignOut,
-  initiateEmailSignIn
+  initiateEmailSignIn,
 } from '@/firebase/non-blocking-login';
 import { Stethoscope } from 'lucide-react';
 import { useState } from 'react';
 import { redirect } from 'next/navigation';
 
-function UserProfile({ user, auth }) {
-  const handleSignOut = () => {
-    initiateSignOut(auth);
-  };
-  
+function UserProfile() {
   redirect('/dashboard');
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle>Welcome!</CardTitle>
-          <CardDescription>You are signed in.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center space-y-4">
-            <img
-              src={user.photoURL || '/default-avatar.png'}
-              alt="User Avatar"
-              className="w-24 h-24 rounded-full"
-            />
-            <p className="text-lg font-semibold">{user.displayName}</p>
-            <p className="text-sm text-gray-500">{user.email}</p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleSignOut} className="w-full" variant="outline">
-            Sign Out
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
+  return null; // Redirect will happen before render
 }
 
 export default function Login() {
@@ -70,13 +39,9 @@ export default function Login() {
       setError('Please enter both email and password.');
       return;
     }
-    try {
-      initiateEmailSignIn(auth, email, password, (err) => {
-        setError(err || 'Failed to sign in. Please check your credentials.');
-      });
-    } catch (e) {
-       setError('An unexpected error occurred.');
-    }
+    initiateEmailSignIn(auth, email, password, (err) => {
+      setError(err || 'Failed to sign in. Please check your credentials.');
+    });
   };
 
   const handleGoogleSignIn = () => {
@@ -84,11 +49,11 @@ export default function Login() {
   };
   
   if (isUserLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   if (user) {
-    return <UserProfile user={user} auth={auth} />;
+    return <UserProfile />;
   }
 
   return (
@@ -126,7 +91,7 @@ export default function Login() {
                 required
               />
             </div>
-             {error && <p className="text-sm text-red-500">{error}</p>}
+             {error && <p className="text-sm text-center text-red-500">{error}</p>}
             <Button type="submit" className="w-full">
               Sign In
             </Button>

@@ -56,9 +56,11 @@ async function seedDatabase() {
 
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
-          console.warn(`Auth user with email ${user.email} already exists. Skipping creation.`);
+          console.warn(`Auth user with email ${user.email} already exists. Skipping creation and Firestore data write for this user.`);
         } else {
           console.error(`Error creating auth user ${user.email}:`, error);
+           // If user creation fails, we should not proceed with the batch for this user
+          continue;
         }
       }
     }
