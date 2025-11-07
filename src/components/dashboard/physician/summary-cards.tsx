@@ -9,28 +9,28 @@ import { Calendar, AlertCircle, Users, Clock } from 'lucide-react';
 const summaryData = [
   {
     title: "Today's Appointments",
-    value: 12,
+    value: '...',
     icon: Calendar,
     color: 'text-blue-500',
     borderColor: 'border-blue-500',
   },
   {
     title: 'Pending Tasks',
-    value: 8,
+    value: '...',
     icon: AlertCircle,
     color: 'text-orange-500',
     borderColor: 'border-orange-500',
   },
   {
     title: 'Active Patients',
-    value: 156,
+    value: '...',
     icon: Users,
     color: 'text-green-500',
     borderColor: 'border-green-500',
   },
   {
     title: 'Avg. Wait Time',
-    value: '15 min',
+    value: '...',
     icon: Clock,
     color: 'text-purple-500',
     borderColor: 'border-purple-500',

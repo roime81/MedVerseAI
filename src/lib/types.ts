@@ -1,23 +1,13 @@
 // Type definitions for your data models
+import type { Patient as PatientSchema, Encounter, Condition } from "@/lib/schemas";
 
-export interface Patient {
+
+export interface Patient extends PatientSchema {
     id: string;
-    personId: string;
-    nationalId?: string;
-    fullName: string;
-    dateOfBirth: string;
-    gender?: string;
-    race?: string;
-    ethnicity?: string;
-    maritalStatus?: string;
-    contactInfo?: string;
-    address?: string;
-    emergencyContact?: string;
-    primaryProviderId?: string;
-    insuranceNumber?: string;
-    allergyFlag?: string;
-    activeProblemList?: string;
     lastSeen?: string;
+    conditions?: Condition[];
+    alerts?: number;
+    initials?: string;
 }
 
 export interface Appointment {
@@ -38,6 +28,7 @@ export interface PendingTask {
 }
 
 export interface RecentPatient {
+  id: string;
   initials: string;
   name: string;
   lastSeen: string;

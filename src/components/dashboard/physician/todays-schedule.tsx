@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   CardContent,
@@ -9,14 +10,12 @@ import { Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import type { Appointment } from '@/lib/types';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, where, Timestamp, getDocs, doc, getDoc } from 'firebase/firestore';
+import type { Patient as PatientSchema } from '@/lib/schemas';
+import { useEffect, useState } from 'react';
+import { Patient } from '@/lib/types';
 
-const appointments: Appointment[] = [
-  { time: '09:00', patient: { initials: 'SJ', name: 'Sarah Johnson', age: 45, reason: 'Follow-up' }, status: 'Completed' },
-  { time: '09:30', patient: { initials: 'MC', name: 'Michael Chen', age: 62, reason: 'Diabetes Check' }, status: 'In Progress' },
-  { time: '10:15', patient: { initials: 'ED', name: 'Emma Davis', age: 34, reason: 'Annual Physical' }, status: 'Waiting' },
-  { time: '11:00', patient: { initials: 'RW', name: 'Robert Wilson', age: 58, reason: 'Hypertension' }, status: 'Scheduled' },
-  { time: '14:00', patient: { initials: 'LA', name: 'Lisa Anderson', age: 41, reason: 'Lab Review' }, status: 'Scheduled' },
-];
 
 const getStatusClass = (status: Appointment['status']) => {
   switch (status) {
@@ -29,6 +28,80 @@ const getStatusClass = (status: Appointment['status']) => {
 }
 
 export function TodaysSchedule() {
+  const firestore = useFirestore();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!firestore) return;
+      setIsLoading(true);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const todayTimestamp = Timestamp.fromDate(today);
+      const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
+
+      const encountersQuery = query(
+        collection(firestore, 'patients'),
+      );
+      
+      const patientSnapshots = await getDocs(encountersQuery);
+      const appointmentsData: Appointment[] = [];
+      
+      for (const patientDoc of patientSnapshots.docs) {
+          const patientData = patientDoc.data() as Patient;
+          patientData.id = patientDoc.id;
+
+          const encountersCollection = collection(firestore, `patients/${patientDoc.id}/encounters`);
+          const patientEncountersQuery = query(encountersCollection,
+            where('admissionDatetime', '>=', todayTimestamp),
+            where('admissionDatetime', '<', tomorrowTimestamp));
+          const encounterSnapshots = await getDocs(patientEncountersQuery);
+
+          encounterSnapshots.forEach(encounterDoc => {
+            const encounter = encounterDoc.data();
+            const admissionTime = (encounter.admissionDatetime as Timestamp).toDate();
+
+            const getInitials = (name: string) => {
+              return name.split(' ').map(n => n[0]).join('');
+            }
+
+            const calculateAge = (dob: string) => {
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
+            appointmentsData.push({
+              time: admissionTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+              patient: {
+                name: patientData.fullName,
+                initials: getInitials(patientData.fullName),
+                age: calculateAge(patientData.dateOfBirth),
+                reason: encounter.visitReason,
+              },
+              status: encounter.visitStatus === 'Discharged' ? 'Completed' : 'Scheduled',
+            });
+          });
+      }
+
+      appointmentsData.sort((a, b) => a.time.localeCompare(b.time));
+      setAppointments(appointmentsData);
+      setIsLoading(false);
+    };
+
+    fetchAppointments();
+  }, [firestore]);
+
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -39,22 +112,32 @@ export function TodaysSchedule() {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {appointments.map((appt, index) => (
-            <div key={index} className="flex items-center space-x-4 rounded-lg p-3 hover:bg-gray-50">
-              <div className="w-14 text-sm text-muted-foreground">{appt.time}</div>
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-blue-100 text-blue-800 font-semibold">{appt.patient.initials}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">{appt.patient.name}</p>
-                <p className="text-sm text-muted-foreground">{`${appt.patient.age} yrs • ${appt.patient.reason}`}</p>
+         {isLoading ? (
+          <div className="flex justify-center items-center h-40">
+            <p>Loading schedule...</p>
+          </div>
+        ) : appointments.length === 0 ? (
+          <div className="flex justify-center items-center h-40">
+            <p>No appointments scheduled for today.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {appointments.map((appt, index) => (
+              <div key={index} className="flex items-center space-x-4 rounded-lg p-3 hover:bg-gray-50">
+                <div className="w-14 text-sm text-muted-foreground">{appt.time}</div>
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-blue-100 text-blue-800 font-semibold">{appt.patient.initials}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800">{appt.patient.name}</p>
+                  <p className="text-sm text-muted-foreground">{`${appt.patient.age} yrs • ${appt.patient.reason}`}</p>
+                </div>
+                <Badge className={`font-semibold ${getStatusClass(appt.status)}`}>{appt.status}</Badge>
+                <Button variant="ghost" size="sm">Open Chart</Button>
               </div>
-              <Badge className={`font-semibold ${getStatusClass(appt.status)}`}>{appt.status}</Badge>
-              <Button variant="ghost" size="sm">Open Chart</Button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
