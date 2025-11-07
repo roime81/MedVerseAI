@@ -54,8 +54,8 @@ export function SummaryCards() {
         const appointmentsQuery = query(
           collection(firestore, 'procedures'), // Assuming procedures are appointments for now
           where('performingClinicianId', '==', user.uid),
-          where('procedureDateTime', '>=', Timestamp.fromDate(today).toDate().toISOString()),
-          where('procedureDateTime', '<', Timestamp.fromDate(tomorrow).toDate().toISOString())
+          where('procedureDateTime', '>=', today.toISOString()),
+          where('procedureDateTime', '<', tomorrow.toISOString())
         );
         const appointmentsSnapshot = await getCountFromServer(appointmentsQuery);
         const appointmentsCount = appointmentsSnapshot.data().count;

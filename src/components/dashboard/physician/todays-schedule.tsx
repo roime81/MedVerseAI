@@ -10,8 +10,8 @@ import { Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import type { Appointment } from '@/lib/types';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, Timestamp, getDocs, doc, getDoc, collectionGroup, orderBy } from 'firebase/firestore';
+import { useFirestore, useUser } from '@/firebase';
+import { collection, query, where, Timestamp, getDocs, doc, getDoc, orderBy } from 'firebase/firestore';
 import type { Patient as PatientSchema } from '@/lib/schemas';
 import { useEffect, useState } from 'react';
 import { Patient } from '@/lib/types';
@@ -45,12 +45,12 @@ export function TodaysSchedule() {
       const todayTimestamp = Timestamp.fromDate(today);
       const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
 
+      // Simpler query: Get all encounters for the user, then filter by date client-side.
+      // This avoids the composite index requirement for now.
       const encountersQuery = query(
-        collectionGroup(firestore, 'encounters'),
-        where('attendingProviderId', '==', user.uid),
-        where('admissionDatetime', '>=', todayTimestamp),
-        where('admissionDatetime', '<', tomorrowTimestamp),
-        orderBy('admissionDatetime', 'asc')
+        collection(firestore, 'procedures'),
+        where('performingClinicianId', '==', user.uid),
+        orderBy('procedureDateTime', 'asc')
       );
       
       const encounterSnapshots = await getDocs(encountersQuery);
@@ -58,13 +58,18 @@ export function TodaysSchedule() {
       
       for (const encounterDoc of encounterSnapshots.docs) {
           const encounter = encounterDoc.data();
+          
+          const procedureTime = new Date(encounter.procedureDateTime);
+          if (procedureTime < today || procedureTime >= tomorrow) {
+            continue; // Skip if not for today
+          }
+
           const patientRef = doc(firestore, 'patients', encounter.personId);
           const patientDoc = await getDoc(patientRef);
 
           if (patientDoc.exists()) {
               const patientData = patientDoc.data() as Patient;
-              const admissionTime = (encounter.admissionDatetime as Timestamp).toDate();
-
+              
               const getInitials = (name: string) => {
                 return name.split(' ').map(n => n[0]).join('');
               }
@@ -81,14 +86,15 @@ export function TodaysSchedule() {
               }
 
               appointmentsData.push({
-                time: admissionTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+                time: procedureTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
                 patient: {
                   name: patientData.fullName,
                   initials: getInitials(patientData.fullName),
                   age: calculateAge(patientData.dateOfBirth),
-                  reason: encounter.visitReason,
+                  reason: encounter.procedureName,
                 },
-                status: encounter.visitStatus === 'Discharged' ? 'Completed' : 'Scheduled',
+                // This is a placeholder, visitStatus would come from an encounter
+                status: 'Scheduled', 
               });
           }
       }
