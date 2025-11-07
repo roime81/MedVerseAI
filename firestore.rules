@@ -6,23 +6,22 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    match /patients/{patientId} {
+    match /patients/{document=**} {
       allow read: if isSignedIn();
-      allow write: if false; // Client-side writes disabled for now
+      allow write: if false; 
     }
 
-    match /wards/{wardId} {
+    match /wards/{document=**} {
       allow read: if isSignedIn();
       allow write: if false;
     }
 
-    // This rule allows any authenticated user to list the entire 'tasks' collection.
     match /tasks/{document=**} {
       allow read: if isSignedIn();
       allow write: if false;
     }
 
-    match /staffProfiles/{staffProfileId} {
+    match /staffProfiles/{document=**} {
       allow read: if isSignedIn();
       allow write: if false;
     }
