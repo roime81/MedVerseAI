@@ -21,6 +21,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Stethoscope } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function Login() {
   const auth = useAuth();
@@ -86,31 +88,32 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const signedInUser = result.user;
 
-      // After sign-in, check if user document exists, create if it doesn't
       const userRef = doc(firestore, "users", signedInUser.uid);
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        // User document doesn't exist, create it
-        await setDoc(userRef, {
+        const newUser = {
           uid: signedInUser.uid,
           email: signedInUser.email,
           displayName: signedInUser.displayName,
-          role: 'physician', // Assign a default role
-        });
-        console.log(`Created new user document for ${signedInUser.displayName}`);
+          role: 'physician',
+        };
+        
+        setDoc(userRef, newUser)
+          .catch(async (serverError) => {
+              const permissionError = new FirestorePermissionError({
+                  path: userRef.path,
+                  operation: 'create',
+                  requestResourceData: newUser,
+              });
+              errorEmitter.emit('permission-error', permissionError);
+          });
       }
-      // The onAuthStateChanged listener will handle the redirect.
     } catch (error: any) {
         console.error("Google sign-in error:", error);
-        // Provide more specific error messages if possible
-        if (error.code === 'auth/popup-closed-by-user') {
+        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
             setError('Sign-in cancelled. Please try again.');
-        } else if (error.code === 'auth/cancelled-popup-request') {
-            // This can happen if user clicks the button multiple times
-            setError(''); // Don't show an error for this case
-        }
-        else {
+        } else {
             setError('Failed to sign in with Google. Please try again.');
         }
     } finally {
@@ -124,11 +127,9 @@ export default function Login() {
     }
   }, [user, isUserLoading]);
 
-  // Combined loading state to prevent flash of login page
   const isLoading = isUserLoading || isSigningIn;
 
   if (isUserLoading || user) {
-     // Show a loading indicator while checking auth state or if user object is present (pre-redirect)
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
