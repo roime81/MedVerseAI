@@ -1,39 +1,38 @@
-'use client';
-import { useAuth } from '@/hooks/use-mock-auth';
-import AdminDashboard from './admin-dashboard';
-import PhysicianDashboard from './physician-dashboard';
-import NurseDashboard from './nurse-dashboard';
-import { BrainCircuit } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
-export default function DashboardPage() {
-    const { user, isLoading } = useAuth();
-    const [isClient, setIsClient] = useState(false);
-
-    useEffect(() => {
-      setIsClient(true);
-    }, []);
-
-    if (!isClient || isLoading) {
-        return (
-            <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-                <div className="flex flex-col items-center gap-4">
-                    <BrainCircuit className="size-12 text-primary animate-pulse" />
-                    <p className="text-muted-foreground">Loading dashboard...</p>
-                </div>
-            </div>
-        );
-    }
-    
-    switch (user?.role) {
-        case 'Admin':
-            return <AdminDashboard />;
-        case 'Physician':
-            return <PhysicianDashboard />;
-        case 'Nurse':
-            return <NurseDashboard />;
-        default:
-            // Fallback for other roles or if role is not defined
-            return <AdminDashboard />;
-    }
+export default function Home() {
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">
+          Welcome to MedVerseAI
+        </h1>
+        <p className="text-muted-foreground">
+          A distributed, microservices-based Health Information System with
+          Analytics & AI.
+        </p>
+      </header>
+      <Card>
+        <CardHeader>
+          <CardTitle>Getting Started</CardTitle>
+          <CardDescription>
+            This is a starter template. You can edit this file at{' '}
+            <code>src/app/page.tsx</code>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>
+            The app is built with Next.js, ShadCN, and Tailwind CSS. Explore the
+            project structure to start building your application.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

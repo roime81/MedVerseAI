@@ -1,78 +1,8 @@
-/**
- * @file Firestore Security Rules for MedVerseAI Application
- * @core_philosophy This ruleset is based on the FHIR/OMOP model, enforcing strict access controls.
- * @data_structure Data is centered around a `person_master` collection, representing the golden record for an individual.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * @description Manages access to the master person record.
-     * In a real-world scenario, read/write would be limited to specific privileged service roles (e.g., MPI services).
-     * For now, we allow any signed-in user to manage their own record for prototyping.
-     * @path /person_master/{personId}
-     */
-    match /person_master/{personId} {
-      // Allow read and write access if the requesting user's ID matches the document ID.
-      allow read, write: if isSignedIn() && isOwner(personId);
-    }
-
-    /**
-     * @description Manages access to person identifiers. Access is inherited from the parent person_master record.
-     * @path /person_master/{personId}/identifiers/{identifierId}
-     */
-    match /person_master/{personId}/identifiers/{identifierId} {
-        // Allow read and write access if the user owns the parent person record.
-        allow read, write: if isSignedIn() && isOwner(personId);
-    }
-    
-    /**
-     * @description Manages access to patient coverage. Inherits access from the parent person record.
-     * @path /person_master/{personId}/coverage/{coverageId}
-     */
-    match /person_master/{personId}/coverage/{coverageId} {
-      allow read, write: if isSignedIn() && isOwner(personId);
-    }
-
-    /**
-     * @description Manages claims. In a real scenario, this would be restricted to billing staff.
-     * For now, any authenticated user can create, but only read/update their own claims.
-     * @path /claims/{claimId}
-     */
-    match /claims/{claimId} {
-      allow create: if isSignedIn();
-      allow read, update: if isSignedIn() && resource.data.person_id == request.auth.uid;
-      // No delete for audit purposes
-    }
-
-    /**
-     * @description Manages EOBs. Access is determined by the linked claim.
-     * @path /eobs/{eobId}
-     */
-    match /eobs/{eobId} {
-      allow read, update: if isSignedIn() && get(/databases/$(database)/documents/claims/$(resource.data.claim_id)).data.person_id == request.auth.uid;
-      allow create: if isSignedIn();
-    }
-
-
-    // ---- Helper functions ----
-
-    /**
-     * @description Checks if the user is signed in.
-     * @return {boolean} True if the user is signed in, false otherwise.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description Checks if the request is made by the owner of the document.
-     * @param {string} userId - The user ID to compare against the request's auth UID.
-     * @return {boolean} True if the user is the owner, false otherwise.
-     */
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
