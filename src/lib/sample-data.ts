@@ -316,4 +316,4 @@ const generateAllData = (patientCount: number) => {
 };
 
 // Exporting the generator
-export const generatedData = generateAllData(50);
+export const generatedData = generateAllData(100);
