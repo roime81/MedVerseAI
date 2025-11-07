@@ -12,6 +12,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -35,8 +36,10 @@ import {
   Activity,
   BriefcaseMedical,
   Users2,
+  Route,
 } from 'lucide-react';
 import type { RecentPatient } from './physician-dashboard';
+import { TreatmentJourney } from './treatment-journey';
 
 type PatientDetailSheetProps = {
   patient: RecentPatient | null;
@@ -64,8 +67,8 @@ const HistoryDetailRow = ({
   label: string;
   value: React.ReactNode;
 }) => (
-  <div>
-    <p className="text-xs text-muted-foreground">{label}</p>
+  <div className="grid grid-cols-2 gap-4">
+    <p className="text-sm text-muted-foreground">{label}</p>
     <p className="font-medium">{value}</p>
   </div>
 );
@@ -148,6 +151,7 @@ export function PatientDetailSheet({
             <Tabs defaultValue="overview">
               <TabsList>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="journey">Journey</TabsTrigger>
                 <TabsTrigger value="vitals">Vitals</TabsTrigger>
                 <TabsTrigger value="medications">Medications</TabsTrigger>
                 <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
@@ -257,6 +261,21 @@ export function PatientDetailSheet({
                     </CardContent>
                   </Card>
                 </div>
+              </TabsContent>
+              <TabsContent value="journey" className="mt-4">
+                <Card>
+                  <CardHeader>
+                      <CardTitle className="flex items-center text-base">
+                          <Route className="mr-2" /> Treatment Journey
+                      </CardTitle>
+                      <CardDescription>
+                          A timeline of the patient's treatment plan and progress.
+                      </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <TreatmentJourney />
+                  </CardContent>
+                </Card>
               </TabsContent>
               <TabsContent value="vitals" className="mt-4">
                 <div className="space-y-6">
@@ -388,7 +407,7 @@ export function PatientDetailSheet({
                         <BriefcaseMedical className="mr-2" /> Social History
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-y-4 gap-x-2">
+                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
                         <HistoryDetailRow label="Smoking Status" value={patient.socialHistory.smokingStatus} />
                         <HistoryDetailRow label="Alcohol Use" value={patient.socialHistory.alcoholUse} />
                         <HistoryDetailRow label="Exercise" value={patient.socialHistory.exercise} />
@@ -407,6 +426,7 @@ export function PatientDetailSheet({
                               <div>
                                   <p className="font-semibold">{item.condition}</p>
                                   <p className="text-xs text-muted-foreground">{item.relation}</p>
+
                               </div>
                               <Badge variant="outline">{item.notes}</Badge>
                           </div>
@@ -422,3 +442,5 @@ export function PatientDetailSheet({
     </Sheet>
   );
 }
+
+    
