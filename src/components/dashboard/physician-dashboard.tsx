@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, AlertCircle, Users, Clock } from 'lucide-react';
+import { Header } from './header';
 
 const StatCard = ({ title, value, icon: Icon, colorClass }) => (
   <Card className="shadow-md">
@@ -76,7 +77,8 @@ const RecentPatientCard = ({ name, initials, lastSeen, conditions, alerts }) => 
 export default function PhysicianDashboard() {
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="p-8">
+      <Header />
+      <main className="p-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -138,7 +140,7 @@ export default function PhysicianDashboard() {
             </div>
         </div>
 
-      </div>
+      </main>
     </div>
   );
 }
