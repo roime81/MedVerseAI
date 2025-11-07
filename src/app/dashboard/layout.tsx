@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
-import { LogOut, Stethoscope } from 'lucide-react';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
-
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { Input } from '@/components/ui/input';
+import { Search, ChevronsUpDown } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -44,29 +45,31 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen w-full bg-background font-sans">
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
-         <div className="flex items-center gap-2">
-            <Stethoscope className="h-6 w-6 text-primary" />
-            <h1 className="font-grotesk text-xl font-semibold text-primary">
-                MedVerseAI
-            </h1>
-        </div>
-        <div className="relative ml-auto flex-1 md:grow-0"></div>
-          <Avatar>
-            <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || ''} />
-            <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="font-semibold text-sm">{user.displayName || user.email}</span>
-            <span className="text-xs text-muted-foreground">{user.email}</span>
+    <div className="flex min-h-screen w-full bg-background font-sans">
+      <Sidebar />
+      <div className="flex flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search Patient..."
+              className="w-full rounded-full bg-white pl-10"
+            />
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4" />
-            <span className="sr-only">Sign Out</span>
-          </Button>
-      </header>
-      <main className="p-4 sm:px-6 sm:py-4">{children}</main>
+          <div className="ml-auto flex items-center gap-4">
+            <Button variant="outline" className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              City General
+              <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+            </Button>
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || ''} />
+              <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
+            </Avatar>
+          </div>
+        </header>
+        <main className="flex-1 p-6">{children}</main>
+      </div>
     </div>
   );
 }

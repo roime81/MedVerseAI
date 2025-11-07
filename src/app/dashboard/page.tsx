@@ -11,8 +11,15 @@ export default function DashboardRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserLoading && user) {
-      const fetchUserRole = async () => {
+    if (isUserLoading) return;
+
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    
+    if (firestore && user) {
+        const fetchUserRole = async () => {
         const userRef = doc(firestore, 'users', user.uid);
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
@@ -21,9 +28,8 @@ export default function DashboardRedirect() {
           if (role) {
             router.push(`/dashboard/${role}`);
           } else {
-            // Handle case where role is not set
             console.error('User role not found.');
-            // Maybe redirect to a role selection or error page
+            router.push('/login');
           }
         } else {
             console.log('User document does not exist yet, waiting for creation.');
@@ -35,7 +41,7 @@ export default function DashboardRedirect() {
   }, [user, isUserLoading, firestore, router]);
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-full items-center justify-center">
       <p>Loading your dashboard...</p>
     </div>
   );

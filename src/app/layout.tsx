@@ -1,19 +1,14 @@
 import type { Metadata } from 'next';
-import { PT_Sans, Space_Grotesk } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { FirebaseClientProvider } from '@/firebase';
 import './globals.css';
 import { cn } from '@/lib/utils';
 
-const ptSans = PT_Sans({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '700'],
   variable: '--font-sans',
 });
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-grotesk',
-});
 
 export const metadata: Metadata = {
   title: 'MedVerseAI - Clinical Dashboard',
@@ -27,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn('font-sans', ptSans.variable, spaceGrotesk.variable)}>
+      <body className={cn('font-sans', inter.variable)}>
         <FirebaseClientProvider>{children}</FirebaseClientProvider>
       </body>
     </html>
