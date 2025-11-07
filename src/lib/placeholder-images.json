@@ -71,6 +71,18 @@
       "description": "A headshot of a male user.",
       "imageUrl": "https://i.pravatar.cc/150?u=a042581f4e29026704d",
       "imageHint": "professional man"
+    },
+    {
+      "id": "staff-dr-anderson",
+      "description": "Professional headshot of Dr. Anderson.",
+      "imageUrl": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkb2N0b3J8ZW58MHx8fHwxNzYyNjE2MzI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "doctor professional"
+    },
+    {
+      "id": "staff-nurse-smith",
+      "description": "Professional headshot of Nurse Smith.",
+      "imageUrl": "https://images.unsplash.com/photo-1612531385447-aa759d573883?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYWxlJTIwbnVyc2V8ZW58MHx8fHwxNzYyNjE2MzU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "male nurse"
     }
   ]
 }

@@ -67,6 +67,21 @@ export const treatmentJourney: JourneyTask[] = [
     },
 ];
 
+export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
+  'Dr. Anderson': {
+    name: 'Dr. Sarah Anderson',
+    role: 'Physician, Cardiology',
+    email: 's.anderson@medverse.com',
+    avatarId: 'staff-dr-anderson',
+  },
+  'Nurse Smith': {
+    name: 'Michael Smith, RN',
+    role: 'Registered Nurse, Cardiology',
+    email: 'm.smith@medverse.com',
+    avatarId: 'staff-nurse-smith',
+  }
+};
+
 
 export const allPatients: Patient[] = [
   { id: 1, name: 'Jane Doe', ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied' },

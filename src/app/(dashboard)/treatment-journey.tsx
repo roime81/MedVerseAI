@@ -1,8 +1,15 @@
 'use client';
-import { treatmentJourney, JourneyTask } from '@/lib/sample-data';
+import { treatmentJourney, JourneyTask, staffProfiles } from '@/lib/sample-data';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { placeholderImages } from '@/lib/placeholder-images';
 
 const getStatusClasses = (status: JourneyTask['status']) => {
   switch (status) {
@@ -31,6 +38,12 @@ const getStatusClasses = (status: JourneyTask['status']) => {
 };
 
 export function TreatmentJourney() {
+
+  const getAvatarUrl = (avatarId?: string) => {
+    if (!avatarId) return '';
+    return placeholderImages.find(p => p.id === avatarId)?.imageUrl || '';
+  };
+
   return (
     <div className="relative">
       <div
@@ -41,6 +54,7 @@ export function TreatmentJourney() {
         {treatmentJourney.map((task, index) => {
           const classes = getStatusClasses(task.status);
           const Icon = task.icon;
+          const staffMember = task.completedBy ? staffProfiles[task.completedBy] : undefined;
 
           return (
             <div key={index} className="flex items-start gap-4 relative">
@@ -61,9 +75,27 @@ export function TreatmentJourney() {
                 <p className={cn('text-xs', classes.description)}>
                   {task.description}
                 </p>
-                {task.status === 'Completed' && task.completedBy && (
+                {task.status === 'Completed' && staffMember && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Completed by: <Button variant="link" className="p-0 h-auto text-xs">{task.completedBy}</Button>
+                    Completed by:{' '}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="link" className="p-0 h-auto text-xs">{task.completedBy}</Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64">
+                            <div className="flex items-center gap-4">
+                                <Avatar>
+                                    <AvatarImage src={getAvatarUrl(staffMember.avatarId)} />
+                                    <AvatarFallback>{staffMember.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold text-sm">{staffMember.name}</p>
+                                    <p className="text-xs text-muted-foreground">{staffMember.role}</p>
+                                    <p className="text-xs text-muted-foreground">{staffMember.email}</p>
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                   </p>
                 )}
               </div>
