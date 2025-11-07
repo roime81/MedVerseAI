@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import type { Appointment } from '@/lib/types';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, query, where, Timestamp, getDocs, doc, getDoc, orderBy } from 'firebase/firestore';
-import type { Patient as PatientSchema } from '@/lib/schemas';
 import { useEffect, useState } from 'react';
 import { Patient } from '@/lib/types';
 
@@ -42,29 +41,26 @@ export function TodaysSchedule() {
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const todayTimestamp = Timestamp.fromDate(today);
-      const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
 
-      // Simpler query: Get all encounters for the user, then filter by date client-side.
-      // This avoids the composite index requirement for now.
-      const encountersQuery = query(
+      // This query requires an index. To avoid this, we fetch all procedures for the user
+      // and then filter by date on the client side.
+      const proceduresQuery = query(
         collection(firestore, 'procedures'),
-        where('performingClinicianId', '==', user.uid),
-        orderBy('procedureDateTime', 'asc')
+        where('performingClinicianId', '==', user.uid)
       );
       
-      const encounterSnapshots = await getDocs(encountersQuery);
+      const procedureSnapshots = await getDocs(proceduresQuery);
       const appointmentsData: Appointment[] = [];
       
-      for (const encounterDoc of encounterSnapshots.docs) {
-          const encounter = encounterDoc.data();
+      for (const procedureDoc of procedureSnapshots.docs) {
+          const procedure = procedureDoc.data();
           
-          const procedureTime = new Date(encounter.procedureDateTime);
+          const procedureTime = new Date(procedure.procedureDateTime);
           if (procedureTime < today || procedureTime >= tomorrow) {
             continue; // Skip if not for today
           }
 
-          const patientRef = doc(firestore, 'patients', encounter.personId);
+          const patientRef = doc(firestore, 'patients', procedure.personId);
           const patientDoc = await getDoc(patientRef);
 
           if (patientDoc.exists()) {
@@ -91,13 +87,16 @@ export function TodaysSchedule() {
                   name: patientData.fullName,
                   initials: getInitials(patientData.fullName),
                   age: calculateAge(patientData.dateOfBirth),
-                  reason: encounter.procedureName,
+                  reason: procedure.procedureName,
                 },
                 // This is a placeholder, visitStatus would come from an encounter
                 status: 'Scheduled', 
               });
           }
       }
+
+      // Sort appointments by time
+      appointmentsData.sort((a, b) => a.time.localeCompare(b.time));
 
       setAppointments(appointmentsData);
       setIsLoading(false);
