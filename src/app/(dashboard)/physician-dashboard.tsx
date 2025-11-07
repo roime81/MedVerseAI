@@ -28,10 +28,10 @@ const schedule = [
 ];
 
 const tasks = [
-    { description: 'Review lab results for Michael Chen', time: '30 min ago', priority: 'High' },
-    { description: 'Sign prescription refill for Sarah Johnson', time: '1 hour ago', priority: 'Medium' },
-    { description: 'Complete discharge summary for Robert Wilson', time: '2 hours ago', priority: 'High' },
-    { description: 'Review imaging results', time: '3 hours ago', priority: 'Low' },
+    { description: 'Review lab results', patient: 'David Lee', mrn: 'MRN-1055', time: '30 min ago', priority: 'High' },
+    { description: 'Sign prescription refill', patient: 'Patricia Brown', mrn: 'MRN-0921', time: '1 hour ago', priority: 'Medium' },
+    { description: 'Complete discharge summary', patient: 'James Martinez', mrn: 'MRN-0847', time: '2 hours ago', priority: 'High' },
+    { description: 'Review imaging results', patient: 'David Lee', mrn: 'MRN-1055', time: '3 hours ago', priority: 'Low' },
 ];
 
 export type RecentPatient = {
@@ -430,11 +430,12 @@ export default function PhysicianDashboard() {
                       {tasks.map((task, i) => (
                           <div key={i} className="flex items-start justify-between p-3 rounded-lg border">
                             <div className="flex-1">
-                                  <p className="font-semibold text-sm">{task.description}</p>
+                                  <p className="font-semibold text-sm">{task.description} for <span className="font-bold">{task.patient}</span></p>
                                   <p className="text-xs text-muted-foreground">{task.time}</p>
                             </div>
                             <div className="flex flex-col items-end gap-2 ml-2">
                                 {getPriorityBadge(task.priority)}
+                                <Button variant="outline" size="sm" onClick={() => handleOpenChart(task.mrn)}>Open Chart</Button>
                             </div>
                           </div>
                       ))}
