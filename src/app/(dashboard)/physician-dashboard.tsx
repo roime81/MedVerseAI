@@ -25,23 +25,15 @@ const kpiData = [
 ];
 
 export type RecentPatient = PatientData;
+export type JourneyTask = { 
+    title: string; 
+    description: string; 
+    status: 'Completed' | 'In Progress' | 'Upcoming'; 
+    icon: React.ElementType,
+    completedBy?: string;
+};
 
 const PATIENTS_PER_PAGE = 5;
-
-// Hardcoded data for testing
-const hardcodedPatients: RecentPatient[] = [
-    { id: 1, name: "James Martinez", lastSeen: "Jul 21, 2024", alerts: 1, ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Sarah Anderson', status: 'Occupied', mrn: 'MRN-0847', dob: '1978-11-22', gender: 'Male', ssnLast4: '6789', maritalStatus: 'Married', conditions: [{ name: "Hypertension", stage: "Stage 2", code: "I10", diagnosedDate: "2018-01-15" }], medications: [{ name: "Lisinopril", dosage: "20mg", frequency: "Daily", prescriber: "Dr. Anderson", remaining: 30, startDate: "2018-01-15" }], visitHistory: [], vitals: [], labResults: [], immunizationHistory: [], socialHistory: {}, familyHistory: [] },
-    { id: 2, name: "David Lee", lastSeen: "Jul 20, 2024", alerts: 2, ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Sarah Anderson', status: 'Occupied', mrn: 'MRN-1055', dob: '1965-03-10', gender: 'Male', ssnLast4: '1234', maritalStatus: 'Single', conditions: [{ name: "COPD", stage: "Moderate", code: "J44.9", diagnosedDate: "2021-05-20" }, { name: "High Cholesterol", stage: "", code: "E78.5", diagnosedDate: "2021-05-20" }], medications: [], visitHistory: [], vitals: [], labResults: [], immunizationHistory: [], socialHistory: {}, familyHistory: [] },
-    { id: 3, name: "Patricia Brown", lastSeen: "Jul 19, 2024", ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Sarah Anderson', status: 'Discharging', mrn: 'MRN-0921', dob: '1954-09-01', gender: 'Female', ssnLast4: '5678', maritalStatus: 'Widowed', conditions: [{ name: "Type 2 Diabetes", stage: "Controlled", code: "E11", diagnosedDate: "2015-10-10" }], medications: [], visitHistory: [], vitals: [], labResults: [], immunizationHistory: [], socialHistory: {}, familyHistory: [] },
-];
-
-const hardcodedTasks: Task[] = [
-    { description: 'Review lab results', patient: 'David Lee', mrn: 'MRN-1055', time: '30 min ago', priority: 'High' },
-    { description: 'Sign prescription refill', patient: 'Patricia Brown', mrn: 'MRN-0921', time: '1 hour ago', priority: 'Medium' },
-    { description: 'Complete discharge summary', patient: 'James Martinez', mrn: 'MRN-0847', time: '2 hours ago', priority: 'High' },
-    { description: 'Review imaging results', patient: 'David Lee', mrn: 'MRN-1055', time: '3 hours ago', priority: 'Low' },
-    { description: 'Call patient family for update', patient: 'Sarah Johnson', mrn: 'MRN-0921', time: '4 hours ago', priority: 'Low' },
-];
 
 const hardcodedSchedule = [
     { time: '09:30', name: 'David Lee', age: 59, reason: 'Diabetes Check', status: 'In Progress', mrn: 'MRN-1055', id: 2 },
@@ -52,7 +44,7 @@ const hardcodedSchedule = [
 
 export default function PhysicianDashboard() {
   const { firestore } = useFirebase();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
 
   const [isFormOpen, setFormOpen] = useState(false);
@@ -64,13 +56,37 @@ export default function PhysicianDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const physicianName = 'Dr. Sarah Anderson'; // Hardcoded for testing
+  const profileRef = useMemoFirebase(() => {
+    if (!user?.email || !firestore) return null;
+    return doc(firestore, 'staffProfiles', user.email);
+  }, [user?.email, firestore]);
+  
+  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
+  const physicianName = (profile as any)?.name;
 
-  const allPatients = hardcodedPatients;
-  const recentPatients = hardcodedPatients;
-  const allTasks = hardcodedTasks;
+  const allPatientsQuery = useMemoFirebase(() => {
+    if (!firestore || !physicianName) return null;
+    return query(collection(firestore, 'patients'), where('consultant', '==', physicianName));
+  }, [firestore, physicianName]);
+
+  const recentPatientsQuery = useMemoFirebase(() => {
+    if (!firestore || !physicianName) return null;
+    return query(collection(firestore, 'patients'), where('consultant', '==', physicianName), orderBy('lastSeen', 'desc'), limit(3));
+  }, [firestore, physicianName]);
+  
+  const allTasksQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'tasks'));
+  }, [firestore]);
+
+
+  const { data: allPatients, isLoading: patientsLoading } = useCollection<PatientData>(allPatientsQuery);
+  const { data: recentPatients, isLoading: recentPatientsLoading } = useCollection<PatientData>(recentPatientsQuery);
+  const { data: allTasks, isLoading: tasksLoading } = useCollection<Task>(allTasksQuery);
+  
   const schedule = hardcodedSchedule;
-  const isLoading = false; // Set to false when using hardcoded data
+
+  const isLoading = isUserLoading || isProfileLoading || patientsLoading || recentPatientsLoading || tasksLoading;
 
 
   const handleSavePatient = async (data: PatientRegistrationData) => {
@@ -488,3 +504,5 @@ export default function PhysicianDashboard() {
     </>
   );
 }
+
+    
