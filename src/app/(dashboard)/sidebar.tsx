@@ -19,13 +19,14 @@ import {
   Settings,
   LogOut,
   CalendarDays,
+  Scan,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-mock-auth';
 
 const menuItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/patient-360', icon: User, label: 'Patient 360' },
+  { href: '/patient-360', icon: Scan, label: 'Patient 360' },
   { href: '/orders', icon: FileText, label: 'Orders' },
   { href: '/medications', icon: Pill, label: 'Medications' },
   { href: '/schedule', icon: CalendarDays, label: 'Scheduling' },
