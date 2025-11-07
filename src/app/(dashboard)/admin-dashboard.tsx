@@ -4,12 +4,19 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useCollection } from '@/firebase';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { collection, getFirestore } from 'firebase/firestore';
 import type { Ward, Patient } from '@/lib/sample-data';
+import { Button } from "@/components/ui/button";
+import { seedDatabase } from "@/lib/seed";
+import { useToast } from "@/hooks/use-toast";
+import { Database } from "lucide-react";
 
 export default function AdminDashboard() {
   const firestore = getFirestore();
+  const { toast } = useToast();
+  const [isSeeding, setIsSeeding] = useState(false);
+  
   const wardsQuery = useMemo(() => collection(firestore, 'wards'), [firestore]);
   const patientsQuery = useMemo(() => collection(firestore, 'patients'), [firestore]);
 
@@ -29,6 +36,25 @@ export default function AdminDashboard() {
       total: totalBeds,
     };
   }, [wards]);
+  
+  const handleSeedDatabase = async () => {
+    setIsSeeding(true);
+    const result = await seedDatabase();
+    if (result.success) {
+      toast({
+        title: "Database Seeded",
+        description: "The Firestore database has been populated with sample data.",
+      });
+    } else {
+      toast({
+        title: "Seeding Failed",
+        description: result.message,
+        variant: "destructive",
+      });
+    }
+    setIsSeeding(false);
+  };
+
 
   if (wardsLoading || patientsLoading) {
     return <div>Loading...</div>
@@ -36,13 +62,19 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <header>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">
-          Admin Dashboard
-        </h1>
-        <p className="text-muted-foreground">
-          Real-time operational overview of City General Hospital.
-        </p>
+      <header className="flex items-center justify-between">
+        <div>
+            <h1 className="font-headline text-3xl font-bold tracking-tight">
+            Admin Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+            Real-time operational overview of City General Hospital.
+            </p>
+        </div>
+        <Button onClick={handleSeedDatabase} disabled={isSeeding}>
+            <Database className="mr-2 h-4 w-4" />
+            {isSeeding ? 'Seeding...' : 'Seed Database'}
+        </Button>
       </header>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
