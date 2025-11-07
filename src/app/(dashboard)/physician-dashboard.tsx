@@ -69,6 +69,15 @@ export type RecentPatient = {
     code: string;
     diagnosedDate: string;
   }[];
+  vitals: {
+    date: string;
+    bloodPressure: string;
+    heartRate: string;
+    temperature: string;
+    weight: string;
+    height: string;
+    bmi: string;
+  }[];
 };
 
 const initialRecentPatients: RecentPatient[] = [
@@ -105,6 +114,11 @@ const initialRecentPatients: RecentPatient[] = [
       { name: 'Hypertension', stage: '(Stage 2)', code: 'I10', diagnosedDate: '2018-01-15' },
       { name: 'Type 2 Diabetes Mellitus', stage: '', code: 'E11.9', diagnosedDate: '2019-06-20' },
     ],
+    vitals: [
+        { date: '2025-11-05', bloodPressure: '145/92', heartRate: '82 bpm', temperature: '98.4°F', weight: '185 lbs', height: "5'10\"", bmi: '26.5' },
+        { date: '2025-10-20', bloodPressure: '148/94', heartRate: '78 bpm', temperature: '98.6°F', weight: '187 lbs', height: "5'10\"", bmi: '26.8' },
+        { date: '2025-09-15', bloodPressure: '152/96', heartRate: '85 bpm', temperature: '98.5°F', weight: '189 lbs', height: "5'10\"", bmi: '27.1' },
+    ]
   },
   {
     name: 'Patricia Brown',
@@ -123,6 +137,9 @@ const initialRecentPatients: RecentPatient[] = [
     emergencyContact: { name: 'John Brown', phone: '(555) 555-5678' },
     insurance: { provider: 'Blue Shield PPO', policyNumber: 'BS-12345', groupNumber: 'BS-GRP-1', status: 'Active' },
     conditions: [{ name: 'Asthma', stage: '', code: 'J45', diagnosedDate: '2010-05-10' }],
+    vitals: [
+      { date: '2025-11-01', bloodPressure: '120/80', heartRate: '72 bpm', temperature: '98.7°F', weight: '140 lbs', height: "5'5\"", bmi: '23.4' },
+    ]
   },
   {
     name: 'David Lee',
@@ -144,6 +161,9 @@ const initialRecentPatients: RecentPatient[] = [
       { name: 'COPD', stage: '', code: 'J44.9', diagnosedDate: '2021-02-01' },
       { name: 'High Cholesterol', stage: '', code: 'E78.5', diagnosedDate: '2020-11-11' },
     ],
+    vitals: [
+         { date: '2025-10-28', bloodPressure: '135/88', heartRate: '75 bpm', temperature: '98.2°F', weight: '170 lbs', height: "5'11\"", bmi: '23.7' },
+    ]
   },
 ];
 

@@ -53,6 +53,13 @@ const DetailRow = ({
   </div>
 );
 
+const VitalStat = ({ label, value }: { label: string; value: string }) => (
+    <div className="text-center">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="font-semibold text-lg">{value}</p>
+    </div>
+)
+
 export function PatientDetailSheet({
   patient,
   isOpen,
@@ -219,6 +226,28 @@ export function PatientDetailSheet({
                       ))}
                     </CardContent>
                   </Card>
+                </div>
+              </TabsContent>
+              <TabsContent value="vitals" className="mt-4">
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold">Vital Signs History</h3>
+                    {patient.vitals.map((vital, index) => (
+                        <Card key={index}>
+                            <CardHeader>
+                                <CardTitle className="text-base">
+                                    {new Date(vital.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+                                <VitalStat label="Blood Pressure" value={vital.bloodPressure} />
+                                <VitalStat label="Heart Rate" value={vital.heartRate} />
+                                <VitalStat label="Temperature" value={vital.temperature} />
+                                <VitalStat label="Weight" value={vital.weight} />
+                                <VitalStat label="Height" value={vital.height} />
+                                <VitalStat label="BMI" value={vital.bmi} />
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
               </TabsContent>
             </Tabs>
