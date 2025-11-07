@@ -45,6 +45,7 @@ export default function Home() {
     case 'Nurse':
       return <NurseDashboard />;
     default:
-      return <PhysicianDashboard />; // Default to physician view
+      // Default to the Admin dashboard for other roles for now
+      return <AdminDashboard />;
   }
 }
