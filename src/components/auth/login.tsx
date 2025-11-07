@@ -18,10 +18,7 @@ import {
   initiateEmailSignIn
 } from '@/firebase/non-blocking-login';
 import { Stethoscope } from 'lucide-react';
-import { setDoc, doc, getDoc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { useState } from 'react';
 import { redirect } from 'next/navigation';
 
 function UserProfile({ user, auth }) {
@@ -61,7 +58,6 @@ function UserProfile({ user, auth }) {
 
 export default function Login() {
   const auth = useAuth();
-  const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,34 +82,7 @@ export default function Login() {
   const handleGoogleSignIn = () => {
     initiateGoogleSignIn(auth);
   };
-
-  useEffect(() => {
-    if (!auth || !firestore) return;
   
-    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      if (user) {
-        const userRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-  
-        if (!userDoc.exists()) {
-          await setDoc(
-            userRef,
-            {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              photoURL: user.photoURL,
-              role: 'physician',
-            },
-            { merge: true }
-          );
-        }
-      }
-    });
-  
-    return () => unsubscribe();
-  }, [auth, firestore]);
-
   if (isUserLoading) {
     return <div>Loading...</div>;
   }
