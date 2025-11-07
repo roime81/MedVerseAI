@@ -1,3 +1,4 @@
+
 'use client';
 import {
   SidebarHeader,
@@ -28,12 +29,12 @@ import { useAuth } from '@/hooks/use-mock-auth';
 const allMenuItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['Admin', 'Physician', 'Nurse'] },
   { href: '/patient-360', icon: Scan, label: 'Patient 360', roles: ['Admin'] },
-  { href: '/orders', icon: FileText, label: 'Orders', roles: ['Physician', 'Nurse', 'Admin'] },
-  { href: '/medications', icon: Pill, label: 'Medications', roles: ['Physician', 'Nurse', 'Admin'] },
-  { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: ['Physician', 'Nurse', 'Admin'] },
-  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: ['Physician', 'Nurse', 'Admin', 'Radiologist'] },
-  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: ['Scheduler', 'Admin', 'Physician', 'Nurse'] },
-  { href: '/telehealth', icon: Video, label: 'Telehealth', roles: ['Physician', 'Patient'] },
+  { href: '/orders', icon: FileText, label: 'Orders', roles: ['Nurse', 'Admin'] },
+  { href: '/medications', icon: Pill, label: 'Medications', roles: ['Nurse', 'Admin'] },
+  { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: ['Nurse', 'Admin'] },
+  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: ['Nurse', 'Admin', 'Radiologist'] },
+  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: ['Scheduler', 'Admin', 'Nurse'] },
+  { href: '/telehealth', icon: Video, label: 'Telehealth', roles: ['Patient'] },
   { href: '/billing', icon: CreditCard, label: 'Billing', roles: ['Billing', 'Admin'] },
   { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['Admin'] },
   { href: '/admin', icon: Settings, label: 'Admin', roles: ['Admin'] },
