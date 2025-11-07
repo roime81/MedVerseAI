@@ -1,65 +1,90 @@
 
 export const sampleUsers = [
+    // Doctors
     {
-        email: 'physician@medverse.com',
+        email: 'emily.carter@medverse.com',
         password: 'password123',
         role: 'physician',
-        displayName: 'Emily Carter'
+        displayName: 'Dr. Emily Carter'
     },
     {
-        email: 'physician2@medverse.com',
+        email: 'ben.stone@medverse.com',
         password: 'password123',
         role: 'physician',
-        displayName: 'Ben Stone'
+        displayName: 'Dr. Ben Stone'
     },
+    // Nurses
     {
-        email: 'nurse@medverse.com',
+        email: 'olivia.rodriguez@medverse.com',
         password: 'password123',
         role: 'nurse',
-        displayName: 'Olivia Rodriguez'
+        displayName: 'Olivia Rodriguez, RN'
     },
     {
-        email: 'nurse2@medverse.com',
+        email: 'michael.chen@medverse.com',
         password: 'password123',
         role: 'nurse',
-        displayName: 'Michael Chen'
+        displayName: 'Michael Chen, RN'
     },
+    // Lab Techs
     {
-        email: 'radiology@medverse.com',
-        password: 'password123',
-        role: 'radiology',
-        displayName: 'Sarah Johnson'
-    },
-    {
-        email: 'radiology2@medverse.com',
-        password: 'password123',
-        role: 'radiology',
-        displayName: 'David Kim'
-    },
-    {
-        email: 'lab@medverse.com',
+        email: 'jessica.patel@medverse.com',
         password: 'password123',
         role: 'lab',
         displayName: 'Jessica Patel'
     },
     {
-        email: 'lab2@medverse.com',
+        email: 'kevin.harris@medverse.com',
         password: 'password123',
         role: 'lab',
         displayName: 'Kevin Harris'
     },
+    // Radiology Techs
     {
-        email: 'billing@medverse.com',
+        email: 'sarah.johnson@medverse.com',
+        password: 'password123',
+        role: 'radiology',
+        displayName: 'Sarah Johnson'
+    },
+    {
+        email: 'david.kim@medverse.com',
+        password: 'password123',
+        role: 'radiology',
+        displayName: 'David Kim'
+    },
+    // Billing
+    {
+        email: 'laura.wilson@medverse.com',
         password: 'password123',
         role: 'billing',
         displayName: 'Laura Wilson'
     },
     {
-        email: 'billing2@medverse.com',
+        email: 'tom.clark@medverse.com',
         password: 'password123',
         role: 'billing',
         displayName: 'Tom Clark'
-    }
+    },
+    // Pharmacists
+    {
+        email: 'sandra.dee@medverse.com',
+        password: 'password123',
+        role: 'pharmacist',
+        displayName: 'Sandra Dee'
+    },
+    {
+        email: 'peter.jones@medverse.com',
+        password: 'password123',
+        role: 'pharmacist',
+        displayName: 'Peter Jones'
+    },
+    // Admin
+    {
+        email: 'super.admin@medverse.com',
+        password: 'password123',
+        role: 'admin',
+        displayName: 'Super Admin'
+    },
 ];
 
 export const samplePatients = [
@@ -873,6 +898,8 @@ export const sampleImagingStudies = [
         impression: 'Degenerative changes in the medial meniscus of the right knee.'
     }
 ];
+
+    
 
     
 

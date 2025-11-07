@@ -5,53 +5,27 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuth, useUser } from '@/firebase';
 import {
   initiateGoogleSignIn,
   initiateSignOut,
 } from '@/firebase/non-blocking-login';
 import { Stethoscope } from 'lucide-react';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { useEffect } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
+import { redirect } from 'next/navigation';
 
-function UserProfile({ user, auth, firestore }) {
+function UserProfile({ user, auth }) {
   const handleSignOut = () => {
     initiateSignOut(auth);
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const userRef = doc(firestore, 'users', user.uid);
-        // Here you would typically get the role from your backend or a custom claim
-        // For this example, we'll default to 'physician' if the document doesn't exist
-        const defaultRole = 'physician';
-        await setDoc(
-          userRef,
-          {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            role: defaultRole,
-          },
-          { merge: true }
-        );
-      }
-    });
-
-    return () => unsubscribe();
-  }, [auth, firestore]);
+  
+  redirect('/dashboard');
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -90,12 +64,43 @@ export default function Login() {
     initiateGoogleSignIn(auth);
   };
 
+  useEffect(() => {
+    if (!auth || !firestore) return;
+  
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+      if (user) {
+        const userRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+  
+        if (!userDoc.exists()) {
+          // This is a simplified example. In a real app, you'd have a
+          // more robust way of assigning roles, perhaps through a backend
+          // function or a dedicated user management UI for admins.
+          // Here, we default to 'physician' for any new user.
+          await setDoc(
+            userRef,
+            {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              role: 'physician', // Default role for new sign-ups
+            },
+            { merge: true }
+          );
+        }
+      }
+    });
+  
+    return () => unsubscribe();
+  }, [auth, firestore]);
+
   if (isUserLoading) {
     return <div>Loading...</div>;
   }
 
   if (user) {
-    return <UserProfile user={user} auth={auth} firestore={firestore} />;
+    return <UserProfile user={user} auth={auth} />;
   }
 
   return (
@@ -134,3 +139,5 @@ export default function Login() {
     </div>
   );
 }
+
+    

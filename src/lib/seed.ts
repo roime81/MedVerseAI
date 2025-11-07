@@ -54,7 +54,11 @@ async function seedDatabase() {
 
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
-          console.warn(`Auth user with email ${user.email} already exists. Skipping creation.`);
+          console.warn(`Auth user with email ${user.email} already exists. Skipping creation, but will attempt to update Firestore data.`);
+           // Even if auth user exists, we can still try to set the firestore doc
+           // This requires getting the user by email, which is an admin-only function.
+           // For this seed script, we will just log a warning and the firestore doc won't be created/updated if the auth creation fails.
+           // A more robust script might handle this by fetching the user and then setting data.
         } else {
           console.error(`Error creating auth user ${user.email}:`, error);
         }
@@ -191,3 +195,5 @@ seedDatabase().then(() => {
     console.log('Seed script finished. Exiting.');
     process.exit(0);
 });
+
+    

@@ -9,7 +9,7 @@
         "email": { "type": "string", "format": "email", "description": "User's email address." },
         "role": {
           "type": "string",
-          "enum": ["physician", "nurse", "radiology", "lab", "billing", "admin"],
+          "enum": ["physician", "nurse", "radiology", "lab", "billing", "admin", "pharmacist"],
           "description": "The role of the user, which determines their permissions and dashboard."
         },
         "displayName": { "type": "string", "description": "User's display name." }
@@ -665,3 +665,5 @@
     ]
   }
 }
+
+    
