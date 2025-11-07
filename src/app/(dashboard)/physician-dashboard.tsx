@@ -1,18 +1,16 @@
 
-
 'use client';
 import { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2, FileClock, ClipboardCheck, Pill, Search, Loader2 } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2, Search, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
 import { PatientDetailSheet } from './patient-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { TreatmentJourney } from './treatment-journey';
 import { Input } from '@/components/ui/input';
 import { useCollection, useFirebase, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
 import { collection, query, where, orderBy, limit } from 'firebase/firestore';
@@ -20,21 +18,13 @@ import type { Patient as PatientData, Task } from '@/lib/sample-data';
 
 
 const kpiData = [
-    { title: "Today's Appointments", value: 5, icon: Calendar, color: "text-blue-500", borderColor: "border-blue-500", id: "appointments" },
-    { title: "Pending Tasks", value: 6, icon: AlertCircle, color: "text-orange-500", borderColor: "border-orange-500", id: "tasks" },
-    { title: "Active Patients", value: 100, icon: Users, color: "text-green-500", borderColor: "border-green-500", id: "patients" },
+    { title: "Today's Appointments", icon: Calendar, color: "text-blue-500", borderColor: "border-blue-500", id: "appointments" },
+    { title: "Pending Tasks", icon: AlertCircle, color: "text-orange-500", borderColor: "border-orange-500", id: "tasks" },
+    { title: "Active Patients", icon: Users, color: "text-green-500", borderColor: "border-green-500", id: "patients" },
     { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500", borderColor: "border-purple-500", id: "wait-time" },
 ];
 
 export type RecentPatient = PatientData;
-
-export type JourneyTask = {
-  title: string;
-  description: string;
-  status: 'Completed' | 'In Progress' | 'Upcoming';
-  icon: React.ElementType;
-  completedBy?: string;
-};
 
 const PATIENTS_PER_PAGE = 5;
 
@@ -46,9 +36,6 @@ export default function PhysicianDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [showAllPatientsDialog, setShowAllPatientsDialog] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
-  const [showJourney, setShowJourney] = useState(false);
-  const [selectedPatientForJourney, setSelectedPatientForJourney] = useState<RecentPatient | null>(null);
-  const [showActivePatientsDialog, setShowActivePatientsDialog] = useState(false);
   const { toast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
   const [selectedAppointmentStatus, setSelectedAppointmentStatus] = useState<string | undefined>(undefined);
@@ -173,7 +160,7 @@ export default function PhysicianDashboard() {
 
   const handleKpiClick = (id: string) => {
     if (id === 'patients') {
-      setShowActivePatientsDialog(true);
+      setShowAllPatientsDialog(true);
     }
      if (id === 'tasks') {
       setShowAllTasks(true);
@@ -207,95 +194,7 @@ export default function PhysicianDashboard() {
         default: return <Badge>{priority}</Badge>;
     }
   }
-
-  const handleTaskClick = (mrn: string) => {
-    const patient = allPatients?.find(p => p.mrn === mrn);
-    if (patient) {
-        setSelectedPatientForJourney(patient as RecentPatient);
-        setShowJourney(true);
-    } else {
-        toast({
-            title: 'Patient Not Found',
-            description: 'Cannot display journey for the selected task\'s patient.',
-            variant: 'destructive',
-        })
-    }
-  };
   
-const treatmentJourneyMartinez: JourneyTask[] = [
-    { 
-        title: 'Initial Consultation',
-        description: 'Patient admitted for chest pain.',
-        status: 'Completed',
-        icon: ClipboardCheck,
-        completedBy: 'Dr. Anderson'
-    },
-    { 
-        title: 'Lab Work & Vitals',
-        description: 'Troponin, EKG, and vital signs checked.',
-        status: 'Completed',
-        icon: ClipboardCheck,
-        completedBy: 'Nurse Smith'
-    },
-    { 
-        title: 'Medication Adjustment',
-        description: 'Lisinopril increased to 20mg.',
-        status: 'In Progress',
-        icon: Pill
-    },
-    { 
-        title: 'Follow-up Appointment',
-        description: 'Scheduled for 4 weeks post-discharge.',
-        status: 'Upcoming',
-        icon: FileClock
-    },
-    { 
-        title: 'Discharge Summary',
-        description: 'Awaiting final sign-off.',
-        status: 'Upcoming',
-        icon: FileClock
-    },
-];
-
-const treatmentJourneyLee: JourneyTask[] = [
-    { 
-        title: 'Initial Diagnosis',
-        description: 'Patient diagnosed with COPD and High Cholesterol.',
-        status: 'Completed',
-        icon: ClipboardCheck,
-        completedBy: 'Dr. Anderson'
-    },
-    { 
-        title: 'Prescription Initiated',
-        description: 'Symbicort and Lipitor prescribed.',
-        status: 'Completed',
-        icon: Pill,
-        completedBy: 'Dr. Anderson'
-    },
-    { 
-        title: 'Lab Results Review',
-        description: 'Cholesterol levels remain elevated.',
-        status: 'In Progress',
-        icon: ClipboardCheck,
-    },
-    { 
-        title: 'Smoking Cessation Counseling',
-        description: 'Scheduled with a specialist.',
-        status: 'Upcoming',
-        icon: FileClock
-    },
-    { 
-        title: 'Pulmonary Function Test',
-        description: 'Scheduled for next month.',
-        status: 'Upcoming',
-        icon: FileClock
-    },
-];
-
-  const currentJourney = selectedPatientForJourney?.mrn === 'MRN-1055' 
-    ? treatmentJourneyLee 
-    : treatmentJourneyMartinez;
-
   const filteredPatients = useMemo(() => {
     if (!allPatients) return [];
     return allPatients.filter(patient =>
@@ -364,11 +263,13 @@ const treatmentJourneyLee: JourneyTask[] = [
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-1">
+              <Table>
+                <TableBody>
                   {schedule.filter(appt => appt.status !== 'Completed').map((appt, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
-                          <div className="flex items-center gap-4">
-                              <span className="font-semibold text-sm w-12 text-muted-foreground">{appt.time}</span>
+                      <TableRow key={i}>
+                          <TableCell className="font-semibold text-muted-foreground w-24">{appt.time}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
                                   <AvatarFallback>{appt.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                               </Avatar>
@@ -376,14 +277,16 @@ const treatmentJourneyLee: JourneyTask[] = [
                                   <p className="font-semibold text-base">{appt.name}</p>
                                   <p className="text-sm text-muted-foreground">{appt.age} yrs • {appt.reason}</p>
                               </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getStatusBadge(appt.status)}
+                            </div>
+                          </TableCell>
+                          <TableCell>{getStatusBadge(appt.status)}</TableCell>
+                          <TableCell className="text-right">
                             <Button variant="ghost" onClick={() => handleOpenChart(appt.mrn, appt.status)}>Open Chart</Button>
-                          </div>
-                      </div>
+                          </TableCell>
+                      </TableRow>
                   ))}
-              </div>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
 
@@ -396,7 +299,7 @@ const treatmentJourneyLee: JourneyTask[] = [
               <CardContent>
                   <div className="space-y-3">
                       {(allTasks || []).slice(0,4).map((task, i) => (
-                          <div key={i} className="flex items-start justify-between p-4 rounded-lg border bg-background hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
+                          <div key={i} className="flex items-start justify-between p-4 rounded-lg border bg-background hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleOpenChart(task.mrn)}>
                               <div className="flex-grow">
                                   <p className="font-semibold text-sm">{task.description}</p>
                                   <p className="text-xs text-muted-foreground mt-1">
@@ -544,43 +447,6 @@ const treatmentJourneyLee: JourneyTask[] = [
         </DialogContent>
       </Dialog>
       
-      <Dialog open={showActivePatientsDialog} onOpenChange={setShowActivePatientsDialog}>
-        <DialogContent className="max-w-4xl">
-            <DialogHeader className="flex-row items-center justify-between">
-                <div>
-                    <DialogTitle>Your Patients</DialogTitle>
-                    <DialogDescription>A list of recently active patients assigned to you.</DialogDescription>
-                </div>
-                 <Button variant="link" onClick={() => { setShowActivePatientsDialog(false); setShowAllPatientsDialog(true); }}>View All Patients</Button>
-            </DialogHeader>
-             <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>MRN</TableHead>
-                        <TableHead>Gender</TableHead>
-                        <TableHead>Last Seen</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(recentPatients || []).map((patient) => (
-                        <TableRow key={patient.mrn} className="cursor-pointer" onClick={() => {
-                            setSelectedPatient(patient);
-                            setShowActivePatientsDialog(false);
-                        }}>
-                            <TableCell className="font-medium">
-                                <Button variant="link" className="p-0 h-auto">{patient.name}</Button>
-                            </TableCell>
-                            <TableCell>{patient.mrn}</TableCell>
-                            <TableCell>{patient.gender}</TableCell>
-                            <TableCell>{patient.lastSeen}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={showAllTasks} onOpenChange={setShowAllTasks}>
         <DialogContent className="max-w-4xl">
             <DialogHeader>
@@ -599,7 +465,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                 </TableHeader>
                 <TableBody>
                     {(allTasks || []).map((task, index) => (
-                        <TableRow key={index} className="cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
+                        <TableRow key={index} className="cursor-pointer" onClick={() => handleOpenChart(task.mrn)}>
                             <TableCell className="font-medium">{task.description}</TableCell>
                             <TableCell>{task.patient}</TableCell>
                             <TableCell>{task.mrn}</TableCell>
@@ -610,16 +476,6 @@ const treatmentJourneyLee: JourneyTask[] = [
                 </TableBody>
             </Table>
         </DialogContent>
-      </Dialog>
-
-      <Dialog open={showJourney} onOpenChange={setShowJourney}>
-          <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Treatment Journey</DialogTitle>
-                <DialogDescription>Patient: {selectedPatientForJourney?.name}</DialogDescription>
-            </DialogHeader>
-            <TreatmentJourney journey={currentJourney} />
-          </DialogContent>
       </Dialog>
 
       <PatientDetailSheet 
@@ -636,5 +492,3 @@ const treatmentJourneyLee: JourneyTask[] = [
     </>
   );
 }
-
-    
