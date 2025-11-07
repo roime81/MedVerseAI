@@ -19,18 +19,10 @@ import type { Patient as PatientData, Task } from '@/lib/sample-data';
 
 
 const kpiData = [
-    { title: "Today's Appointments", value: 12, icon: Calendar, color: "text-blue-500", id: "appointments" },
+    { title: "Today's Appointments", value: 5, icon: Calendar, color: "text-blue-500", id: "appointments" },
     { title: "Pending Tasks", value: 6, icon: AlertCircle, color: "text-orange-500", id: "tasks" },
     { title: "Active Patients", value: 156, icon: Users, color: "text-green-500", id: "patients" },
     { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500", id: "wait-time" },
-];
-
-const schedule = [
-    { time: '09:00', name: 'Sarah Johnson', age: 45, reason: 'Follow-up', status: 'Completed', mrn: 'MRN-0921' },
-    { time: '09:30', name: 'James Martinez', age: 62, reason: 'Diabetes Check', status: 'In Progress', mrn: 'MRN-0847' },
-    { time: '10:15', name: 'Emma Davis', age: 34, reason: 'Annual Physical', status: 'Waiting', mrn: 'MRN-1055' },
-    { time: '11:00', name: 'Robert Wilson', age: 58, reason: 'Hypertension', status: 'Scheduled', mrn: 'MRN-0921' },
-    { time: '14:00', name: 'Lisa Anderson', age: 41, reason: 'Lab Review', status: 'Scheduled', mrn: 'MRN-0847' },
 ];
 
 export type RecentPatient = PatientData;
@@ -74,6 +66,23 @@ export default function PhysicianDashboard() {
     return allPatients.sort((a, b) => (a.lastSeen && b.lastSeen && a.lastSeen > b.lastSeen ? -1 : 1)).slice(0, 3);
   }, [allPatients]);
   
+  const schedule = useMemo(() => {
+    if (!allPatients) return [];
+    const scheduleTimes = ['09:00', '09:30', '10:15', '11:00', '14:00'];
+    const reasons = ['Follow-up', 'Diabetes Check', 'Annual Physical', 'Hypertension', 'Lab Review'];
+    const statuses = ['Completed', 'In Progress', 'Waiting', 'Scheduled', 'Scheduled'];
+    
+    return allPatients.slice(0, 5).map((patient, index) => ({
+      time: scheduleTimes[index],
+      name: patient.name,
+      age: patient.dob ? new Date().getFullYear() - new Date(patient.dob).getFullYear() : 0,
+      reason: reasons[index % reasons.length],
+      status: statuses[index],
+      mrn: patient.mrn,
+    }));
+  }, [allPatients]);
+
+
   const handleSavePatient = async (data: PatientRegistrationData) => {
     if(!firestore) return;
     setIsSaving(true);
@@ -132,24 +141,26 @@ export default function PhysicianDashboard() {
     }
   };
   
-  const handleOpenChart = (mrn: string, status?: string) => {
+  const handleOpenChart = (mrn?: string, status?: string) => {
+    if (!mrn) {
+        toast({
+            title: 'No MRN available',
+            description: 'Cannot open chart for this patient.',
+            variant: 'destructive',
+        })
+        return;
+    };
+    
     const patient = allPatients?.find(p => p.mrn === mrn);
     if (patient) {
         setSelectedPatient(patient as RecentPatient);
         setSelectedAppointmentStatus(status);
     } else {
-        // Fallback for when patient is not in the initially loaded list
-        const fullPatientRecord = allPatients?.find(p => p.mrn === mrn);
-        if (fullPatientRecord) {
-            setSelectedPatient(fullPatientRecord as RecentPatient);
-            setSelectedAppointmentStatus(status);
-        } else {
-            toast({
-                title: 'Patient Not Found',
-                description: 'The selected patient\'s detailed chart is not available.',
-                variant: 'destructive',
-            })
-        }
+        toast({
+            title: 'Patient Not Found',
+            description: `Could not find patient with MRN: ${mrn}. The data may still be loading.`,
+            variant: 'destructive',
+        })
     }
   };
 
@@ -327,7 +338,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                   </div>
                   <div>
                       <p className="text-sm text-muted-foreground">{kpi.title}</p>
-                      <p className="text-2xl font-bold">{kpi.id === 'tasks' ? allTasks?.length || 0 : kpi.value}</p>
+                      <p className="text-2xl font-bold">{kpi.id === 'tasks' ? allTasks?.length || 0 : kpi.id === 'appointments' ? schedule.length : kpi.value}</p>
                   </div>
               </Card>
           ))}
@@ -617,3 +628,5 @@ const treatmentJourneyLee: JourneyTask[] = [
     </>
   );
 }
+
+    
