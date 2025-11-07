@@ -1,16 +1,16 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2 } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2, Check } from "lucide-react";
 import { allPatients, Patient, allTasks } from "@/lib/sample-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
 import { PatientDetailSheet } from './patient-detail-sheet';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 
 const kpiData = [
@@ -93,7 +93,7 @@ export type RecentPatient = {
     doctor: string;
     chiefComplaint: string;
     diagnosis: string;
-notes: string;
+    notes: string;
   }[];
   immunizationHistory: {
     vaccine: string;
@@ -286,10 +286,11 @@ const initialRecentPatients: RecentPatient[] = [
 export default function PhysicianDashboard() {
   const [isFormOpen, setFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showAllPatients, setShowAllPatients] = useState(false);
+  const [showAllTasks, setShowAllTasks] = useState(false);
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
-  const router = useRouter();
   
   const handleSavePatient = (data: PatientRegistrationData) => {
     setIsSaving(true);
@@ -337,6 +338,15 @@ export default function PhysicianDashboard() {
         default: return <Badge>{status}</Badge>;
     }
   }
+  
+  const getPatientStatusBadge = (status: string) => {
+    switch (status) {
+        case 'Occupied': return <Badge variant="default">Occupied</Badge>;
+        case 'Discharging': return <Badge variant="secondary">Discharging</Badge>;
+        case 'Admitted': return <Badge variant="outline">Admitted</Badge>;
+        default: return <Badge>{status}</Badge>;
+    }
+}
 
   const getPriorityBadge = (priority: string) => {
     switch(priority) {
@@ -418,7 +428,7 @@ export default function PhysicianDashboard() {
           <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Pending Tasks</CardTitle>
-                  <Button variant="link" size="sm" onClick={() => router.push('/tasks')}>View All</Button>
+                  <Button variant="link" size="sm" onClick={() => setShowAllTasks(true)}>View All</Button>
               </CardHeader>
               <CardContent>
                   <div className="space-y-4">
@@ -442,7 +452,7 @@ export default function PhysicianDashboard() {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Recent Patients</CardTitle>
-                <Button variant="link" size="sm" onClick={() => router.push('/patients')}>View All</Button>
+                <Button variant="link" size="sm" onClick={() => setShowAllPatients(true)}>View All</Button>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentPatients.map((patient, i) => (
@@ -486,6 +496,68 @@ export default function PhysicianDashboard() {
               isSaving={isSaving}
             />
           </DialogContent>
+      </Dialog>
+      
+      <Dialog open={showAllPatients} onOpenChange={setShowAllPatients}>
+        <DialogContent className="max-w-4xl">
+            <DialogHeader>
+                <DialogTitle>All Patients</DialogTitle>
+                <DialogDescription>A complete list of all patients in the system.</DialogDescription>
+            </DialogHeader>
+             <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Ward</TableHead>
+                        <TableHead>Hospital</TableHead>
+                        <TableHead>Consultant</TableHead>
+                        <TableHead>Status</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {allPatients.map((patient) => (
+                        <TableRow key={patient.id} className="cursor-pointer">
+                            <TableCell className="font-medium">{patient.name}</TableCell>
+                            <TableCell>{patient.ward}</TableCell>
+                            <TableCell>{patient.hospital}</TableCell>
+                            <TableCell>{patient.consultant}</TableCell>
+                            <TableCell>{getPatientStatusBadge(patient.status)}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAllTasks} onOpenChange={setShowAllTasks}>
+        <DialogContent className="max-w-4xl">
+            <DialogHeader>
+                <DialogTitle>All Pending Tasks</DialogTitle>
+                <DialogDescription>Overview of all pending physician tasks.</DialogDescription>
+            </DialogHeader>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Task</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>MRN</TableHead>
+                        <TableHead>Due</TableHead>
+                        <TableHead>Priority</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {allTasks.map((task, index) => (
+                        <TableRow key={index} className="cursor-pointer">
+                            <TableCell className="font-medium">{task.description}</TableCell>
+                            <TableCell>{task.patient}</TableCell>
+                            <TableCell>{task.mrn}</TableCell>
+                            <TableCell>{task.time}</TableCell>
+                            <TableCell>{getPriorityBadge(task.priority)}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </DialogContent>
       </Dialog>
 
       <PatientDetailSheet 
