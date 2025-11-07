@@ -37,8 +37,10 @@ import {
   BriefcaseMedical,
   Users2,
   Route,
+  FileClock,
+  ClipboardCheck,
 } from 'lucide-react';
-import type { RecentPatient } from './physician-dashboard';
+import type { RecentPatient, JourneyTask } from './physician-dashboard';
 import { TreatmentJourney } from './treatment-journey';
 
 type PatientDetailSheetProps = {
@@ -88,6 +90,80 @@ export function PatientDetailSheet({
   appointmentStatus,
 }: PatientDetailSheetProps) {
   if (!patient) return null;
+
+  const treatmentJourneyMartinez: JourneyTask[] = [
+      { 
+          title: 'Initial Consultation',
+          description: 'Patient admitted for chest pain.',
+          status: 'Completed',
+          icon: ClipboardCheck,
+          completedBy: 'Dr. Anderson'
+      },
+      { 
+          title: 'Lab Work & Vitals',
+          description: 'Troponin, EKG, and vital signs checked.',
+          status: 'Completed',
+          icon: ClipboardCheck,
+          completedBy: 'Nurse Smith'
+      },
+      { 
+          title: 'Medication Adjustment',
+          description: 'Lisinopril increased to 20mg.',
+          status: 'In Progress',
+          icon: Pill
+      },
+      { 
+          title: 'Follow-up Appointment',
+          description: 'Scheduled for 4 weeks post-discharge.',
+          status: 'Upcoming',
+          icon: FileClock
+      },
+      { 
+          title: 'Discharge Summary',
+          description: 'Awaiting final sign-off.',
+          status: 'Upcoming',
+          icon: FileClock
+      },
+  ];
+
+  const treatmentJourneyLee: JourneyTask[] = [
+      { 
+          title: 'Initial Diagnosis',
+          description: 'Patient diagnosed with COPD and High Cholesterol.',
+          status: 'Completed',
+          icon: ClipboardCheck,
+          completedBy: 'Dr. Anderson'
+      },
+      { 
+          title: 'Prescription Initiated',
+          description: 'Symbicort and Lipitor prescribed.',
+          status: 'Completed',
+          icon: Pill,
+          completedBy: 'Dr. Anderson'
+      },
+      { 
+          title: 'Lab Results Review',
+          description: 'Cholesterol levels remain elevated.',
+          status: 'In Progress',
+          icon: ClipboardCheck,
+      },
+      { 
+          title: 'Smoking Cessation Counseling',
+          description: 'Scheduled with a specialist.',
+          status: 'Upcoming',
+          icon: FileClock
+      },
+      { 
+          title: 'Pulmonary Function Test',
+          description: 'Scheduled for next month.',
+          status: 'Upcoming',
+          icon: FileClock
+      },
+  ];
+
+  const currentJourney = patient.mrn === 'MRN-1055' 
+    ? treatmentJourneyLee 
+    : treatmentJourneyMartinez;
 
   const getAge = (dob: string) => {
     const birthDate = new Date(dob);
@@ -279,7 +355,7 @@ export function PatientDetailSheet({
                       </CardDescription>
                   </CardHeader>
                   <CardContent>
-                      <TreatmentJourney />
+                      <TreatmentJourney journey={currentJourney} />
                   </CardContent>
                 </Card>
               </TabsContent>

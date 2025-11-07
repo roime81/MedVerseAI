@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2, Check } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2, FileClock, ClipboardCheck, Pill } from "lucide-react";
 import { allPatients, Patient, allTasks } from "@/lib/sample-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
@@ -22,11 +22,11 @@ const kpiData = [
 ];
 
 const schedule = [
-    { time: '09:00', name: 'Sarah Johnson', age: 45, reason: 'Follow-up', status: 'Completed', mrn: 'MRN-0921' }, // MRN Added
-    { time: '09:30', name: 'James Martinez', age: 62, reason: 'Diabetes Check', status: 'In Progress', mrn: 'MRN-0847' }, // MRN Added
-    { time: '10:15', name: 'Emma Davis', age: 34, reason: 'Annual Physical', status: 'Waiting', mrn: 'MRN-1055' }, // MRN Added
-    { time: '11:00', name: 'Robert Wilson', age: 58, reason: 'Hypertension', status: 'Scheduled', mrn: 'MRN-0921' }, // Dummy MRN
-    { time: '14:00', name: 'Lisa Anderson', age: 41, reason: 'Lab Review', status: 'Scheduled', mrn: 'MRN-0847' }, // Dummy MRN
+    { time: '09:00', name: 'Sarah Johnson', age: 45, reason: 'Follow-up', status: 'Completed', mrn: 'MRN-0921' },
+    { time: '09:30', name: 'James Martinez', age: 62, reason: 'Diabetes Check', status: 'In Progress', mrn: 'MRN-0847' },
+    { time: '10:15', name: 'Emma Davis', age: 34, reason: 'Annual Physical', status: 'Waiting', mrn: 'MRN-1055' },
+    { time: '11:00', name: 'Robert Wilson', age: 58, reason: 'Hypertension', status: 'Scheduled', mrn: 'MRN-0921' },
+    { time: '14:00', name: 'Lisa Anderson', age: 41, reason: 'Lab Review', status: 'Scheduled', mrn: 'MRN-0847' },
 ];
 
 export type RecentPatient = {
@@ -112,6 +112,14 @@ export type RecentPatient = {
     condition: string;
     notes: string;
   }[];
+};
+
+export type JourneyTask = {
+  title: string;
+  description: string;
+  status: 'Completed' | 'In Progress' | 'Upcoming';
+  icon: React.ElementType;
+  completedBy?: string;
 };
 
 const initialRecentPatients: RecentPatient[] = [
@@ -283,6 +291,75 @@ const initialRecentPatients: RecentPatient[] = [
   },
 ];
 
+const treatmentJourneyMartinez: JourneyTask[] = [
+    { 
+        title: 'Initial Consultation',
+        description: 'Patient admitted for chest pain.',
+        status: 'Completed',
+        icon: ClipboardCheck,
+        completedBy: 'Dr. Anderson'
+    },
+    { 
+        title: 'Lab Work & Vitals',
+        description: 'Troponin, EKG, and vital signs checked.',
+        status: 'Completed',
+        icon: ClipboardCheck,
+        completedBy: 'Nurse Smith'
+    },
+    { 
+        title: 'Medication Adjustment',
+        description: 'Lisinopril increased to 20mg.',
+        status: 'In Progress',
+        icon: Pill
+    },
+    { 
+        title: 'Follow-up Appointment',
+        description: 'Scheduled for 4 weeks post-discharge.',
+        status: 'Upcoming',
+        icon: FileClock
+    },
+    { 
+        title: 'Discharge Summary',
+        description: 'Awaiting final sign-off.',
+        status: 'Upcoming',
+        icon: FileClock
+    },
+];
+
+const treatmentJourneyLee: JourneyTask[] = [
+    { 
+        title: 'Initial Diagnosis',
+        description: 'Patient diagnosed with COPD and High Cholesterol.',
+        status: 'Completed',
+        icon: ClipboardCheck,
+        completedBy: 'Dr. Anderson'
+    },
+    { 
+        title: 'Prescription Initiated',
+        description: 'Symbicort and Lipitor prescribed.',
+        status: 'Completed',
+        icon: Pill,
+        completedBy: 'Dr. Anderson'
+    },
+    { 
+        title: 'Lab Results Review',
+        description: 'Cholesterol levels remain elevated.',
+        status: 'In Progress',
+        icon: ClipboardCheck,
+    },
+    { 
+        title: 'Smoking Cessation Counseling',
+        description: 'Scheduled with a specialist.',
+        status: 'Upcoming',
+        icon: FileClock
+    },
+    { 
+        title: 'Pulmonary Function Test',
+        description: 'Scheduled for next month.',
+        status: 'Upcoming',
+        icon: FileClock
+    },
+];
 
 export default function PhysicianDashboard() {
   const [isFormOpen, setFormOpen] = useState(false);
@@ -290,6 +367,7 @@ export default function PhysicianDashboard() {
   const [showAllPatients, setShowAllPatients] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
+  const [selectedPatientForJourney, setSelectedPatientForJourney] = useState<RecentPatient | null>(null);
   const [showActivePatients, setShowActivePatients] = useState(false);
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
@@ -370,6 +448,7 @@ export default function PhysicianDashboard() {
   const handleTaskClick = (mrn: string) => {
     const patient = recentPatients.find(p => p.mrn === mrn);
     if (patient) {
+        setSelectedPatientForJourney(patient);
         setShowJourney(true);
     } else {
         toast({
@@ -379,6 +458,11 @@ export default function PhysicianDashboard() {
         })
     }
   };
+  
+  const currentJourney = selectedPatientForJourney?.mrn === 'MRN-1055' 
+    ? treatmentJourneyLee 
+    : treatmentJourneyMartinez;
+
 
   return (
     <>
@@ -636,9 +720,9 @@ export default function PhysicianDashboard() {
           <DialogContent>
             <DialogHeader>
                 <DialogTitle>Treatment Journey</DialogTitle>
-                <DialogDescription>Patient: James Martinez</DialogDescription>
+                <DialogDescription>Patient: {selectedPatientForJourney?.name}</DialogDescription>
             </DialogHeader>
-            <TreatmentJourney />
+            <TreatmentJourney journey={currentJourney} />
           </DialogContent>
       </Dialog>
 

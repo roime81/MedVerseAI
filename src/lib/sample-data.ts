@@ -1,4 +1,17 @@
-import { FileClock, ClipboardCheck, Pill } from "lucide-react";
+export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
+  'Dr. Anderson': {
+    name: 'Dr. Sarah Anderson',
+    role: 'Physician, Cardiology',
+    email: 's.anderson@medverse.com',
+    avatarId: 'staff-dr-anderson',
+  },
+  'Nurse Smith': {
+    name: 'Michael Smith, RN',
+    role: 'Registered Nurse, Cardiology',
+    email: 'm.smith@medverse.com',
+    avatarId: 'staff-nurse-smith',
+  }
+};
 
 export type Patient = {
   id: number;
@@ -22,64 +35,6 @@ export type Task = {
   mrn: string;
   time: string;
   priority: 'High' | 'Medium' | 'Low';
-};
-
-export type JourneyTask = {
-  title: string;
-  description: string;
-  status: 'Completed' | 'In Progress' | 'Upcoming';
-  icon: React.ElementType;
-  completedBy?: string;
-};
-
-export const treatmentJourney: JourneyTask[] = [
-    { 
-        title: 'Initial Consultation',
-        description: 'Patient admitted for chest pain.',
-        status: 'Completed',
-        icon: ClipboardCheck,
-        completedBy: 'Dr. Anderson'
-    },
-    { 
-        title: 'Lab Work & Vitals',
-        description: 'Troponin, EKG, and vital signs checked.',
-        status: 'Completed',
-        icon: ClipboardCheck,
-        completedBy: 'Nurse Smith'
-    },
-    { 
-        title: 'Medication Adjustment',
-        description: 'Lisinopril increased to 20mg.',
-        status: 'In Progress',
-        icon: Pill
-    },
-    { 
-        title: 'Follow-up Appointment',
-        description: 'Scheduled for 4 weeks post-discharge.',
-        status: 'Upcoming',
-        icon: FileClock
-    },
-    { 
-        title: 'Discharge Summary',
-        description: 'Awaiting final sign-off.',
-        status: 'Upcoming',
-        icon: FileClock
-    },
-];
-
-export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
-  'Dr. Anderson': {
-    name: 'Dr. Sarah Anderson',
-    role: 'Physician, Cardiology',
-    email: 's.anderson@medverse.com',
-    avatarId: 'staff-dr-anderson',
-  },
-  'Nurse Smith': {
-    name: 'Michael Smith, RN',
-    role: 'Registered Nurse, Cardiology',
-    email: 'm.smith@medverse.com',
-    avatarId: 'staff-nurse-smith',
-  }
 };
 
 

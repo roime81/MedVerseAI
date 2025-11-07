@@ -1,5 +1,6 @@
 'use client';
-import { treatmentJourney, JourneyTask, staffProfiles } from '@/lib/sample-data';
+import { JourneyTask } from './physician-dashboard';
+import { staffProfiles } from '@/lib/sample-data';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ const getStatusClasses = (status: JourneyTask['status']) => {
   }
 };
 
-export function TreatmentJourney() {
+export function TreatmentJourney({ journey }: { journey: JourneyTask[] }) {
 
   const getAvatarUrl = (avatarId?: string) => {
     if (!avatarId) return '';
@@ -51,7 +52,7 @@ export function TreatmentJourney() {
         className="absolute left-5 top-2 h-full w-0.5 bg-border -translate-x-1/2"
       ></div>
       <div className="space-y-4">
-        {treatmentJourney.map((task, index) => {
+        {journey.map((task, index) => {
           const classes = getStatusClasses(task.status);
           const Icon = task.icon;
           const staffMember = task.completedBy ? staffProfiles[task.completedBy] : undefined;
