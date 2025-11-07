@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   BrainCircuit, Bed, Stethoscope, Calendar, Pill, Video, FolderArchive, LogOut,
 } from 'lucide-react';
@@ -11,7 +11,9 @@ import {
 } from '@/components/ui/sidebar';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth-provider';
+import { useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useAuth } from '@/firebase';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const navItems = [
@@ -25,7 +27,15 @@ const navItems = [
 
 function AppHeader() {
   const userAvatar = placeholderImages.find(p => p.id === 'user-avatar');
-  const { user, logout } = useAuth();
+  const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
 
   return (
     <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background/80 px-4 backdrop-blur-sm">
@@ -37,11 +47,11 @@ function AppHeader() {
         <DropdownMenuTrigger asChild>
           <Avatar className="cursor-pointer">
             <AvatarImage src={userAvatar?.imageUrl} data-ai-hint="person face" />
-            <AvatarFallback>{user?.username?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+            <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={logout}>
+          <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
@@ -57,9 +67,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
 
-  if (isLoading || !user) {
+  React.useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
