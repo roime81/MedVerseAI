@@ -162,16 +162,48 @@ export const allPatients = hospitals.flatMap(h => h.patients);
 
 const generateUsers = (count: number): User[] => {
   const users: User[] = [];
-  for (let i = 0; i < count; i++) {
-    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-    const role = personas[Math.floor(Math.random() * personas.length)];
-    const hospital = hospitalNames[Math.floor(Math.random() * hospitalNames.length)];
+  const usedNames = new Set<string>();
+
+  // Ensure one unique user per persona
+  personas.forEach((role, i) => {
+    let firstName, lastName, fullName, email, hospital;
+    do {
+      firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+      fullName = `${firstName} ${lastName}`;
+    } while (usedNames.has(fullName));
+    
+    usedNames.add(fullName);
+    hospital = hospitalNames[Math.floor(Math.random() * hospitalNames.length)];
+    email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${hospital.toLowerCase().replace(/ /g, '').replace(/'/g, '').split(',')[0]}.org`;
+
+    users.push({
+      id: `U${String(i + 1).padStart(4, '0')}`,
+      name: fullName,
+      email: email,
+      role: role,
+      hospital: hospital,
+    });
+  });
+
+  // Generate remaining users randomly
+  for (let i = personas.length; i < count; i++) {
+    let firstName, lastName, fullName, email, hospital, role;
+    do {
+      firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+      fullName = `${firstName} ${lastName}`;
+    } while (usedNames.has(fullName));
+
+    usedNames.add(fullName);
+    role = personas[Math.floor(Math.random() * personas.length)];
+    hospital = hospitalNames[Math.floor(Math.random() * hospitalNames.length)];
+    email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random()*100)}@${hospital.toLowerCase().replace(/ /g, '').replace(/'/g, '').split(',')[0]}.org`;
     
     users.push({
       id: `U${String(i + 1).padStart(4, '0')}`,
-      name: `${firstName} ${lastName}`,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random()*100)}@${hospital.toLowerCase().replace(/ /g, '').replace(/'/g, '').split(',')[0]}.org`,
+      name: fullName,
+      email: email,
       role: role,
       hospital: hospital,
     });
@@ -180,4 +212,3 @@ const generateUsers = (count: number): User[] => {
 };
 
 export const allUsers = generateUsers(500);
-
