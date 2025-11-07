@@ -137,9 +137,11 @@ export function PatientDetailSheet({
                 </p>
               </div>
               <div className="ml-auto flex gap-2">
-                <Button variant="outline" size="sm" disabled={!canEdit}>
-                  <FileEdit className="mr-2 h-4 w-4" /> Edit
-                </Button>
+                {canEdit && (
+                  <Button variant="outline" size="sm">
+                    <FileEdit className="mr-2 h-4 w-4" /> Edit
+                  </Button>
+                )}
                 <Button variant="outline" size="sm">
                   <Download className="mr-2 h-4 w-4" /> Export
                 </Button>
@@ -446,5 +448,3 @@ export function PatientDetailSheet({
     </Sheet>
   );
 }
-
-    
