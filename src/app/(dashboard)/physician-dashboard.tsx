@@ -435,7 +435,6 @@ export default function PhysicianDashboard() {
                             </div>
                             <div className="flex flex-col items-end gap-2 ml-2">
                                 {getPriorityBadge(task.priority)}
-                                <Button variant="outline" size="sm">View Full Task</Button>
                             </div>
                           </div>
                       ))}
@@ -452,7 +451,7 @@ export default function PhysicianDashboard() {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentPatients.map((patient, i) => (
-                    <Card key={i} className="flex flex-col">
+                    <Card key={i} className="flex flex-col cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setSelectedPatient(patient)}>
                         <CardContent className="p-4 flex-grow">
                           <div className="flex items-start justify-between">
                               <div className="flex items-center gap-3">
@@ -472,11 +471,6 @@ export default function PhysicianDashboard() {
                               ))}
                           </div>
                         </CardContent>
-                        <CardFooter className="p-4 pt-0">
-                           <Button variant="outline" size="sm" className="w-full" onClick={() => setSelectedPatient(patient)}>
-                                View Full Chart
-                            </Button>
-                        </CardFooter>
                     </Card>
                 ))}
             </CardContent>
