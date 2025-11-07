@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
@@ -21,7 +22,7 @@ import type { Patient as PatientData, Task } from '@/lib/sample-data';
 const kpiData = [
     { title: "Today's Appointments", value: 5, icon: Calendar, color: "text-blue-500", id: "appointments" },
     { title: "Pending Tasks", value: 6, icon: AlertCircle, color: "text-orange-500", id: "tasks" },
-    { title: "Active Patients", value: 156, icon: Users, color: "text-green-500", id: "patients" },
+    { title: "Active Patients", value: 100, icon: Users, color: "text-green-500", id: "patients" },
     { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500", id: "wait-time" },
 ];
 
@@ -54,10 +55,19 @@ export default function PhysicianDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const patientsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'patients'), orderBy('lastSeen', 'desc'), limit(3)) : null, [firestore]);
-  const allPatientsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
-  const { data: recentPatients, isLoading: patientsLoading } = useCollection<PatientData>(patientsQuery);
-  const { data: allPatients, isLoading: allPatientsLoading } = useCollection<PatientData>(allPatientsQuery);
+  const physicianPatientsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.displayName) return null;
+    return query(collection(firestore, 'patients'), where('consultant', '==', user.displayName));
+  }, [firestore, user?.displayName]);
+
+  const { data: allPatients, isLoading: allPatientsLoading } = useCollection<PatientData>(physicianPatientsQuery);
+
+  const recentPatientsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.displayName) return null;
+    return query(collection(firestore, 'patients'), where('consultant', '==', user.displayName), orderBy('lastSeen', 'desc'), limit(3));
+  }, [firestore, user?.displayName]);
+  
+  const { data: recentPatients, isLoading: patientsLoading } = useCollection<PatientData>(recentPatientsQuery);
   
   const tasksQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'tasks'), limit(5)) : null, [firestore]);
   const { data: allTasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
@@ -111,7 +121,7 @@ export default function PhysicianDashboard() {
         },
         status: 'Admitted',
         ward: 'General Medicine',
-        consultant: 'Dr. Anderson',
+        consultant: user?.displayName || 'Dr. Sarah Anderson',
         hospital: 'City General',
         lastSeen: new Date().toLocaleDateString(),
         alerts: 0,
@@ -334,7 +344,11 @@ const treatmentJourneyLee: JourneyTask[] = [
                   </div>
                   <div>
                       <p className="text-sm text-muted-foreground">{kpi.title}</p>
-                      <p className="text-2xl font-bold">{kpi.id === 'tasks' ? allTasks?.length || 0 : kpi.id === 'appointments' ? schedule.length : kpi.value}</p>
+                      <p className="text-2xl font-bold">{
+                        kpi.id === 'patients' ? (allPatients?.length || 0) :
+                        kpi.id === 'tasks' ? allTasks?.length || 0 : 
+                        kpi.id === 'appointments' ? schedule.length : kpi.value
+                      }</p>
                   </div>
               </Card>
           ))}
@@ -463,7 +477,7 @@ const treatmentJourneyLee: JourneyTask[] = [
         <DialogContent className="max-w-4xl">
             <DialogHeader>
                 <DialogTitle>All Patients</DialogTitle>
-                <DialogDescription>A complete list of all patients in the system.</DialogDescription>
+                <DialogDescription>A complete list of all patients assigned to you.</DialogDescription>
                  <div className="relative pt-2">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
@@ -536,8 +550,8 @@ const treatmentJourneyLee: JourneyTask[] = [
         <DialogContent className="max-w-4xl">
             <DialogHeader className="flex-row items-center justify-between">
                 <div>
-                    <DialogTitle>Active Patients</DialogTitle>
-                    <DialogDescription>A list of recently active patients.</DialogDescription>
+                    <DialogTitle>Your Patients</DialogTitle>
+                    <DialogDescription>A list of recently active patients assigned to you.</DialogDescription>
                 </div>
                  <Button variant="link" onClick={() => { setShowActivePatientsDialog(false); setShowAllPatientsDialog(true); }}>View All Patients</Button>
             </DialogHeader>

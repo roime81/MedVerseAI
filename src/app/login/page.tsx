@@ -14,6 +14,8 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'fire
 const mockUsers: { [key: string]: { password?: string } } = {
     'admin@medverse.com': {},
     'physician@medverse.com': {},
+    'physician2@medverse.com': {},
+    'physician3@medverse.com': {},
     'nurse@medverse.com': {},
     'roimepuniran@gmail.com': { password: 'Pudina@81' },
 };
@@ -117,7 +119,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex-col gap-4 text-sm text-center">
             <p className="text-muted-foreground">
-                Use `physician@medverse.com`, `nurse@medverse.com`, or `admin@medverse.com`. The default password is `password`.
+                Use `physician@medverse.com`, `physician2@medverse.com`, `physician3@medverse.com`, `nurse@medverse.com`, or `admin@medverse.com`. The default password is `password`.
             </p>
         </CardFooter>
       </Card>

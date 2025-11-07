@@ -1,11 +1,24 @@
 
 
+
 export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
-  'Dr. Anderson': {
+  'Dr. Sarah Anderson': {
     name: 'Dr. Sarah Anderson',
     role: 'Physician',
     email: 'physician@medverse.com',
     avatarId: 'staff-dr-anderson',
+  },
+  'Dr. Ben Carter': {
+    name: 'Dr. Ben Carter',
+    role: 'Physician',
+    email: 'physician2@medverse.com',
+    avatarId: 'staff-nurse-smith', // Placeholder
+  },
+  'Dr. Olivia Garcia': {
+    name: 'Dr. Olivia Garcia',
+    role: 'Physician',
+    email: 'physician3@medverse.com',
+    avatarId: 'user-avatar', // Placeholder
   },
   'Nurse Smith': {
     name: 'Michael Smith, RN',
@@ -91,14 +104,14 @@ export type TelehealthAppointment = {
 };
 
 
-const firstNames = ["John", "Jane", "Peter", "Mary", "David", "Sarah", "Michael", "Emily", "Jessica", "James", "Robert", "Patricia", "Linda", "William", "Elizabeth", "Richard", "Susan", "Joseph", "Karen", "Thomas"];
-const lastNames = ["Smith", "Doe", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Garcia", "Rodriguez", "Wilson", "Martinez", "Anderson", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson"];
+const firstNames = ["John", "Jane", "Peter", "Mary", "David", "Sarah", "Michael", "Emily", "Jessica", "James", "Robert", "Patricia", "Linda", "William", "Elizabeth", "Richard", "Susan", "Joseph", "Karen", "Thomas", "Charles", "Lisa", "Daniel", "Nancy", "Matthew", "Betty", "Anthony", "Dorothy", "Mark", "Sandra"];
+const lastNames = ["Smith", "Doe", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Garcia", "Rodriguez", "Wilson", "Martinez", "Anderson", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen"];
 const hospitals = ["City General", "St. Lukes", "MetroWest", "County General", "University Hospital", "Riverside Medical", "Mountain View", "Central Hospital", "Oceanic Medical", "Sunnyside General"];
 const wards = ["Cardiology", "Orthopedics", "Neurology", "Pediatrics", "Oncology", "Geriatrics", "ICU", "Maternity", "Surgery", "Psychiatry"];
-const consultants = ["Dr. Evans", "Dr. Chen", "Dr. Rodriguez", "Dr. Williams", "Dr. Smith", "Dr. Jones"];
+const physicianNames = ['Dr. Sarah Anderson', 'Dr. Ben Carter', 'Dr. Olivia Garcia'];
 const statuses: Patient['status'][] = ['Occupied', 'Discharging', 'Admitted'];
 
-const generateRandomPatient = (id: number): Patient => {
+const generateRandomPatient = (id: number, consultant: string): Patient => {
     const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
     const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
     const name = `${firstName} ${lastName}`;
@@ -109,7 +122,7 @@ const generateRandomPatient = (id: number): Patient => {
         name: name,
         ward: wards[Math.floor(Math.random() * wards.length)],
         hospital: hospital,
-        consultant: consultants[Math.floor(Math.random() * consultants.length)],
+        consultant: consultant,
         status: statuses[Math.floor(Math.random() * statuses.length)],
         mrn: `MRN-${1000 + id}`,
         dob: new Date(1950 + Math.floor(Math.random() * 50), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
@@ -118,7 +131,7 @@ const generateRandomPatient = (id: number): Patient => {
         visitHistory: [{
           type: 'Admission',
           date: new Date().toISOString(),
-          doctor: consultants[Math.floor(Math.random() * consultants.length)],
+          doctor: consultant,
           chiefComplaint: 'Initial check-up',
           diagnosis: 'Routine physical',
           notes: 'Patient admitted for routine observation.',
@@ -129,14 +142,20 @@ const generateRandomPatient = (id: number): Patient => {
 
 const generateAllPatients = (): Patient[] => {
     const patients: Patient[] = [];
-    for (let i = 0; i < 1000; i++) {
-        patients.push(generateRandomPatient(i + 1));
-    }
+    let patientId = 1;
+    
+    // Create 100 patients for each of the 3 physicians
+    physicianNames.forEach(physician => {
+        for (let i = 0; i < 100; i++) {
+            patients.push(generateRandomPatient(patientId++, physician));
+        }
+    });
+
 
     // Add multi-hospital history to 70% of patients
-    for (let i = 0; i < 700; i++) {
-        const patient = patients[i];
-        if (!patient) continue;
+    const patientsToGetHistory = patients.sort(() => 0.5 - Math.random()).slice(0, Math.floor(patients.length * 0.7));
+
+    for (const patient of patientsToGetHistory) {
         const currentHospital = patient.hospital;
         let otherHospital = currentHospital;
         while(otherHospital === currentHospital) {
@@ -145,7 +164,7 @@ const generateAllPatients = (): Patient[] => {
         patient.visitHistory?.push({
             type: 'Consultation',
             date: new Date(2022, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
-            doctor: consultants[Math.floor(Math.random() * consultants.length)],
+            doctor: physicianNames[Math.floor(Math.random() * physicianNames.length)],
             chiefComplaint: 'Follow-up',
             diagnosis: 'Stable',
             notes: 'Previous visit at another facility.',
