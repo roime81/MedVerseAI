@@ -8,43 +8,52 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
-import { useAuth } from '@/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { useAuth, useFirebase } from '@/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, User } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import type { staffProfiles } from '@/lib/sample-data';
 
-const mockUsers: { [key: string]: { password?: string } } = {
-    'admin@medverse.com': {},
-    'physician@medverse.com': {},
-    'physician2@medverse.com': {},
-    'physician3@medverse.com': {},
-    'nurse@medverse.com': {},
-    'roimepuniran@gmail.com': { password: 'Pudina@81' },
-};
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('password'); // Default password for mock users
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
+  const { firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
+
+  const updateUserProfile = async (user: User) => {
+    if (!firestore) return;
+    try {
+      const profileDoc = await getDoc(doc(firestore, 'staffProfiles', user.email!));
+      if (profileDoc.exists()) {
+        const profileData = profileDoc.data();
+        await updateProfile(user, { displayName: profileData.name });
+        console.log("User profile updated with displayName:", profileData.name);
+      }
+    } catch (e) {
+      console.error("Could not update user profile", e);
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        await updateUserProfile(userCredential.user);
         toast({
           title: `Login Successful`,
           description: `Welcome back!`,
         });
         router.push('/');
     } catch (error: any) {
-        // This error code can mean the user doesn't exist OR the password is wrong.
-        // For this demo, we'll assume it means the user doesn't exist and we'll create them.
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateUserProfile(userCredential.user);
                 toast({
                   title: `Account Created & Logged In`,
                   description: `Welcome to MedVerseAI!`,
