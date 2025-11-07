@@ -1,11 +1,20 @@
-
 // A standalone script to seed the database.
 // This is not part of the Next.js app, but a utility to run from the command line.
 // Example: `npx tsx src/lib/seed.ts`
 
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, writeBatch, Timestamp } from 'firebase/firestore';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { initializeApp, deleteApp } from 'firebase/app';
+import {
+  getFirestore,
+  collection,
+  doc,
+  writeBatch,
+  Timestamp,
+} from 'firebase/firestore';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
 import { firebaseConfig } from '@/firebase/config';
 
 import {
@@ -34,31 +43,35 @@ async function seedDatabase() {
   const auth = getAuth(firebaseApp);
 
   try {
-    
     // Seed Users and create Auth accounts
     console.log(`Seeding ${sampleUsers.length} users...`);
     for (const user of sampleUsers) {
       try {
         // Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          user.email,
+          user.password
+        );
         const authUser = userCredential.user;
         console.log(`Successfully created auth user: ${authUser.email}`);
-        
+
         // Add displayName to Auth user profile
         await updateProfile(authUser, { displayName: user.displayName });
         console.log(`Successfully updated profile for ${authUser.email}`);
 
-        // Add user data to Firestore in a separate batch
+        // Create a separate batch for this user's Firestore document
         const userDocBatch = writeBatch(db);
         const userRef = doc(db, 'users', authUser.uid);
         const { password, ...userData } = user; // Don't store password in Firestore
         userDocBatch.set(userRef, { ...userData, uid: authUser.uid });
         await userDocBatch.commit();
         console.log(`Successfully created Firestore doc for ${authUser.email}`);
-
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
-          console.warn(`Auth user with email ${user.email} already exists. Skipping auth creation.`);
+          console.warn(
+            `Auth user with email ${user.email} already exists. Skipping auth creation.`
+          );
         } else {
           console.error(`Error creating auth user ${user.email}:`, error);
           // If user creation fails, we should not proceed with seeding for this user
@@ -66,7 +79,7 @@ async function seedDatabase() {
         }
       }
     }
-    
+
     const dataBatch = writeBatch(db);
 
     // Seed Patients
@@ -105,38 +118,52 @@ async function seedDatabase() {
       );
       dataBatch.set(drugRef, drug);
     }
-    
+
     // Seed Clinical Notes
     console.log(`Seeding ${sampleClinicalNotes.length} clinical notes...`);
     for (const note of sampleClinicalNotes) {
-        const encounter = sampleEncounters.find(e => e.encounterId === note.encounterId);
-        if (encounter) {
-            const noteRef = doc(collection(db, 'patients', encounter.personId, 'clinicalNotes'), note.noteId);
-            dataBatch.set(noteRef, note);
-        }
+      const encounter = sampleEncounters.find(
+        (e) => e.encounterId === note.encounterId
+      );
+      if (encounter) {
+        const noteRef = doc(
+          collection(db, 'patients', encounter.personId, 'clinicalNotes'),
+          note.noteId
+        );
+        dataBatch.set(noteRef, note);
+      }
     }
 
     // Seed Procedures
     console.log(`Seeding ${sampleProcedures.length} procedures...`);
     for (const procedure of sampleProcedures) {
-        const procedureRef = doc(collection(db, 'patients', procedure.personId, 'procedures'), procedure.procedureId);
-        dataBatch.set(procedureRef, procedure);
-        const topLevelProcedureRef = doc(db, 'procedures', procedure.procedureId);
-        dataBatch.set(topLevelProcedureRef, procedure);
+      const procedureRef = doc(
+        collection(db, 'patients', procedure.personId, 'procedures'),
+        procedure.procedureId
+      );
+      dataBatch.set(procedureRef, procedure);
+      const topLevelProcedureRef = doc(db, 'procedures', procedure.procedureId);
+      dataBatch.set(topLevelProcedureRef, procedure);
     }
 
     // Seed Lab Results
     console.log(`Seeding ${sampleLabResults.length} lab results...`);
     for (const labResult of sampleLabResults) {
-        const labResultRef = doc(collection(db, 'patients', labResult.personId, 'labResults'), labResult.labOrderId);
-        dataBatch.set(labResultRef, labResult);
+      const labResultRef = doc(
+        collection(db, 'patients', labResult.personId, 'labResults'),
+        labResult.labOrderId
+      );
+      dataBatch.set(labResultRef, labResult);
     }
 
     // Seed Imaging Studies
     console.log(`Seeding ${sampleImagingStudies.length} imaging studies...`);
     for (const study of sampleImagingStudies) {
-        const studyRef = doc(collection(db, 'patients', study.personId, 'imagingStudies'), study.imagingOrderId);
-        dataBatch.set(studyRef, study);
+      const studyRef = doc(
+        collection(db, 'patients', study.personId, 'imagingStudies'),
+        study.imagingOrderId
+      );
+      dataBatch.set(studyRef, study);
     }
 
     // Seed Beds
@@ -190,11 +217,15 @@ async function seedDatabase() {
     console.log('Database seeded successfully!');
   } catch (error) {
     console.error('Error seeding database:', error);
+  } finally {
+    // Disconnect from Firebase
+    await deleteApp(firebaseApp);
+    console.log('Firebase app disconnected.');
   }
 }
 
 seedDatabase().then(() => {
-    // Manually exit the process because the Firebase connection keeps it alive.
-    console.log('Seed script finished. Exiting.');
-    process.exit(0);
+  // Manually exit the process because the Firebase connection might keep it alive.
+  console.log('Seed script finished. Exiting.');
+  process.exit(0);
 });
