@@ -13,6 +13,8 @@ export const samplePatients = [
     emergencyContact: 'Jane Doe, Spouse, 555-1234',
     primaryProviderId: '11',
     insuranceNumber: 'UHC12345',
+    allergyFlag: 'Penicillin',
+    activeProblemList: 'Hypertension',
   },
   {
     personId: '2',
@@ -28,6 +30,8 @@ export const samplePatients = [
     emergencyContact: 'John Smith, Father, 555-5678',
     primaryProviderId: '12',
     insuranceNumber: 'BCBS67890',
+    allergyFlag: 'None',
+    activeProblemList: 'Type 2 Diabetes',
   },
 ];
 

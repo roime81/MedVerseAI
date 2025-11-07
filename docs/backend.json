@@ -57,6 +57,14 @@
         "insuranceNumber": {
           "type": "string",
           "description": "Link to insurance table."
+        },
+        "allergyFlag": {
+          "type": "string",
+          "description": "Summary for clinical decision support."
+        },
+        "activeProblemList": {
+          "type": "string",
+          "description": "Summary for clinical decision support."
         }
       },
       "required": [

@@ -24,10 +24,12 @@ export default function PatientsTable() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Birth Date</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allergies</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem List</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {isLoading && <tr><td colSpan={5}>Loading...</td></tr>}
+            {isLoading && <tr><td colSpan={7}>Loading...</td></tr>}
             {patients?.map((patient) => (
               <tr key={patient.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{patient.id}</td>
@@ -35,6 +37,8 @@ export default function PatientsTable() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.dateOfBirth}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.gender}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.contactInfo}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.allergyFlag}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.activeProblemList}</td>
               </tr>
             ))}
           </tbody>
