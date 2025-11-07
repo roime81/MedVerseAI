@@ -1,6 +1,7 @@
 
 
 
+
 export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
   'Dr. Sarah Anderson': {
     name: 'Dr. Sarah Anderson',
@@ -20,17 +21,89 @@ export const staffProfiles: { [key: string]: { name: string; role: string; email
     email: 'physician3@medverse.com',
     avatarId: 'user-avatar', // Placeholder
   },
-  'Nurse Smith': {
+  'Michael Smith': {
     name: 'Michael Smith, RN',
     role: 'Nurse',
     email: 'nurse@medverse.com',
     avatarId: 'staff-nurse-smith',
+  },
+   'Laura Williams': {
+    name: 'Laura Williams, RN',
+    role: 'Nurse',
+    email: 'nurse2@medverse.com',
+    avatarId: 'tele-patient-2',
+  },
+  'David Chen': {
+    name: 'David Chen, RN',
+    role: 'Nurse',
+    email: 'nurse3@medverse.com',
+    avatarId: 'tele-patient-3',
   },
   'Admin User': {
     name: 'Admin User',
     role: 'Admin',
     email: 'admin@medverse.com',
     avatarId: 'user-avatar',
+  },
+  'Alex Carter': {
+      name: 'Alex Carter',
+      role: 'Pharmacist',
+      email: 'pharmacist@medverse.com',
+      avatarId: 'tele-patient-1'
+  },
+  'Emily White': {
+      name: 'Emily White',
+      role: 'Scheduler',
+      email: 'scheduler@medverse.com',
+      avatarId: 'tele-patient-4'
+  },
+  'John Davis': {
+      name: 'John Davis',
+      role: 'Billing',
+      email: 'billing@medverse.com',
+      avatarId: 'tele-patient-5'
+  },
+  'Frank Miller': {
+    name: 'Frank Miller',
+    role: 'Business',
+    email: 'business@medverse.com',
+    avatarId: 'tele-patient-5'
+  },
+  'Linda Green': {
+    name: 'Linda Green',
+    role: 'Lab',
+    email: 'lab@medverse.com',
+    avatarId: 'tele-patient-2'
+  },
+  'Susan Harris': {
+    name: 'Susan Harris',
+    role: 'Lab',
+    email: 'lab2@medverse.com',
+    avatarId: 'tele-patient-4'
+  },
+  'Robert Turner': {
+    name: 'Robert Turner',
+    role: 'Lab',
+    email: 'lab3@medverse.com',
+    avatarId: 'tele-patient-1'
+  },
+  'Mary Adams': {
+    name: 'Mary Adams',
+    role: 'Radiology',
+    email: 'radiology@medverse.com',
+    avatarId: 'tele-patient-2'
+  },
+  'James Clark': {
+    name: 'James Clark',
+    role: 'Radiology',
+    email: 'radiology2@medverse.com',
+    avatarId: 'tele-patient-3'
+  },
+  'Patricia Nelson': {
+    name: 'Patricia Nelson',
+    role: 'Radiology',
+    email: 'radiology3@medverse.com',
+    avatarId: 'tele-patient-4'
   }
 };
 
@@ -246,3 +319,5 @@ export const initialPatientMedications = [
   { id: 3, name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', status: 'Unverified' },
   { id: 4, name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily', status: 'Discontinued' },
 ];
+
+    

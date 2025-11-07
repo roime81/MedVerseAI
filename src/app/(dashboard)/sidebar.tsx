@@ -22,6 +22,8 @@ import {
   Scan,
   Video,
   Hospital,
+  FlaskConical,
+  Briefcase
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser, useAuth as useFirebaseAuth, useDoc, useFirebase, useMemoFirebase } from '@/firebase';
@@ -29,16 +31,17 @@ import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 
 const allMenuItems = [
-  { href: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['Admin', 'Physician', 'Nurse'] },
-  { href: '/patient-360', icon: Scan, label: 'Patient 360', roles: ['Admin'] },
-  { href: '/orders', icon: FileText, label: 'Orders', roles: ['Physician'] },
-  { href: '/medications', icon: Pill, label: 'Medications', roles: ['Physician', 'Pharmacist'] },
+  { href: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['Admin', 'Physician', 'Nurse', 'Business', 'Lab', 'Radiology', 'Pharmacist', 'Scheduler', 'Billing'] },
+  { href: '/patient-360', icon: Scan, label: 'Patient 360', roles: ['Admin', 'Physician'] },
+  { href: '/orders', icon: FileText, label: 'Orders', roles: ['Physician', 'Nurse'] },
+  { href: '/medications', icon: Pill, label: 'Medications', roles: ['Physician', 'Pharmacist', 'Nurse'] },
   { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: ['Physician'] },
-  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: ['Physician', 'Radiologist'] },
-  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: ['Scheduler'] },
+  { href: '/imaging', icon: Scan, label: 'Imaging', roles: ['Physician', 'Radiologist'] },
+  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: ['Scheduler', 'Nurse', 'Admin'] },
   { href: '/telehealth', icon: Video, label: 'Telehealth', roles: ['Physician'] },
-  { href: '/billing', icon: CreditCard, label: 'Billing', roles: ['Billing'] },
-  { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['Admin'] },
+  { href: '/billing', icon: CreditCard, label: 'Billing', roles: ['Billing', 'Admin'] },
+  { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['Admin', 'Business'] },
+  { href: '/lab-results', icon: FlaskConical, label: 'Lab Results', roles: ['Lab', 'Physician'] },
   { href: '/admin', icon: Settings, label: 'Admin', roles: ['Admin'] },
 ];
 
@@ -64,21 +67,14 @@ export function AppSidebar() {
   
   const userRole = (profile as any)?.role || 'Patient';
 
-  let menuItems = allMenuItems.filter(item => {
+  const menuItems = allMenuItems.filter(item => {
     if (!item.roles || !userRole) return false;
     return item.roles.includes(userRole);
   });
-
-  if (userRole === 'Physician') {
-    menuItems = [
-        { 
-            href: '/', 
-            icon: LayoutDashboard, 
-            label: `${user?.displayName || 'Physician'}'s Dashboard`, 
-            roles: ['Physician'] 
-        }
-    ];
-  }
+  
+  const dashboardLabel = userRole === 'Physician' 
+    ? `${user?.displayName || 'Physician'}'s Dashboard`
+    : `${userRole} Dashboard`;
 
 
   return (
@@ -107,7 +103,7 @@ export function AppSidebar() {
                 icon={<item.icon />}
                 tooltip={item.label}
             >
-                <span>{item.label}</span>
+                <span>{item.href === '/' ? dashboardLabel : item.label}</span>
             </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
@@ -125,3 +121,5 @@ export function AppSidebar() {
     </>
   );
 }
+
+    

@@ -128,10 +128,21 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex-col gap-4 text-sm text-center">
             <p className="text-muted-foreground">
-                Use `physician@medverse.com`, `physician2@medverse.com`, `physician3@medverse.com`, `nurse@medverse.com`, or `admin@medverse.com`. The default password is `password`.
+                Default password is `password`.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              <b>Physicians:</b> physician@medverse.com, physician2@medverse.com, physician3@medverse.com<br/>
+              <b>Nurses:</b> nurse@medverse.com, nurse2@medverse.com, nurse3@medverse.com<br/>
+              <b>Admin:</b> admin@medverse.com<br/>
+              <b>Business:</b> business@medverse.com<br/>
+              <b>Lab:</b> lab@medverse.com, lab2@medverse.com, lab3@medverse.com<br/>
+              <b>Radiology:</b> radiology@medverse.com, radiology2@medverse.com, radiology3@medverse.com<br/>
+               <b>Others:</b> pharmacist@medverse.com, scheduler@medverse.com, billing@medverse.com
             </p>
         </CardFooter>
       </Card>
     </div>
   );
 }
+
+    
