@@ -1,48 +1,30 @@
 /**
  * @file Firestore Security Rules for MedVerseAI Application
- *
- * @core_philosophy This ruleset enforces a strict user-ownership model, ensuring that only the authenticated user can access their own data.
- * @data_structure All user data is nested under `/users/{userId}`, with `userAccounts` and `userProfiles` subcollections.
- * @key_security_decisions
- *   - User listing is restricted to prevent unauthorized data access.
- *   - All write operations are validated against the authenticated user's ID.
- * @denormalization_for_authorization N/A - Path-based ownership is used, so denormalization is not required.
- * @structural_segregation User accounts and profiles are stored in separate subcollections for better organization and security.
+ * @core_philosophy This ruleset is based on the FHIR/OMOP model, enforcing strict access controls.
+ * @data_structure Data is centered around a `person_master` collection, representing the golden record for an individual.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Manages access to user account information. Only the user with the matching {userId} can access this data.
-     * @path /users/{userId}/userAccounts/{accountId}
-     * @allow (create) - Authenticated user with ID 'user123' can create a new user account with accountId 'account456' if request.auth.uid == 'user123' and request.resource.data.id == 'user123'.
-     * @allow (get, list, update, delete) - Authenticated user with ID 'user123' can access their own user account with accountId 'account456'.
-     * @deny (create, update, delete) - Authenticated user with ID 'user456' cannot access user account with userId 'user123'.
-     * @principle Enforces document ownership for all operations.
+     * @description Manages access to the master person record.
+     * In a real-world scenario, read/write would be limited to specific privileged service roles (e.g., MPI services).
+     * For now, we allow any signed-in user to manage their own record for prototyping.
+     * @path /person_master/{personId}
      */
-    match /users/{userId}/userAccounts/{accountId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+    match /person_master/{personId} {
+      // Allow read and write access if the requesting user's ID matches the document ID.
+      allow read, write: if isSignedIn() && isOwner(personId);
     }
 
     /**
-     * @description Manages access to user profile information. Only the user with the matching {userId} can access this data.
-     * @path /users/{userId}/userProfiles/{profileId}
-     * @allow (create) - Authenticated user with ID 'user123' can create a new user profile with profileId 'profile456' if request.auth.uid == 'user123' and request.resource.data.id == 'user123'.
-     * @allow (get, list, update, delete) - Authenticated user with ID 'user123' can access their own user profile with profileId 'profile456'.
-     * @deny (create, update, delete) - Authenticated user with ID 'user456' cannot access user profile with userId 'user123'.
-     * @principle Enforces document ownership for all operations.
+     * @description Manages access to person identifiers. Access is inherited from the parent person_master record.
+     * @path /person_master/{personId}/identifiers/{identifierId}
      */
-    match /users/{userId}/userProfiles/{profileId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+    match /person_master/{personId}/identifiers/{identifierId} {
+        // Allow read and write access if the user owns the parent person record.
+        allow read, write: if isSignedIn() && isOwner(personId);
     }
 
     // ---- Helper functions ----
@@ -62,16 +44,6 @@ service cloud.firestore {
      */
     function isOwner(userId) {
       return request.auth.uid == userId;
-    }
-
-    /**
-     * @description Checks if the request is made by the owner of the document and the document exists.
-     *              This function is used for update and delete operations to prevent acting on non-existent documents.
-     * @param {string} userId - The user ID to compare against the request's auth UID.
-     * @return {boolean} True if the user is the owner and the document exists, false otherwise.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
     }
   }
 }

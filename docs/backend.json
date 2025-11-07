@@ -1,84 +1,78 @@
 {
   "entities": {
-    "UserAccount": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "UserAccount",
+    "PersonMaster": {
+      "title": "Person Master",
       "type": "object",
-      "description": "Stores user account information for login and logoff functionality. Note: Authentication data (passwords) should be handled by an external authentication service and not stored directly.",
+      "description": "Golden record for a person, uniquely identified. Based on OMOP Person and FHIR Patient resources.",
       "properties": {
-        "id": {
+        "person_id": {
           "type": "string",
-          "description": "Unique identifier for the user account."
+          "description": "Surrogate primary key for the person (UUID)."
         },
-        "email": {
+        "birth_datetime": {
           "type": "string",
-          "description": "Email address of the user, used for login.",
-          "format": "email"
+          "format": "date-time",
+          "description": "The date and time of birth."
         },
-        "phoneNumber": {
+        "sex_at_birth_concept_id": {
+          "type": "number",
+          "description": "OMOP concept ID for sex at birth."
+        },
+        "gender_identity_concept_id": {
+          "type": "number",
+          "description": "OMOP concept ID for gender identity."
+        },
+        "race_concept_id": {
+          "type": "number",
+          "description": "OMOP concept ID for race."
+        },
+        "ethnicity_concept_id": {
+          "type": "number",
+          "description": "OMOP concept ID for ethnicity."
+        },
+        "deceased_datetime": {
           "type": "string",
-          "description": "Phone number of the user, used for login."
+          "format": "date-time",
+          "description": "The date and time of death."
         },
-        "patientNumber": {
-          "type": "string",
-          "description": "Patient number, used for login (if applicable)."
-        },
-        "userProfileId": {
-          "type": "string",
-          "description": "Reference to UserProfile. (Relationship: UserAccount 1:1 UserProfile)"
-        },
-        "lastLogin": {
-          "type": "string",
-          "description": "Timestamp of the last successful login.",
-          "format": "date-time"
-        },
-        "isActive": {
+        "active_flag": {
           "type": "boolean",
-          "description": "Indicates whether the user account is active."
+          "description": "Whether this person record is active."
         }
       },
-      "required": [
-        "id",
-        "userProfileId"
-      ]
+      "required": ["person_id", "active_flag"]
     },
-    "UserProfile": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "UserProfile",
+    "PersonIdentifier": {
+      "title": "Person Identifier",
       "type": "object",
-      "description": "Stores user profile information associated with a user account.",
+      "description": "An identifier for a person, such as MRN, national ID, etc.",
       "properties": {
-        "id": {
+        "person_identifier_id": {
           "type": "string",
-          "description": "Unique identifier for the user profile."
+          "description": "Primary key for the identifier (UUID)."
         },
-        "firstName": {
+        "person_id": {
           "type": "string",
-          "description": "First name of the user."
+          "description": "FK to the person_master record."
         },
-        "lastName": {
+        "system_uri": {
           "type": "string",
-          "description": "Last name of the user."
+          "description": "URI identifying the identifier system (e.g., MRN)."
         },
-        "dateOfBirth": {
+        "value": {
           "type": "string",
-          "description": "Date of birth of the user.",
-          "format": "date"
+          "description": "The value of the identifier."
         },
-        "gender": {
+        "use": {
           "type": "string",
-          "description": "Gender of the user."
+          "description": "The use of the identifier (e.g., official, temp)."
         },
-        "address": {
-          "type": "string",
-          "description": "Address of the user."
+        "is_primary": {
+          "type": "boolean",
+          "description": "Is this the primary identifier for this system?"
         }
       },
-      "required": [
-        "id",
-        "firstName",
-        "lastName"
-      ]
+      "required": ["person_identifier_id", "person_id", "system_uri", "value"]
     }
   },
   "auth": {
@@ -90,46 +84,26 @@
   "firestore": {
     "structure": [
       {
-        "path": "/users/{userId}/userAccounts/{accountId}",
+        "path": "/person_master/{personId}",
         "definition": {
-          "entityName": "UserAccount",
+          "entityName": "PersonMaster",
           "schema": {
-            "$ref": "#/backend/entities/UserAccount"
+            "$ref": "#/backend/entities/PersonMaster"
           },
-          "description": "Stores user account information. Uses path-based ownership for authorization. Only the user with the matching {userId} can access this data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user."
-            },
-            {
-              "name": "accountId",
-              "description": "The unique ID of the user account."
-            }
-          ]
+          "description": "Stores the master record for each person. Access is restricted."
         }
       },
       {
-        "path": "/users/{userId}/userProfiles/{profileId}",
+        "path": "/person_master/{personId}/identifiers/{identifierId}",
         "definition": {
-          "entityName": "UserProfile",
+          "entityName": "PersonIdentifier",
           "schema": {
-            "$ref": "#/backend/entities/UserProfile"
+            "$ref": "#/backend/entities/PersonIdentifier"
           },
-          "description": "Stores user profile information. Uses path-based ownership for authorization. Only the user with the matching {userId} can access this data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user."
-            },
-            {
-              "name": "profileId",
-              "description": "The unique ID of the user profile."
-            }
-          ]
+          "description": "Stores identifiers associated with a person."
         }
       }
     ],
-    "reasoning": "This design prioritizes security and scalability for the MedVerseAI application, adhering to the core design principles. The structure is designed to support a multi-hospital HIS with clinical, diagnostic, administrative, and financial workflows, all while ensuring data privacy and compliance.\n\n**Authorization Independence:**\n*   User-related data is stored under `/users/{userId}`, providing clear ownership and avoiding the need for `get()` calls in security rules to validate user identity.\n*   If collaborative features are implemented later, requiring shared access to data, a membership map (`members: {uid1: \"role\", uid2: \"role\"}`) would be denormalized into relevant documents to eliminate hierarchical authorization dependencies.  Since the current use case focuses on personal user accounts, collaborative features are not included in the initial structure.\n\n**Structural Segregation:**\n*   User accounts and profiles are separated into `userAccounts` and `userProfiles` subcollections under the `/users/{userId}` collection. This segregation allows different security rules to be applied to account management and user profile information.\n\n**Access Modeling:**\n*   Private user data (account and profile information) is stored under `/users/{userId}`, enforcing path-based ownership. Only the authenticated user (`request.auth.uid`) can access data under their respective path.\n\n**Data Clarity and Predictability:**\n*   Entity names are semantically meaningful (e.g., `userAccount`, `userProfile`).\n*   Each path is clearly defined with descriptions.\n\n**QAPs (Rules are not Filters):**\n*   The path-based ownership model (`/users/{userId}/...`) ensures secure `list` operations for user-specific data. Security rules can easily restrict listing access to only the authenticated user's data."
+    "reasoning": "This structure aligns with the FHIR/OMOP data model provided. It establishes a master 'person' collection to act as the single source of truth (golden record). Identifiers are stored in a sub-collection, allowing for multiple identifiers per person (e.g., MRN, Driver's License) while maintaining a clean data hierarchy. Authorization can be managed at the root 'person_master' level."
   }
 }
