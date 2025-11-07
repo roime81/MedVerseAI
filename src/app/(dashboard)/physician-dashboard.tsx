@@ -4,13 +4,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2, Check } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2 } from "lucide-react";
 import { allPatients, Patient, allTasks } from "@/lib/sample-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
 import { useToast } from '@/hooks/use-toast';
 import { PatientDetailSheet } from './patient-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TreatmentJourney } from './treatment-journey';
 
 
 const kpiData = [
@@ -424,26 +425,14 @@ export default function PhysicianDashboard() {
             </CardContent>
           </Card>
 
-          {/* Pending Tasks */}
+          {/* Treatment Journey */}
           <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Pending Tasks</CardTitle>
+                  <CardTitle>Treatment Journey</CardTitle>
                   <Button variant="link" size="sm" onClick={() => setShowAllTasks(true)}>View All</Button>
               </CardHeader>
               <CardContent>
-                  <div className="space-y-4">
-                      {allTasks.slice(0, 4).map((task, i) => (
-                          <div key={i} className="flex items-start justify-between p-3 rounded-lg border cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => handleOpenChart(task.mrn)}>
-                            <div className="flex-1">
-                                  <p className="font-semibold text-sm">{task.description} for <span className="font-bold">{task.patient}</span></p>
-                                  <p className="text-xs text-muted-foreground">{task.time}</p>
-                            </div>
-                            <div className="flex flex-col items-end gap-2 ml-2">
-                                {getPriorityBadge(task.priority)}
-                            </div>
-                          </div>
-                      ))}
-                  </div>
+                  <TreatmentJourney />
               </CardContent>
           </Card>
         </div>

@@ -1,3 +1,5 @@
+import { FileClock, ClipboardCheck, Pill } from "lucide-react";
+
 export type Patient = {
   id: number;
   name: string;
@@ -21,6 +23,46 @@ export type Task = {
   time: string;
   priority: 'High' | 'Medium' | 'Low';
 };
+
+export type JourneyTask = {
+  title: string;
+  description: string;
+  status: 'Completed' | 'In Progress' | 'Upcoming';
+  icon: React.ElementType;
+};
+
+export const treatmentJourney: JourneyTask[] = [
+    { 
+        title: 'Initial Consultation',
+        description: 'Patient admitted for chest pain.',
+        status: 'Completed',
+        icon: ClipboardCheck
+    },
+    { 
+        title: 'Lab Work & Vitals',
+        description: 'Troponin, EKG, and vital signs checked.',
+        status: 'Completed',
+        icon: ClipboardCheck
+    },
+    { 
+        title: 'Medication Adjustment',
+        description: 'Lisinopril increased to 20mg.',
+        status: 'In Progress',
+        icon: Pill
+    },
+    { 
+        title: 'Follow-up Appointment',
+        description: 'Scheduled for 4 weeks post-discharge.',
+        status: 'Upcoming',
+        icon: FileClock
+    },
+    { 
+        title: 'Discharge Summary',
+        description: 'Awaiting final sign-off.',
+        status: 'Upcoming',
+        icon: FileClock
+    },
+];
 
 
 export const allPatients: Patient[] = [
