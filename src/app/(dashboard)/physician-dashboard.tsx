@@ -435,7 +435,6 @@ export default function PhysicianDashboard() {
                             </div>
                             <div className="flex flex-col items-end gap-2 ml-2">
                                 {getPriorityBadge(task.priority)}
-                                <Button variant="outline" size="sm" onClick={() => handleOpenChart(task.mrn)}>Open Chart</Button>
                             </div>
                           </div>
                       ))}
