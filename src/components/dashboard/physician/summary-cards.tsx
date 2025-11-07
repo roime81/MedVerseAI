@@ -45,18 +45,22 @@ export function SummaryCards() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // 1. Today's Appointments
-        // This query requires a composite index. We will simplify it to avoid the error.
-        // For now, we will just count all procedures for the user. A more accurate implementation
-        // would require either the index or a more complex client-side filter.
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const todayTimestamp = Timestamp.fromDate(today);
+        const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
+
         const appointmentsQuery = query(
           collection(firestore, 'procedures'),
-          where('performingClinicianId', '==', user.uid)
+          where('performingClinicianId', '==', user.uid),
+          where('procedureDateTime', '>=', todayTimestamp),
+          where('procedureDateTime', '<', tomorrowTimestamp)
         );
         const appointmentsSnapshot = await getCountFromServer(appointmentsQuery);
         const appointmentsCount = appointmentsSnapshot.data().count;
 
-        // 2. Pending Tasks
         const tasksQuery = query(
           collection(firestore, `users/${user.uid}/tasks`),
           where('status', '==', 'Pending')
@@ -64,7 +68,6 @@ export function SummaryCards() {
         const tasksSnapshot = await getCountFromServer(tasksQuery);
         const tasksCount = tasksSnapshot.data().count;
 
-        // 3. Active Patients
         const patientsQuery = query(
           collection(firestore, 'patients'),
           where('primaryProviderId', '==', user.uid)
@@ -80,7 +83,13 @@ export function SummaryCards() {
         }));
       } catch (error) {
         console.error("Error fetching summary data:", error);
-        // Optionally set an error state to display in the UI
+        // In case of index error, let's set them to 0 to avoid showing '...'
+        setSummaryData(prev => ({
+            ...prev,
+            "Today's Appointments": "0",
+            "Pending Tasks": "0",
+            "Active Patients": "0",
+        }));
       } finally {
         setIsLoading(false);
       }

@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import type { Patient, Condition } from '@/lib/types';
 import { useEffect, useState } from 'react';
@@ -19,15 +19,20 @@ const getInitials = (name: string) => {
 
 export function RecentPatients() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchRecentPatients = async () => {
-        if (!firestore) return;
+        if (!firestore || !user) return;
         setIsLoading(true);
 
-        const patientsQuery = query(collection(firestore, 'patients'), limit(3));
+        const patientsQuery = query(
+            collection(firestore, 'patients'), 
+            where('primaryProviderId', '==', user.uid),
+            limit(3)
+        );
         const patientSnapshots = await getDocs(patientsQuery);
         
         const patientsData: Patient[] = [];
@@ -39,7 +44,7 @@ export function RecentPatients() {
             const encounterSnapshots = await getDocs(encountersQuery);
             if (!encounterSnapshots.empty) {
                 const lastEncounter = encounterSnapshots.docs[0].data();
-                const lastSeenDate = (lastEncounter.admissionDatetime as any).toDate();
+                const lastSeenDate = new Date(lastEncounter.admissionDatetime);
                 const now = new Date();
                 const diffTime = Math.abs(now.getTime() - lastSeenDate.getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -60,8 +65,10 @@ export function RecentPatients() {
         setIsLoading(false);
     };
 
-    fetchRecentPatients();
-  }, [firestore]);
+    if (firestore && user) {
+        fetchRecentPatients();
+    }
+  }, [firestore, user]);
 
 
   return (
@@ -114,5 +121,3 @@ export function RecentPatients() {
     </Card>
   );
 }
-
-    
