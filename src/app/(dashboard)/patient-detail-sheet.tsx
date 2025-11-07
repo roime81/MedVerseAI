@@ -32,6 +32,9 @@ import {
   Download,
   X,
   Pill,
+  Activity,
+  BriefcaseMedical,
+  Users2,
 } from 'lucide-react';
 import type { RecentPatient } from './physician-dashboard';
 
@@ -51,6 +54,19 @@ const DetailRow = ({
   <div className="flex justify-between text-sm">
     <span className="text-muted-foreground">{label}</span>
     <span className="font-medium text-right">{value}</span>
+  </div>
+);
+
+const HistoryDetailRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) => (
+  <div>
+    <p className="text-xs text-muted-foreground">{label}</p>
+    <p className="font-medium">{value}</p>
   </div>
 );
 
@@ -344,6 +360,59 @@ export function PatientDetailSheet({
                             </CardContent>
                         </Card>
                     ))}
+                </div>
+              </TabsContent>
+              <TabsContent value="other" className="mt-4">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center text-base">
+                        <Activity className="mr-2" /> Immunization History
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        {patient.immunizationHistory.map((shot, index) => (
+                            <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm">
+                                <div>
+                                    <p className="font-semibold">{shot.vaccine}</p>
+                                    <p className="text-xs text-muted-foreground">Administered by {shot.administeredBy}</p>
+                                </div>
+                                <span className="text-sm text-muted-foreground">{new Date(shot.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                            </div>
+                        ))}
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center text-base">
+                        <BriefcaseMedical className="mr-2" /> Social History
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-y-4 gap-x-2">
+                        <HistoryDetailRow label="Smoking Status" value={patient.socialHistory.smokingStatus} />
+                        <HistoryDetailRow label="Alcohol Use" value={patient.socialHistory.alcoholUse} />
+                        <HistoryDetailRow label="Exercise" value={patient.socialHistory.exercise} />
+                        <HistoryDetailRow label="Occupation" value={patient.socialHistory.occupation} />
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center text-base">
+                        <Users2 className="mr-2" /> Family History
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {patient.familyHistory.map((item, index) => (
+                          <div key={index} className="flex justify-between items-center p-3 rounded-md border text-sm">
+                              <div>
+                                  <p className="font-semibold">{item.condition}</p>
+                                  <p className="text-xs text-muted-foreground">{item.relation}</p>
+                              </div>
+                              <Badge variant="outline">{item.notes}</Badge>
+                          </div>
+                      ))}
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
             </Tabs>

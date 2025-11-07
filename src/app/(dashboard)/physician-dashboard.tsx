@@ -101,6 +101,22 @@ export type RecentPatient = {
     diagnosis: string;
     notes: string;
   }[];
+  immunizationHistory: {
+    vaccine: string;
+    date: string;
+    administeredBy: string;
+  }[];
+  socialHistory: {
+    smokingStatus: string;
+    alcoholUse: string;
+    exercise: string;
+    occupation: string;
+  };
+  familyHistory: {
+    relation: string;
+    condition: string;
+    notes: string;
+  }[];
 };
 
 const initialRecentPatients: RecentPatient[] = [
@@ -173,6 +189,20 @@ const initialRecentPatients: RecentPatient[] = [
             diagnosis: 'Type 2 Diabetes - adequate control, Hypertension',
             notes: 'Patient is compliant with medications. HbA1c improved from 7.8% to 7.2%. Continue current diabetes management. BP slightly elevated, monitoring.'
         }
+    ],
+    immunizationHistory: [
+      { vaccine: 'Influenza', date: '2025-10-05', administeredBy: 'Dr. Kim' },
+      { vaccine: 'Tdap', date: '2022-08-15', administeredBy: 'Dr. Kim' }
+    ],
+    socialHistory: {
+      smokingStatus: 'Former Smoker',
+      alcoholUse: 'Socially',
+      exercise: 'Walking 3x/week',
+      occupation: 'Accountant'
+    },
+    familyHistory: [
+      { relation: 'Father', condition: 'Myocardial Infarction', notes: 'Age 55' },
+      { relation: 'Mother', condition: 'Hypertension', notes: '' }
     ]
   },
   {
@@ -201,7 +231,19 @@ const initialRecentPatients: RecentPatient[] = [
     labResults: [
         { name: 'Spirometry', date: '2025-11-01', result: 'FEV1 85%', reference: '>80%', status: 'Normal' },
     ],
-    visitHistory: []
+    visitHistory: [],
+    immunizationHistory: [
+      { vaccine: 'Influenza', date: '2025-10-05', administeredBy: 'Dr. Kim' }
+    ],
+    socialHistory: {
+      smokingStatus: 'Never',
+      alcoholUse: 'None',
+      exercise: 'Yoga 4x/week',
+      occupation: 'Marketing Director'
+    },
+    familyHistory: [
+      { relation: 'Mother', condition: 'Asthma', notes: 'Childhood onset' }
+    ]
   },
   {
     name: 'David Lee',
@@ -234,7 +276,15 @@ const initialRecentPatients: RecentPatient[] = [
         { name: 'Total Cholesterol', date: '2025-10-28', result: '210 mg/dL', reference: '<200 mg/dL', status: 'Elevated' },
         { name: 'LDL Cholesterol', date: '2025-10-28', result: '140 mg/dL', reference: '<100 mg/dL', status: 'Elevated' },
     ],
-    visitHistory: []
+    visitHistory: [],
+    immunizationHistory: [],
+    socialHistory: {
+      smokingStatus: 'Current Smoker',
+      alcoholUse: 'Rarely',
+      exercise: 'None',
+      occupation: 'Retired'
+    },
+    familyHistory: []
   },
 ];
 
