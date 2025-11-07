@@ -419,7 +419,7 @@ export default function PhysicianDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                  {schedule.map((appt, i) => (
+                  {schedule.filter(appt => appt.status !== 'Completed').map((appt, i) => (
                       <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
                           <div className="flex items-center gap-4">
                               <span className="font-semibold text-sm w-12 text-muted-foreground">{appt.time}</span>
@@ -450,8 +450,8 @@ export default function PhysicianDashboard() {
               <CardContent>
                   <div className="space-y-2">
                       {allTasks.map((task, i) => (
-                          <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
-                              <div onClick={() => handleTaskClick(task.mrn)} className="flex-grow">
+                          <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
+                              <div className="flex-grow">
                                   <p className="font-semibold text-sm">{task.description}</p>
                                   <p className="text-xs text-muted-foreground">
                                     Patient:{" "}
