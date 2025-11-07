@@ -16,8 +16,8 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    match /tasks/{taskId} {
-      // Allow any signed-in user to read (get, list) tasks.
+    // This rule allows any authenticated user to list the entire 'tasks' collection.
+    match /tasks/{document=**} {
       allow read: if isSignedIn();
       allow write: if false;
     }
