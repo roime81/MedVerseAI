@@ -14,6 +14,7 @@ import {
   sampleMeasurements,
   sampleDrugExposures,
   sampleBeds,
+  sampleCareSites,
 } from './sample-data';
 
 async function seedDatabase() {
@@ -88,6 +89,13 @@ async function seedDatabase() {
     for (const bed of sampleBeds) {
       const bedRef = doc(db, 'beds', bed.bedId);
       batch.set(bedRef, bed);
+    }
+
+    // Seed Care Sites (Hospitals)
+    console.log(`Seeding ${sampleCareSites.length} care sites...`);
+    for (const careSite of sampleCareSites) {
+      const careSiteRef = doc(db, 'careSites', careSite.careSiteId);
+      batch.set(careSiteRef, careSite);
     }
 
     // Commit the batch

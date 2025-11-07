@@ -269,6 +269,25 @@
         "location",
         "status"
       ]
+    },
+    "CareSite": {
+      "title": "CareSite",
+      "type": "object",
+      "description": "Represents a healthcare facility or hospital.",
+      "properties": {
+        "careSiteId": {
+          "type": "string",
+          "description": "Unique identifier for the CareSite entity (hospital code)."
+        },
+        "careSiteName": {
+          "type": "string",
+          "description": "The official name of the hospital or care site."
+        }
+      },
+      "required": [
+        "careSiteId",
+        "careSiteName"
+      ]
     }
   },
   "firestore": {
@@ -313,6 +332,12 @@
         "$ref": "#/entities/Bed"
       },
       "description": "Stores bed occupancy and management information for a facility."
+    },
+    "/careSites/{careSiteId}": {
+      "schema": {
+        "$ref": "#/entities/CareSite"
+      },
+      "description": "Stores information about healthcare facilities (hospitals)."
     }
   },
   "auth": {

@@ -146,3 +146,16 @@ export const sampleBeds = [
     careSiteId: '1',
   },
 ];
+
+export const sampleCareSites = [
+  { careSiteId: 'HOS-001', careSiteName: 'General Hospital' },
+  { careSiteId: 'HOS-002', careSiteName: 'City Medical Center' },
+  { careSiteId: 'HOS-003', careSiteName: 'Sunrise Community Clinic' },
+  { careSiteId: 'HOS-004', careSiteName: 'Hopewell Children\'s Hospital' },
+  { careSiteId: 'HOS-005', careSiteName: 'Evergreen Surgical Center' },
+  { careSiteId: 'HOS-006', careSiteName: 'Westside Regional Hospital' },
+  { careSiteId: 'HOS-007', careSiteName: 'North Valley Medical Group' },
+  { careSiteId: 'HOS-008', careSiteName: 'Bayview Mental Health Institute' },
+  { careSiteId: 'HOS-009', careSiteName: 'Mountain Ridge Cancer Center' },
+  { careSiteId: 'HOS-010', careSiteName: 'Riverside Rehabilitation Hospital' },
+];

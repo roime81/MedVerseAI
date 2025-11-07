@@ -54,5 +54,10 @@ service cloud.firestore {
     match /beds/{bedId} {
       allow read, write: if isSignedIn();
     }
+
+    // CareSites collection for hospital information
+    match /careSites/{careSiteId} {
+      allow read: if isSignedIn();
+    }
   }
 }
