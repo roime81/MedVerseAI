@@ -46,7 +46,9 @@
           "description": "Hospital or clinic site associated with the patient."
         }
       },
-      "required": ["personId"]
+      "required": [
+        "personId"
+      ]
     },
     "Encounter": {
       "title": "Encounter",
@@ -80,7 +82,10 @@
           "description": "Facility where the encounter occurred."
         }
       },
-      "required": ["visitOccurrenceId", "personId"]
+      "required": [
+        "visitOccurrenceId",
+        "personId"
+      ]
     },
     "Condition": {
       "title": "Condition",
@@ -110,7 +115,10 @@
           "description": "Resolution date of the condition."
         }
       },
-      "required": ["conditionOccurrenceId", "personId"]
+      "required": [
+        "conditionOccurrenceId",
+        "personId"
+      ]
     },
     "Observation": {
       "title": "Observation",
@@ -147,7 +155,10 @@
           "description": "Unit of measurement for the observation."
         }
       },
-      "required": ["observationId", "personId"]
+      "required": [
+        "observationId",
+        "personId"
+      ]
     },
     "Measurement": {
       "title": "Measurement",
@@ -180,7 +191,10 @@
           "description": "Unit of measurement (mmHg, mmol/L)."
         }
       },
-      "required": ["measurementId", "personId"]
+      "required": [
+        "measurementId",
+        "personId"
+      ]
     },
     "DrugExposure": {
       "title": "DrugExposure",
@@ -214,7 +228,47 @@
           "description": "Unit of measurement for the drug dose (mg, ml)."
         }
       },
-      "required": ["drugExposureId", "personId"]
+      "required": [
+        "drugExposureId",
+        "personId"
+      ]
+    },
+    "Bed": {
+      "title": "Bed",
+      "type": "object",
+      "description": "Represents a bed in a healthcare facility for occupancy management.",
+      "properties": {
+        "bedId": {
+          "type": "string",
+          "description": "Unique identifier for the Bed entity."
+        },
+        "location": {
+          "type": "string",
+          "description": "The physical location of the bed (e.g., Ward A, Room 101)."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Occupied",
+            "Available",
+            "Maintenance"
+          ],
+          "description": "The current status of the bed."
+        },
+        "patientId": {
+          "type": "string",
+          "description": "Identifier of the patient currently occupying the bed, if any."
+        },
+        "careSiteId": {
+          "type": "string",
+          "description": "Identifier for the hospital or clinic site."
+        }
+      },
+      "required": [
+        "bedId",
+        "location",
+        "status"
+      ]
     }
   },
   "firestore": {
@@ -253,6 +307,12 @@
         "$ref": "#/entities/DrugExposure"
       },
       "description": "Sub-collection for a patient's drug exposures."
+    },
+    "/beds/{bedId}": {
+      "schema": {
+        "$ref": "#/entities/Bed"
+      },
+      "description": "Stores bed occupancy and management information for a facility."
     }
   },
   "auth": {

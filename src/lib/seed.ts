@@ -13,6 +13,7 @@ import {
   sampleObservations,
   sampleMeasurements,
   sampleDrugExposures,
+  sampleBeds,
 } from './sample-data';
 
 async function seedDatabase() {
@@ -80,6 +81,13 @@ async function seedDatabase() {
         drug.drugExposureId
       );
       batch.set(drugRef, drug);
+    }
+
+    // Seed Beds
+    console.log(`Seeding ${sampleBeds.length} beds...`);
+    for (const bed of sampleBeds) {
+      const bedRef = doc(db, 'beds', bed.bedId);
+      batch.set(bedRef, bed);
     }
 
     // Commit the batch

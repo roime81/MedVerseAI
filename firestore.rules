@@ -37,5 +37,12 @@ service cloud.firestore {
         allow read, write: if isSignedIn();
       }
     }
+
+    // Beds collection for occupancy management
+    match /beds/{bedId} {
+      // Allow authenticated users to read and write bed information.
+      // In a real app, you might restrict write access to specific roles.
+      allow read, write: if isSignedIn();
+    }
   }
 }

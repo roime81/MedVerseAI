@@ -115,3 +115,34 @@ export const sampleDrugExposures = [
     doseUnitConceptId: 'mg',
   },
 ];
+
+export const sampleBeds = [
+  {
+    bedId: 'B-101-A',
+    location: 'Ward A, Room 101',
+    status: 'Occupied',
+    patientId: '2',
+    careSiteId: '1',
+  },
+  {
+    bedId: 'B-101-B',
+    location: 'Ward A, Room 101',
+    status: 'Available',
+    patientId: null,
+    careSiteId: '1',
+  },
+  {
+    bedId: 'B-102-A',
+    location: 'Ward A, Room 102',
+    status: 'Maintenance',
+    patientId: null,
+    careSiteId: '1',
+  },
+  {
+    bedId: 'C-201-A',
+    location: 'Ward C, Room 201',
+    status: 'Available',
+    patientId: null,
+    careSiteId: '1',
+  },
+];

@@ -5,6 +5,7 @@ import { ConditionsTable } from './conditions-table';
 import { ObservationsTable } from './observations-table';
 import { MeasurementsTable } from './measurements-table';
 import { DrugExposuresTable } from './drug-exposures-table';
+import { BedsTable } from './beds-table';
 
 export default function DashboardPage() {
   return (
@@ -16,6 +17,7 @@ export default function DashboardPage() {
       <ObservationsTable />
       <MeasurementsTable />
       <DrugExposuresTable />
+      <BedsTable />
     </div>
   );
 }
