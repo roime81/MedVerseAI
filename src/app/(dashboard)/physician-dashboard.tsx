@@ -138,11 +138,18 @@ export default function PhysicianDashboard() {
         setSelectedPatient(patient as RecentPatient);
         setSelectedAppointmentStatus(status);
     } else {
-        toast({
-            title: 'Patient Not Found',
-            description: 'The selected patient\'s detailed chart is not available.',
-            variant: 'destructive',
-        })
+        // Fallback for when patient is not in the initially loaded list
+        const fullPatientRecord = allPatients?.find(p => p.mrn === mrn);
+        if (fullPatientRecord) {
+            setSelectedPatient(fullPatientRecord as RecentPatient);
+            setSelectedAppointmentStatus(status);
+        } else {
+            toast({
+                title: 'Patient Not Found',
+                description: 'The selected patient\'s detailed chart is not available.',
+                variant: 'destructive',
+            })
+        }
     }
   };
 
