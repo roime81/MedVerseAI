@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, AlertCircle, Users, Clock, FilePlus2 } from "lucide-react";
+import { Calendar, AlertCircle, Users, Clock, FilePlus2, Check } from "lucide-react";
 import { allPatients, Patient, allTasks } from "@/lib/sample-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PatientRegistrationForm, PatientRegistrationData } from './patient-registration-form';
@@ -16,7 +16,7 @@ import { TreatmentJourney } from './treatment-journey';
 
 const kpiData = [
     { title: "Today's Appointments", value: 12, icon: Calendar, color: "text-blue-500" },
-    { title: "Pending Tasks", value: 8, icon: AlertCircle, color: "text-orange-500" },
+    { title: "Pending Tasks", value: allTasks.length, icon: AlertCircle, color: "text-orange-500" },
     { title: "Active Patients", value: 156, icon: Users, color: "text-green-500" },
     { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500" },
 ];
@@ -289,6 +289,7 @@ export default function PhysicianDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [showAllPatients, setShowAllPatients] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
+  const [showJourney, setShowJourney] = useState(false);
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
@@ -358,6 +359,19 @@ export default function PhysicianDashboard() {
     }
   }
 
+  const handleTaskClick = (mrn: string) => {
+    const patient = recentPatients.find(p => p.mrn === mrn);
+    if (patient) {
+        setShowJourney(true);
+    } else {
+        toast({
+            title: 'Patient Not Found',
+            description: 'Cannot display journey for the selected task\'s patient.',
+            variant: 'destructive',
+        })
+    }
+  };
+
   return (
     <>
       <div className="space-y-6 animate-fade-in">
@@ -425,14 +439,24 @@ export default function PhysicianDashboard() {
             </CardContent>
           </Card>
 
-          {/* Treatment Journey */}
+          {/* Pending Tasks */}
           <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Treatment Journey</CardTitle>
+                  <CardTitle>Pending Tasks</CardTitle>
                   <Button variant="link" size="sm" onClick={() => setShowAllTasks(true)}>View All</Button>
               </CardHeader>
               <CardContent>
-                  <TreatmentJourney />
+                  <div className="space-y-2">
+                      {allTasks.slice(0, 5).map((task, i) => (
+                          <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
+                              <div>
+                                  <p className="font-semibold text-sm">{task.description}</p>
+                                  <p className="text-xs text-muted-foreground">Patient: {task.patient} &bull; Due: {task.time}</p>
+                              </div>
+                              {getPriorityBadge(task.priority)}
+                          </div>
+                      ))}
+                  </div>
               </CardContent>
           </Card>
         </div>
@@ -547,6 +571,16 @@ export default function PhysicianDashboard() {
                 </TableBody>
             </Table>
         </DialogContent>
+      </Dialog>
+
+      <Dialog open={showJourney} onOpenChange={setShowJourney}>
+          <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Treatment Journey</DialogTitle>
+                <DialogDescription>Patient: James Martinez</DialogDescription>
+            </DialogHeader>
+            <TreatmentJourney />
+          </DialogContent>
       </Dialog>
 
       <PatientDetailSheet 
