@@ -666,15 +666,19 @@ const treatmentJourneyLee: JourneyTask[] = [
                 </TableHeader>
                 <TableBody>
                     {paginatedPatients.map((patient) => (
-                        <TableRow 
-                            key={patient.id} 
-                            className="cursor-pointer"
-                            onClick={() => {
-                                handleOpenChart(patient.mrn || '');
-                                setShowAllPatientsDialog(false);
-                            }}
-                        >
-                            <TableCell className="font-medium">{patient.name}</TableCell>
+                        <TableRow key={patient.id}>
+                            <TableCell className="font-medium">
+                                <Button
+                                    variant="link"
+                                    className="p-0 h-auto"
+                                    onClick={() => {
+                                        handleOpenChart(patient.mrn || '');
+                                        setShowAllPatientsDialog(false);
+                                    }}
+                                >
+                                    {patient.name}
+                                </Button>
+                            </TableCell>
                             <TableCell>{patient.mrn}</TableCell>
                             <TableCell>{patient.ward}</TableCell>
                             <TableCell>{getPatientStatusBadge(patient.status)}</TableCell>
