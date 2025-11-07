@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -427,12 +427,15 @@ export default function PhysicianDashboard() {
               <CardContent>
                   <div className="space-y-4">
                       {tasks.map((task, i) => (
-                          <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
-                            <div>
+                          <div key={i} className="flex items-start justify-between p-3 rounded-lg border">
+                            <div className="flex-1">
                                   <p className="font-semibold text-sm">{task.description}</p>
                                   <p className="text-xs text-muted-foreground">{task.time}</p>
-                              </div>
-                            {getPriorityBadge(task.priority)}
+                            </div>
+                            <div className="flex flex-col items-end gap-2 ml-2">
+                                {getPriorityBadge(task.priority)}
+                                <Button variant="outline" size="sm">View Full Task</Button>
+                            </div>
                           </div>
                       ))}
                   </div>
@@ -447,28 +450,31 @@ export default function PhysicianDashboard() {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentPatients.map((patient, i) => (
-                    <Card 
-                      key={i} 
-                      className="p-4 hover:bg-secondary/50 transition-colors cursor-pointer"
-                      onClick={() => setSelectedPatient(patient)}
-                    >
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10">
-                                  <AvatarFallback>{patient.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                  <p className="font-semibold">{patient.name}</p>
-                                  <p className="text-sm text-muted-foreground">{patient.lastSeen}</p>
+                    <Card key={i} className="flex flex-col">
+                        <CardContent className="p-4 flex-grow">
+                          <div className="flex items-start justify-between">
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10">
+                                    <AvatarFallback>{patient.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold">{patient.name}</p>
+                                    <p className="text-sm text-muted-foreground">{patient.lastSeen}</p>
+                                </div>
                               </div>
-                            </div>
-                            {patient.alerts > 0 && <Badge variant="destructive" className="flex items-center justify-center rounded-full h-6 w-6 p-0">{patient.alerts}</Badge>}
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-1">
-                            {patient.conditions.slice(0, 2).map((cond, j) => (
-                                <Badge key={j} variant="outline" className="text-xs">{cond.name}</Badge>
-                            ))}
-                        </div>
+                              {patient.alerts > 0 && <Badge variant="destructive" className="flex items-center justify-center rounded-full h-6 w-6 p-0">{patient.alerts}</Badge>}
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-1">
+                              {patient.conditions.slice(0, 2).map((cond, j) => (
+                                  <Badge key={j} variant="outline" className="text-xs">{cond.name}</Badge>
+                              ))}
+                          </div>
+                        </CardContent>
+                        <CardFooter className="p-4 pt-0">
+                           <Button variant="outline" size="sm" className="w-full" onClick={() => setSelectedPatient(patient)}>
+                                View Full Chart
+                            </Button>
+                        </CardFooter>
                     </Card>
                 ))}
             </CardContent>
