@@ -2,6 +2,7 @@
 import { treatmentJourney, JourneyTask } from '@/lib/sample-data';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const getStatusClasses = (status: JourneyTask['status']) => {
   switch (status) {
@@ -62,7 +63,7 @@ export function TreatmentJourney() {
                 </p>
                 {task.status === 'Completed' && task.completedBy && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Completed by: {task.completedBy}
+                    Completed by: <Button variant="link" className="p-0 h-auto text-xs">{task.completedBy}</Button>
                   </p>
                 )}
               </div>
