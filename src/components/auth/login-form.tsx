@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase } from '@/firebase';
 import { sampleUsers } from '@/lib/sample-data';
+import { Stethoscope } from 'lucide-react';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -114,16 +115,18 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account. Use password:
-          <code className="font-bold"> password</code>
-        </CardDescription>
-      </CardHeader>
+    <div className="mx-auto grid w-[350px] gap-6">
+      <div className="grid gap-2 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <Stethoscope className="h-8 w-8 text-primary" />
+            <h1 className="font-grotesk text-3xl font-bold text-primary">MedVerseAI</h1>
+          </div>
+        <p className="text-balance text-muted-foreground">
+          The AI-powered clinical dashboard
+        </p>
+      </div>
       <form onSubmit={handleSignIn}>
-        <CardContent className="grid gap-4">
+        <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -136,32 +139,27 @@ export function LoginForm() {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center">
+              <Label htmlFor="password">Password</Label>
+            </div>
             <Input
               id="password"
               type="password"
+              placeholder="••••••••"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isSigningIn}>
-            {isSigningIn ? 'Signing In...' : 'Sign in'}
+            {isSigningIn ? 'Logging in...' : 'Login'}
           </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleSignIn}
-            disabled={isSigningIn}
-            type="button"
-          >
-            Sign in with Google
+          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSigningIn} type="button">
+            Login with Google
           </Button>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }

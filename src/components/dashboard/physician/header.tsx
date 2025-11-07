@@ -15,7 +15,7 @@ export function PhysicianHeader() {
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-3xl font-bold">
+        <h1 className="font-grotesk text-3xl font-bold">
           Welcome back, {user?.displayName || 'Doctor'}
         </h1>
         <p className="text-muted-foreground">{currentDate}</p>

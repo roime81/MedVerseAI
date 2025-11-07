@@ -1,13 +1,23 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { PT_Sans, Space_Grotesk } from 'next/font/google';
 import { FirebaseClientProvider } from '@/firebase';
 import './globals.css';
+import { cn } from '@/lib/utils';
 
-const inter = Inter({ subsets: ['latin'] });
+const ptSans = PT_Sans({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-sans',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-grotesk',
+});
 
 export const metadata: Metadata = {
-  title: 'Clinical Dashboard',
-  description: 'A dashboard for medical professionals.',
+  title: 'MedVerseAI - Clinical Dashboard',
+  description: 'An AI-powered dashboard for medical professionals.',
 };
 
 export default function RootLayout({
@@ -17,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={cn('font-sans', ptSans.variable, spaceGrotesk.variable)}>
         <FirebaseClientProvider>{children}</FirebaseClientProvider>
       </body>
     </html>
