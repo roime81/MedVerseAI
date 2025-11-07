@@ -310,6 +310,42 @@ export function PatientDetailSheet({
                     ))}
                 </div>
               </TabsContent>
+              <TabsContent value="visit-history" className="mt-4">
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold">Visit History</h3>
+                    {patient.visitHistory.map((visit, index) => (
+                        <Card key={index}>
+                            <CardHeader>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <CardTitle className="text-lg">{visit.type}</CardTitle>
+                                        <p className="text-sm text-muted-foreground">
+                                             {new Date(visit.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} &bull; {visit.doctor}
+                                        </p>
+                                    </div>
+                                    <Button variant="outline" size="sm">View Full Note</Button>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4 pt-0">
+                                <div className="p-4 rounded-md border bg-secondary/50 space-y-3 text-sm">
+                                    <div>
+                                        <p className="text-xs font-semibold text-muted-foreground">Chief Complaint</p>
+                                        <p>{visit.chiefComplaint}</p>
+                                    </div>
+                                     <div>
+                                        <p className="text-xs font-semibold text-muted-foreground">Diagnosis</p>
+                                        <p>{visit.diagnosis}</p>
+                                    </div>
+                                     <div>
+                                        <p className="text-xs font-semibold text-muted-foreground">Notes</p>
+                                        <p className="text-muted-foreground">{visit.notes}</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+              </TabsContent>
             </Tabs>
           </div>
         </div>

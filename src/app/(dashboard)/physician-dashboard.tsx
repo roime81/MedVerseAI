@@ -93,6 +93,14 @@ export type RecentPatient = {
     reference: string;
     status: 'Normal' | 'Elevated' | 'Low';
   }[];
+  visitHistory: {
+    type: string;
+    date: string;
+    doctor: string;
+    chiefComplaint: string;
+    diagnosis: string;
+    notes: string;
+  }[];
 };
 
 const initialRecentPatients: RecentPatient[] = [
@@ -130,23 +138,41 @@ const initialRecentPatients: RecentPatient[] = [
       { name: 'Type 2 Diabetes Mellitus', stage: '', code: 'E11.9', diagnosedDate: '2019-06-20' },
     ],
     vitals: [
-        { date: '2025-11-03', bloodPressure: '145/92', heartRate: '82 bpm', temperature: '98.4°F', weight: '185 lbs', height: "5'10\"", bmi: '26.5' },
+        { date: '2025-11-05', bloodPressure: '145/92', heartRate: '82 bpm', temperature: '98.4°F', weight: '185 lbs', height: "5'10\"", bmi: '26.5' },
         { date: '2025-10-20', bloodPressure: '148/94', heartRate: '78 bpm', temperature: '98.6°F', weight: '187 lbs', height: "5'10\"", bmi: '26.8' },
         { date: '2025-09-15', bloodPressure: '152/96', heartRate: '85 bpm', temperature: '98.5°F', weight: '189 lbs', height: "5'10\"", bmi: '27.1' },
     ],
     medications: [
-        { name: 'Lisinopril', dosage: '20mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 3, startDate: 'Jan 2018' },
-        { name: 'Metformin', dosage: '1000mg', frequency: 'Twice daily', prescriber: 'Dr. Anderson', remaining: 2, startDate: 'Jun 2019' },
-        { name: 'Atorvastatin', dosage: '40mg', frequency: 'Once daily at bedtime', prescriber: 'Dr. Anderson', remaining: 5, startDate: 'Jan 2018' },
-        { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 6, startDate: 'Jan 2018' },
+        { name: 'Lisinopril', dosage: '20mg', frequency: 'Once daily', prescriber: 'Dr. Sarah Anderson', remaining: 3, startDate: 'Jan 2018' },
+        { name: 'Metformin', dosage: '1000mg', frequency: 'Twice daily', prescriber: 'Dr. Sarah Anderson', remaining: 2, startDate: 'Jun 2019' },
+        { name: 'Atorvastatin', dosage: '40mg', frequency: 'Once daily at bedtime', prescriber: 'Dr. Sarah Anderson', remaining: 5, startDate: 'Jan 2018' },
+        { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', prescriber: 'Dr. Sarah Anderson', remaining: 6, startDate: 'Jan 2018' },
     ],
     labResults: [
-        { name: 'HbA1c', date: '2025-11-03', result: '7.2%', reference: '<7.0%', status: 'Elevated' },
-        { name: 'Total Cholesterol', date: '2025-11-03', result: '195 mg/dL', reference: '<200 mg/dL', status: 'Normal' },
-        { name: 'LDL Cholesterol', date: '2025-11-03', result: '115 mg/dL', reference: '<100 mg/dL', status: 'Elevated' },
-        { name: 'HDL Cholesterol', date: '2025-11-03', result: '45 mg/dL', reference: '>40 mg/dL', status: 'Normal' },
-        { name: 'Triglycerides', date: '2025-11-03', result: '175 mg/dL', reference: '<150 mg/dL', status: 'Elevated' },
-        { name: 'Creatinine', date: '2025-11-03', result: '1.1 mg/dL', reference: '0.7-1.3 mg/dL', status: 'Normal' },
+        { name: 'HbA1c', date: '2025-11-05', result: '7.2%', reference: '<7.0%', status: 'Elevated' },
+        { name: 'Total Cholesterol', date: '2025-11-05', result: '195 mg/dL', reference: '<200 mg/dL', status: 'Normal' },
+        { name: 'LDL Cholesterol', date: '2025-11-05', result: '115 mg/dL', reference: '<100 mg/dL', status: 'Elevated' },
+        { name: 'HDL Cholesterol', date: '2025-11-05', result: '45 mg/dL', reference: '>40 mg/dL', status: 'Normal' },
+        { name: 'Triglycerides', date: '2025-11-05', result: '175 mg/dL', reference: '<150 mg/dL', status: 'Elevated' },
+        { name: 'Creatinine', date: '2025-11-05', result: '1.1 mg/dL', reference: '0.7-1.3 mg/dL', status: 'Normal' },
+    ],
+    visitHistory: [
+        {
+            type: 'Follow-up Visit',
+            date: '2025-11-05',
+            doctor: 'Dr. Sarah Anderson',
+            chiefComplaint: 'Blood pressure management',
+            diagnosis: 'Hypertension - poorly controlled',
+            notes: 'Patient reports occasional headaches. BP readings at home averaging 145/90. Discussed lifestyle modifications including reduced sodium intake and increased physical activity. Increased Lisinopril from 10mg to 20mg. Follow-up in 4 weeks.'
+        },
+        {
+            type: 'Routine Check-up',
+            date: '2025-10-20',
+            doctor: 'Dr. Sarah Anderson',
+            chiefComplaint: 'Annual physical examination',
+            diagnosis: 'Type 2 Diabetes - adequate control, Hypertension',
+            notes: 'Patient is compliant with medications. HbA1c improved from 7.8% to 7.2%. Continue current diabetes management. BP slightly elevated, monitoring.'
+        }
     ]
   },
   {
@@ -174,7 +200,8 @@ const initialRecentPatients: RecentPatient[] = [
     ],
     labResults: [
         { name: 'Spirometry', date: '2025-11-01', result: 'FEV1 85%', reference: '>80%', status: 'Normal' },
-    ]
+    ],
+    visitHistory: []
   },
   {
     name: 'David Lee',
@@ -206,7 +233,8 @@ const initialRecentPatients: RecentPatient[] = [
     labResults: [
         { name: 'Total Cholesterol', date: '2025-10-28', result: '210 mg/dL', reference: '<200 mg/dL', status: 'Elevated' },
         { name: 'LDL Cholesterol', date: '2025-10-28', result: '140 mg/dL', reference: '<100 mg/dL', status: 'Elevated' },
-    ]
+    ],
+    visitHistory: []
   },
 ];
 
