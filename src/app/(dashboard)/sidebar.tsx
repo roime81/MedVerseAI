@@ -29,15 +29,15 @@ import { useAuth } from '@/hooks/use-mock-auth';
 const allMenuItems = [
   { href: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['Admin', 'Physician', 'Nurse'] },
   { href: '/patient-360', icon: Scan, label: 'Patient 360', roles: ['Admin'] },
-  { href: '/orders', icon: FileText, label: 'Orders', roles: ['Nurse', 'Admin'] },
-  { href: '/medications', icon: Pill, label: 'Medications', roles: ['Nurse', 'Admin'] },
-  { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: ['Nurse', 'Admin'] },
-  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: ['Nurse', 'Admin', 'Radiologist'] },
-  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: ['Scheduler', 'Admin', 'Nurse'] },
-  { href: '/telehealth', icon: Video, label: 'Telehealth', roles: ['Patient'] },
-  { href: '/billing', icon: CreditCard, label: 'Billing', roles: ['Billing', 'Admin'] },
-  { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: ['Admin'] },
-  { href: '/admin', icon: Settings, label: 'Admin', roles: ['Admin'] },
+  { href: '/orders', icon: FileText, label: 'Orders', roles: [] },
+  { href: '/medications', icon: Pill, label: 'Medications', roles: [] },
+  { href: '/summarize', icon: BrainCircuit, label: 'Summarize', roles: [] },
+  { href: '/imaging', icon: Hospital, label: 'Imaging', roles: [] },
+  { href: '/schedule', icon: CalendarDays, label: 'Scheduling', roles: [] },
+  { href: '/telehealth', icon: Video, label: 'Telehealth', roles: [] },
+  { href: '/billing', icon: CreditCard, label: 'Billing', roles: [] },
+  { href: '/analytics', icon: BarChart3, label: 'Analytics', roles: [] },
+  { href: '/admin', icon: Settings, label: 'Admin', roles: [] },
 ];
 
 export function AppSidebar() {
@@ -52,6 +52,7 @@ export function AppSidebar() {
   };
   
   const menuItems = allMenuItems.filter(item => {
+    if (item.href === '/') return true; // Always show dashboard link initially
     if (!item.roles || !user?.role) return false;
     return item.roles.includes(user.role);
   });
@@ -75,18 +76,32 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                onClick={() => router.push(item.href)}
-                isActive={pathname === item.href}
-                icon={<item.icon />}
-                tooltip={item.label}
-              >
-                <span>{item.label}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {menuItems.map((item) => {
+            const isDashboard = item.href === '/';
+            const isPhysician = user?.role === 'Physician';
+            
+            // For physicians, only show the dashboard
+            if (isPhysician && !isDashboard) {
+                return null;
+            }
+
+            const label = isDashboard && isPhysician && user.name
+              ? `${user.name.split(' ').slice(0, 2).join(' ')}'s Dashboard`
+              : item.label;
+
+            return (
+                <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                    onClick={() => router.push(item.href)}
+                    isActive={pathname === item.href}
+                    icon={<item.icon />}
+                    tooltip={label}
+                >
+                    <span>{label}</span>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
