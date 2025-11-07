@@ -15,42 +15,24 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-
-type Ward = {
-  name: string;
-  totalBeds: number;
-  occupiedBeds: number;
-};
-
-type Patient = {
-  id: string;
-  name: string;
-  ward: string;
-  bed: string;
-  status: 'Occupied' | 'Discharging';
-};
-
-const wards: Ward[] = [
-  { name: 'Cardiology', totalBeds: 20, occupiedBeds: 18 },
-  { name: 'Orthopedics', totalBeds: 25, occupiedBeds: 22 },
-  { name: 'Neurology', totalBeds: 15, occupiedBeds: 10 },
-  { name: 'Oncology', totalBeds: 30, occupiedBeds: 29 },
-  { name: 'Pediatrics', totalBeds: 20, occupiedBeds: 15 },
-  { name: 'Maternity', totalBeds: 18, occupiedBeds: 12 },
-];
-
-const recentActivity: Patient[] = [
-  { id: 'P001', name: 'John Doe', ward: 'Cardiology', bed: 'C-101', status: 'Occupied' },
-  { id: 'P002', name: 'Jane Smith', ward: 'Orthopedics', bed: 'O-205', status: 'Occupied' },
-  { id: 'P003', name: 'Peter Jones', ward: 'Neurology', bed: 'N-302', status: 'Discharging' },
-  { id: 'P004', name: 'Mary Johnson', ward: 'Oncology', bed: 'ON-410', status: 'Occupied' },
-  { id: 'P005', name: 'David Williams', ward: 'Pediatrics', bed: 'P-501', status: 'Occupied' },
-];
+import { allWards, allPatients, Patient } from '@/lib/sample-data';
 
 export default function BedManagementPage() {
+  const wards = allWards;
+  const recentActivity = allPatients.slice(0, 5);
+  
   const totalBeds = wards.reduce((sum, ward) => sum + ward.totalBeds, 0);
   const occupiedBeds = wards.reduce((sum, ward) => sum + ward.occupiedBeds, 0);
   const overallOccupancy = (occupiedBeds / totalBeds) * 100;
+
+  const getBadgeVariant = (status: Patient['status']) => {
+    switch (status) {
+      case 'Occupied': return 'default';
+      case 'Discharging': return 'secondary';
+      case 'Admitted': return 'outline';
+      default: return 'default';
+    }
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -59,7 +41,7 @@ export default function BedManagementPage() {
           Bed Management Dashboard
         </h1>
         <p className="text-muted-foreground">
-          Real-time overview of bed availability and patient allocation.
+          Real-time overview of bed availability and patient allocation across all hospitals.
         </p>
       </header>
 
@@ -87,7 +69,7 @@ export default function BedManagementPage() {
               {totalBeds - occupiedBeds}
             </div>
              <p className="mt-2 text-sm text-muted-foreground">
-              Across {wards.length} wards.
+              Across {wards.length} wards in multiple hospitals.
             </p>
           </CardContent>
         </Card>
@@ -98,7 +80,7 @@ export default function BedManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold">
-              5
+              {Math.floor(Math.random() * 20) + 5}
             </div>
              <p className="mt-2 text-sm text-muted-foreground">
               Highest priority: Cardiology C-105
@@ -114,11 +96,14 @@ export default function BedManagementPage() {
             <CardDescription>Breakdown by clinical department</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {wards.map((ward) => (
-                <div key={ward.name}>
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+              {wards.slice(0, 15).map((ward) => ( // Displaying first 15 for brevity
+                <div key={`${ward.hospital}-${ward.name}`}>
                   <div className="mb-1 flex justify-between">
-                    <span className="font-medium">{ward.name}</span>
+                    <div>
+                        <span className="font-medium">{ward.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{ward.hospital}</span>
+                    </div>
                     <span className="text-muted-foreground">
                       {ward.occupiedBeds} / {ward.totalBeds}
                     </span>
@@ -140,8 +125,8 @@ export default function BedManagementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Patient</TableHead>
+                  <TableHead>Hospital</TableHead>
                   <TableHead>Ward</TableHead>
-                  <TableHead>Bed</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -149,10 +134,10 @@ export default function BedManagementPage() {
                 {recentActivity.map((patient) => (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{patient.name}</TableCell>
+                    <TableCell>{patient.hospital}</TableCell>
                     <TableCell>{patient.ward}</TableCell>
-                    <TableCell>{patient.bed}</TableCell>
                     <TableCell>
-                      <Badge variant={patient.status === 'Occupied' ? 'default' : 'secondary'}>
+                      <Badge variant={getBadgeVariant(patient.status)}>
                         {patient.status}
                       </Badge>
                     </TableCell>
