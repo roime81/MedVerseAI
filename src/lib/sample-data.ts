@@ -1,3 +1,4 @@
+
 export type Patient = {
   id: string;
   name: string;
@@ -19,6 +20,14 @@ export type Hospital = {
   name: string;
   wards: Ward[];
   patients: Patient[];
+};
+
+export type User = {
+  id: string;
+  name:string;
+  email: string;
+  role: string;
+  hospital: string;
 };
 
 const hospitalNames = [
@@ -69,11 +78,29 @@ const consultants: { [key: string]: string[] } = {
 const firstNames = ["John", "Jane", "Peter", "Mary", "David", "Sarah", "Michael", "Jennifer", "Robert", "Emily", "William", "Jessica", "James", "Ashley", "Charles", "Amanda", "Joseph", "Melissa", "Daniel", "Laura"];
 const lastNames = ["Smith", "Doe", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez"];
 
+const personas = [
+  "Physician / Specialist",
+  "Nurse / Care Coordinator",
+  "Allied Health Professional",
+  "Laboratory Technician / Pathologist",
+  "Radiologist / Imaging Technician",
+  "Pharmacist",
+  "Clinical Researcher / Investigator",
+  "Admissions & Scheduling Officer",
+  "Billing & Claims Officer",
+  "Hospital Admin / COO",
+  "Data Steward / Governance Lead",
+  "Cybersecurity / Compliance Officer",
+  "Integration Engineer / API Manager",
+  "Patient / Caregiver",
+];
+
+
 const hospitals: Hospital[] = [];
 let patientIdCounter = 1;
 
 // Create a pool of patient names to allow for duplicates across hospitals
-const patientNames = Array.from({ length: 400 }, () => `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`);
+const patientNames = Array.from({ length: 1000 }, () => `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`);
 
 
 hospitalNames.forEach(hospitalName => {
@@ -131,3 +158,26 @@ hospitalNames.forEach(hospitalName => {
 export const sampleHospitals = hospitals;
 export const allWards = hospitals.flatMap(h => h.wards);
 export const allPatients = hospitals.flatMap(h => h.patients);
+
+
+const generateUsers = (count: number): User[] => {
+  const users: User[] = [];
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const role = personas[Math.floor(Math.random() * personas.length)];
+    const hospital = hospitalNames[Math.floor(Math.random() * hospitalNames.length)];
+    
+    users.push({
+      id: `U${String(i + 1).padStart(4, '0')}`,
+      name: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random()*100)}@${hospital.toLowerCase().replace(/ /g, '').replace(/'/g, '').split(',')[0]}.org`,
+      role: role,
+      hospital: hospital,
+    });
+  }
+  return users;
+};
+
+export const allUsers = generateUsers(500);
+
