@@ -31,7 +31,7 @@ export function initiateEmailSignIn(
       console.log("Email sign-in successful for:", result.user.email);
     })
     .catch((error) => {
-      console.error("Email sign-in error:", error.message);
+      console.error("Email sign-in error:", error.code, error.message);
       let friendlyMessage = 'An unknown error occurred.';
       switch (error.code) {
         case 'auth/invalid-email':
