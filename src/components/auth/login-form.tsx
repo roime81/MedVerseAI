@@ -6,6 +6,8 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  createUserWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { doc, setDoc, getFirestore, getDoc } from 'firebase/firestore';
@@ -22,6 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase } from '@/firebase';
+import { sampleUsers } from '@/lib/sample-data';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -41,7 +44,38 @@ export function LoginForm() {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard');
     } catch (error: any) {
-      setError(error.message);
+      // If the user does not exist, try to create them if they are in the sample data
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        const sampleUser = sampleUsers.find((u) => u.email === email);
+        if (sampleUser && password === sampleUser.password) {
+          try {
+            const userCredential = await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+            const user = userCredential.user;
+
+            await updateProfile(user, { displayName: sampleUser.displayName });
+
+            await setDoc(doc(firestore, 'users', user.uid), {
+              uid: user.uid,
+              email: user.email,
+              displayName: sampleUser.displayName,
+              role: sampleUser.role,
+            });
+            
+            router.push('/dashboard');
+            return; // Exit after successful creation and redirect
+          } catch (creationError: any) {
+            setError(`Failed to create account: ${creationError.message}`);
+          }
+        } else {
+           setError('Invalid email or password.');
+        }
+      } else {
+        setError(error.message);
+      }
     } finally {
       setIsSigningIn(false);
     }
@@ -55,19 +89,18 @@ export function LoginForm() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user document already exists
       const userRef = doc(firestore, 'users', user.uid);
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        // User does not exist, create a new document
-        // Defaulting to 'physician' for now as per instructions.
-        // This can be changed to a role selection screen later.
+        const sampleUser = sampleUsers.find(u => u.email.split('@')[0].includes(user.displayName?.split(' ')[0].toLowerCase() || ''))
+        const role = sampleUser ? sampleUser.role : 'physician';
+
         await setDoc(userRef, {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
-          role: 'physician', // Assign a default role
+          role: role,
         });
       }
 
@@ -85,7 +118,8 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account.
+          Enter your email below to login to your account. Use password:
+          <code className="font-bold"> password</code>
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSignIn}>
@@ -95,7 +129,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="m@example.com"
+              placeholder="emily.carter@medverse.com"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
