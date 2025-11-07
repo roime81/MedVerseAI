@@ -38,8 +38,9 @@ export default function LoginPage() {
         });
         router.push('/');
     } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
-            // If user doesn't exist, create one
+        // This error code can mean the user doesn't exist OR the password is wrong.
+        // For this demo, we'll assume it means the user doesn't exist and we'll create them.
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 toast({
