@@ -28,6 +28,28 @@ export type RecentPatient = PatientData;
 
 const PATIENTS_PER_PAGE = 5;
 
+// Hardcoded data for testing
+const hardcodedPatients: RecentPatient[] = [
+    { id: 1, name: "James Martinez", lastSeen: "Jul 21, 2024", alerts: 1, ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Sarah Anderson', status: 'Occupied', mrn: 'MRN-0847', dob: '1978-11-22', gender: 'Male', ssnLast4: '6789', maritalStatus: 'Married', conditions: [{ name: "Hypertension", stage: "Stage 2", code: "I10", diagnosedDate: "2018-01-15" }], medications: [{ name: "Lisinopril", dosage: "20mg", frequency: "Daily", prescriber: "Dr. Anderson", remaining: 30, startDate: "2018-01-15" }], visitHistory: [], vitals: [], labResults: [], immunizationHistory: [], socialHistory: {}, familyHistory: [] },
+    { id: 2, name: "David Lee", lastSeen: "Jul 20, 2024", alerts: 2, ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Sarah Anderson', status: 'Occupied', mrn: 'MRN-1055', dob: '1965-03-10', gender: 'Male', ssnLast4: '1234', maritalStatus: 'Single', conditions: [{ name: "COPD", stage: "Moderate", code: "J44.9", diagnosedDate: "2021-05-20" }, { name: "High Cholesterol", stage: "", code: "E78.5", diagnosedDate: "2021-05-20" }], medications: [], visitHistory: [], vitals: [], labResults: [], immunizationHistory: [], socialHistory: {}, familyHistory: [] },
+    { id: 3, name: "Patricia Brown", lastSeen: "Jul 19, 2024", ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Sarah Anderson', status: 'Discharging', mrn: 'MRN-0921', dob: '1954-09-01', gender: 'Female', ssnLast4: '5678', maritalStatus: 'Widowed', conditions: [{ name: "Type 2 Diabetes", stage: "Controlled", code: "E11", diagnosedDate: "2015-10-10" }], medications: [], visitHistory: [], vitals: [], labResults: [], immunizationHistory: [], socialHistory: {}, familyHistory: [] },
+];
+
+const hardcodedTasks: Task[] = [
+    { description: 'Review lab results', patient: 'David Lee', mrn: 'MRN-1055', time: '30 min ago', priority: 'High' },
+    { description: 'Sign prescription refill', patient: 'Patricia Brown', mrn: 'MRN-0921', time: '1 hour ago', priority: 'Medium' },
+    { description: 'Complete discharge summary', patient: 'James Martinez', mrn: 'MRN-0847', time: '2 hours ago', priority: 'High' },
+    { description: 'Review imaging results', patient: 'David Lee', mrn: 'MRN-1055', time: '3 hours ago', priority: 'Low' },
+    { description: 'Call patient family for update', patient: 'Sarah Johnson', mrn: 'MRN-0921', time: '4 hours ago', priority: 'Low' },
+];
+
+const hardcodedSchedule = [
+    { time: '09:30', name: 'David Lee', age: 59, reason: 'Diabetes Check', status: 'In Progress', mrn: 'MRN-1055', id: 2 },
+    { time: '10:15', name: 'Random Patient 1', age: 45, reason: 'Annual Physical', status: 'Waiting', mrn: 'MRN-XXXX', id: 99 },
+    { time: '11:00', name: 'Random Patient 2', age: 62, reason: 'Hypertension', status: 'Scheduled', mrn: 'MRN-YYYY', id: 98 },
+];
+
+
 export default function PhysicianDashboard() {
   const { firestore } = useFirebase();
   const { user } = useUser();
@@ -42,50 +64,13 @@ export default function PhysicianDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const profileRef = useMemoFirebase(() => {
-    if (!user?.email || !firestore) return null;
-    return doc(firestore, 'staffProfiles', user.email);
-  }, [user?.email, firestore]);
+  const physicianName = 'Dr. Sarah Anderson'; // Hardcoded for testing
 
-  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
-  const physicianName = (profile as any)?.name;
-
-  const physicianPatientsQuery = useMemoFirebase(() => {
-    if (!firestore || !physicianName) return null;
-    return query(collection(firestore, 'patients'), where('consultant', '==', physicianName));
-  }, [firestore, physicianName]);
-
-  const { data: allPatients, isLoading: allPatientsLoading } = useCollection<PatientData>(physicianPatientsQuery);
-
-  const recentPatientsQuery = useMemoFirebase(() => {
-    if (!firestore || !physicianName) return null;
-    return query(collection(firestore, 'patients'), where('consultant', '==', physicianName), orderBy('lastSeen', 'desc'), limit(3));
-  }, [firestore, physicianName]);
-  
-  const { data: recentPatients, isLoading: patientsLoading } = useCollection<PatientData>(recentPatientsQuery);
-  
-  const tasksQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'tasks'), limit(5));
-  }, [firestore]);
-  const { data: allTasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
-  
-  const schedule = useMemo(() => {
-    if (!allPatients) return [];
-    const scheduleTimes = ['09:00', '09:30', '10:15', '11:00', '14:00'];
-    const reasons = ['Follow-up', 'Diabetes Check', 'Annual Physical', 'Hypertension', 'Lab Review'];
-    const statuses = ['Completed', 'In Progress', 'Waiting', 'Scheduled', 'Scheduled'];
-    
-    return allPatients.slice(0, 5).map((patient, index) => ({
-      time: scheduleTimes[index % scheduleTimes.length],
-      name: patient.name,
-      age: patient.dob ? new Date().getFullYear() - new Date(patient.dob).getFullYear() : 0,
-      reason: reasons[index % reasons.length],
-      status: statuses[index % statuses.length],
-      mrn: patient.mrn,
-      id: patient.id
-    }));
-  }, [allPatients]);
+  const allPatients = hardcodedPatients;
+  const recentPatients = hardcodedPatients;
+  const allTasks = hardcodedTasks;
+  const schedule = hardcodedSchedule;
+  const isLoading = false; // Set to false when using hardcoded data
 
 
   const handleSavePatient = async (data: PatientRegistrationData) => {
@@ -220,7 +205,6 @@ export default function PhysicianDashboard() {
     currentPage * PATIENTS_PER_PAGE
   );
   
-  const isLoading = patientsLoading || tasksLoading || allPatientsLoading || isProfileLoading || !physicianName;
   if (isLoading) {
     return <div className="flex items-center justify-center p-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div>;
   }
