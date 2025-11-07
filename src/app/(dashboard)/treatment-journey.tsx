@@ -60,6 +60,11 @@ export function TreatmentJourney() {
                 <p className={cn('text-xs', classes.description)}>
                   {task.description}
                 </p>
+                {task.status === 'Completed' && task.completedBy && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Completed by: {task.completedBy}
+                  </p>
+                )}
               </div>
             </div>
           );

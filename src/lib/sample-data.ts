@@ -29,6 +29,7 @@ export type JourneyTask = {
   description: string;
   status: 'Completed' | 'In Progress' | 'Upcoming';
   icon: React.ElementType;
+  completedBy?: string;
 };
 
 export const treatmentJourney: JourneyTask[] = [
@@ -36,13 +37,15 @@ export const treatmentJourney: JourneyTask[] = [
         title: 'Initial Consultation',
         description: 'Patient admitted for chest pain.',
         status: 'Completed',
-        icon: ClipboardCheck
+        icon: ClipboardCheck,
+        completedBy: 'Dr. Anderson'
     },
     { 
         title: 'Lab Work & Vitals',
         description: 'Troponin, EKG, and vital signs checked.',
         status: 'Completed',
-        icon: ClipboardCheck
+        icon: ClipboardCheck,
+        completedBy: 'Nurse Smith'
     },
     { 
         title: 'Medication Adjustment',
