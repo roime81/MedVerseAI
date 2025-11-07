@@ -78,6 +78,19 @@ export function PatientDetailSheet({
     }
     return age;
   };
+  
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Normal':
+        return <Badge variant="default">Normal</Badge>;
+      case 'Elevated':
+        return <Badge variant="destructive">Elevated</Badge>;
+      case 'Low':
+        return <Badge variant="secondary" className="bg-blue-500 text-white">Low</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -271,6 +284,28 @@ export function PatientDetailSheet({
                                     <p className="text-sm text-muted-foreground">Since {med.startDate}</p>
                                 </div>
                             </CardContent>
+                        </Card>
+                    ))}
+                </div>
+              </TabsContent>
+              <TabsContent value="lab-results" className="mt-4">
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Recent Laboratory Results</h3>
+                    {patient.labResults.map((lab, index) => (
+                        <Card key={index} className="p-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="font-semibold">{lab.name}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {new Date(lab.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                    </p>
+                                </div>
+                                {getStatusBadge(lab.status)}
+                            </div>
+                            <div className="flex justify-between items-end mt-2 text-sm">
+                                <p>Result: <span className="font-medium">{lab.result}</span></p>
+                                <p className="text-muted-foreground">Reference: {lab.reference}</p>
+                            </div>
                         </Card>
                     ))}
                 </div>

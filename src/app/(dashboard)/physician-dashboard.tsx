@@ -86,6 +86,13 @@ export type RecentPatient = {
     remaining: number;
     startDate: string;
   }[];
+  labResults: {
+    name: string;
+    date: string;
+    result: string;
+    reference: string;
+    status: 'Normal' | 'Elevated' | 'Low';
+  }[];
 };
 
 const initialRecentPatients: RecentPatient[] = [
@@ -123,7 +130,7 @@ const initialRecentPatients: RecentPatient[] = [
       { name: 'Type 2 Diabetes Mellitus', stage: '', code: 'E11.9', diagnosedDate: '2019-06-20' },
     ],
     vitals: [
-        { date: '2025-11-05', bloodPressure: '145/92', heartRate: '82 bpm', temperature: '98.4°F', weight: '185 lbs', height: "5'10\"", bmi: '26.5' },
+        { date: '2025-11-03', bloodPressure: '145/92', heartRate: '82 bpm', temperature: '98.4°F', weight: '185 lbs', height: "5'10\"", bmi: '26.5' },
         { date: '2025-10-20', bloodPressure: '148/94', heartRate: '78 bpm', temperature: '98.6°F', weight: '187 lbs', height: "5'10\"", bmi: '26.8' },
         { date: '2025-09-15', bloodPressure: '152/96', heartRate: '85 bpm', temperature: '98.5°F', weight: '189 lbs', height: "5'10\"", bmi: '27.1' },
     ],
@@ -132,6 +139,14 @@ const initialRecentPatients: RecentPatient[] = [
         { name: 'Metformin', dosage: '1000mg', frequency: 'Twice daily', prescriber: 'Dr. Anderson', remaining: 2, startDate: 'Jun 2019' },
         { name: 'Atorvastatin', dosage: '40mg', frequency: 'Once daily at bedtime', prescriber: 'Dr. Anderson', remaining: 5, startDate: 'Jan 2018' },
         { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 6, startDate: 'Jan 2018' },
+    ],
+    labResults: [
+        { name: 'HbA1c', date: '2025-11-03', result: '7.2%', reference: '<7.0%', status: 'Elevated' },
+        { name: 'Total Cholesterol', date: '2025-11-03', result: '195 mg/dL', reference: '<200 mg/dL', status: 'Normal' },
+        { name: 'LDL Cholesterol', date: '2025-11-03', result: '115 mg/dL', reference: '<100 mg/dL', status: 'Elevated' },
+        { name: 'HDL Cholesterol', date: '2025-11-03', result: '45 mg/dL', reference: '>40 mg/dL', status: 'Normal' },
+        { name: 'Triglycerides', date: '2025-11-03', result: '175 mg/dL', reference: '<150 mg/dL', status: 'Elevated' },
+        { name: 'Creatinine', date: '2025-11-03', result: '1.1 mg/dL', reference: '0.7-1.3 mg/dL', status: 'Normal' },
     ]
   },
   {
@@ -156,6 +171,9 @@ const initialRecentPatients: RecentPatient[] = [
     ],
     medications: [
         { name: 'Albuterol', dosage: '90mcg', frequency: '2 puffs every 4-6 hours as needed', prescriber: 'Dr. Anderson', remaining: 1, startDate: 'May 2010' },
+    ],
+    labResults: [
+        { name: 'Spirometry', date: '2025-11-01', result: 'FEV1 85%', reference: '>80%', status: 'Normal' },
     ]
   },
   {
@@ -184,6 +202,10 @@ const initialRecentPatients: RecentPatient[] = [
     medications: [
          { name: 'Symbicort', dosage: '160/4.5 mcg', frequency: '1 inhalation twice daily', prescriber: 'Dr. Anderson', remaining: 1, startDate: 'Feb 2021' },
          { name: 'Lipitor', dosage: '20mg', frequency: 'Once daily', prescriber: 'Dr. Anderson', remaining: 4, startDate: 'Nov 2020' },
+    ],
+    labResults: [
+        { name: 'Total Cholesterol', date: '2025-10-28', result: '210 mg/dL', reference: '<200 mg/dL', status: 'Elevated' },
+        { name: 'LDL Cholesterol', date: '2025-10-28', result: '140 mg/dL', reference: '<100 mg/dL', status: 'Elevated' },
     ]
   },
 ];
