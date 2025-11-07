@@ -1,9 +1,11 @@
+'use client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Video, Phone, Clock } from 'lucide-react';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
 
 const appointments = [
   {
@@ -32,7 +34,18 @@ const completedAppointments = [
 ]
 
 export default function TelehealthPage() {
-  const getAvatarUrl = (id: string) => placeholderImages.find(p => p.id === id)?.imageUrl || '';
+  const [avatars, setAvatars] = useState<any>({});
+
+  useEffect(() => {
+    const avatarMap: any = {};
+    const allAppts = [...appointments, ...completedAppointments];
+    allAppts.forEach(appt => {
+      avatarMap[appt.avatarId] = placeholderImages.find(p => p.id === appt.avatarId)?.imageUrl || '';
+    });
+    setAvatars(avatarMap);
+  }, [])
+
+  const getAvatarUrl = (id: string) => avatars[id] || '';
 
   return (
     <div className="space-y-6 animate-fade-in">

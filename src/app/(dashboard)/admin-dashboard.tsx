@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   CardContent,
@@ -17,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { allWards, allPatients, Patient } from '@/lib/sample-data';
 import { User, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 // Helper function to find patients who visited multiple hospitals
 const getMultiHospitalPatients = () => {
@@ -39,13 +41,18 @@ const getMultiHospitalPatients = () => {
 
 
 export default function AdminDashboard() {
-  const wards = allWards;
-  const recentActivity = allPatients.slice(0, 5);
-  const multiHospitalPatients = getMultiHospitalPatients();
+  const [wards, setWards] = useState(allWards);
+  const [recentActivity, setRecentActivity] = useState(allPatients.slice(0, 5));
+  const [multiHospitalPatients, setMultiHospitalPatients] = useState(getMultiHospitalPatients());
+  const [needsCleaning, setNeedsCleaning] = useState(0);
+
+  useEffect(() => {
+    setNeedsCleaning(Math.floor(Math.random() * 20) + 5);
+  }, []);
   
   const totalBeds = wards.reduce((sum, ward) => sum + ward.totalBeds, 0);
   const occupiedBeds = wards.reduce((sum, ward) => sum + ward.occupiedBeds, 0);
-  const overallOccupancy = (occupiedBeds / totalBeds) * 100;
+  const overallOccupancy = totalBeds > 0 ? (occupiedBeds / totalBeds) * 100 : 0;
 
   const getBadgeVariant = (status: Patient['status']) => {
     switch (status) {
@@ -90,7 +97,7 @@ export default function AdminDashboard() {
             <div className="text-4xl font-bold">
               {totalBeds - occupiedBeds}
             </div>
-             <p className="mt-2 text-sm text-muted-foreground">
+             <p className="text-sm text-muted-foreground">
               Across {wards.length} wards in multiple hospitals.
             </p>
           </CardContent>
@@ -102,7 +109,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold">
-              {Math.floor(Math.random() * 20) + 5}
+              {needsCleaning}
             </div>
              <p className="mt-2 text-sm text-muted-foreground">
               Highest priority: Cardiology C-105

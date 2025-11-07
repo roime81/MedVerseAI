@@ -4,11 +4,17 @@ import AdminDashboard from './admin-dashboard';
 import PhysicianDashboard from './physician-dashboard';
 import NurseDashboard from './nurse-dashboard';
 import { BrainCircuit } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
     const { user, isLoading } = useAuth();
+    const [isClient, setIsClient] = useState(false);
 
-    if (isLoading) {
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
+
+    if (!isClient || isLoading) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-200px)]">
                 <div className="flex flex-col items-center gap-4">

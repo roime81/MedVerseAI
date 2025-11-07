@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   CardContent,
@@ -18,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { allPatients } from '@/lib/sample-data';
 import { Clock, FileText, Stethoscope } from 'lucide-react';
 import { placeholderImages } from '@/lib/placeholder-images';
+import { useState, useEffect } from 'react';
 
 const upcomingAppointments = [
   { time: '09:00 AM', name: 'Robert Brown', reason: 'Follow-up', avatarId: 'tele-patient-1' },
@@ -32,7 +34,17 @@ const recentResults = [
 ]
 
 export default function PhysicianDashboard() {
-  const getAvatarUrl = (id: string) => placeholderImages.find(p => p.id === id)?.imageUrl || '';
+  const [avatars, setAvatars] = useState<any>({});
+
+  useEffect(() => {
+    const avatarMap: any = {};
+    upcomingAppointments.forEach(appt => {
+      avatarMap[appt.avatarId] = placeholderImages.find(p => p.id === appt.avatarId)?.imageUrl || '';
+    });
+    setAvatars(avatarMap);
+  }, []);
+
+  const getAvatarUrl = (id: string) => avatars[id] || '';
 
   const getStatusBadge = (status: string) => {
     switch (status) {

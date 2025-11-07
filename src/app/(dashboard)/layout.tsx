@@ -94,9 +94,13 @@ function getNavItems(user: AuthUser | null) {
 
 
 function AppHeader() {
-  const userAvatar = placeholderImages.find(p => p.id === 'user-avatar');
+  const [userAvatar, setUserAvatar] = React.useState<any>(null);
   const { user, logout } = useAuth();
   const router = useRouter();
+
+  React.useEffect(() => {
+    setUserAvatar(placeholderImages.find(p => p.id === 'user-avatar'));
+  }, [])
 
   const handleLogout = () => {
     logout();
@@ -138,7 +142,7 @@ function AppHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer h-9 w-9">
-              <AvatarImage src={userAvatar?.imageUrl} data-ai-hint="person face" />
+              {userAvatar && <AvatarImage src={userAvatar.imageUrl} data-ai-hint="person face" />}
               <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>

@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Filter } from 'lucide-react';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
 
 const imagingStudies = [
   { id: 'imaging-1', patient: 'John Doe', study: 'Chest X-Ray', date: '2024-07-21' },
@@ -16,14 +18,18 @@ const imagingStudies = [
 ];
 
 export default function ImagingPage() {
-  const getStudy = (id: string) => {
-    const studyData = imagingStudies.find(s => s.id === id);
-    const imageData = placeholderImages.find(p => p.id === id);
-    if (!studyData || !imageData) return null;
-    return { ...studyData, ...imageData };
-  };
+  const [studies, setStudies] = useState<any[]>([]);
 
-  const studies = imagingStudies.map(s => getStudy(s.id)).filter(Boolean as any);
+  useEffect(() => {
+    const getStudy = (id: string) => {
+      const studyData = imagingStudies.find(s => s.id === id);
+      const imageData = placeholderImages.find(p => p.id === id);
+      if (!studyData || !imageData) return null;
+      return { ...studyData, ...imageData };
+    };
+
+    setStudies(imagingStudies.map(s => getStudy(s.id)).filter(Boolean as any));
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
