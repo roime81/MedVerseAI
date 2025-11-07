@@ -16,6 +16,9 @@ import {
   Search,
   ChevronDown,
   Building,
+  HeartPulse,
+  Video,
+  FileImage,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -31,7 +34,7 @@ import {
 } from '@/components/ui/sidebar';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/use-mock-auth';
+import { useAuth, User as AuthUser } from '@/hooks/use-mock-auth';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,16 +45,53 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 
-const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/patient-360', label: 'Patient 360', icon: User },
-  { href: '/orders', label: 'Orders', icon: ClipboardList },
-  { href: '/medications', label: 'Medications', icon: Pill },
-  { href: '/schedule', label: 'Scheduling', icon: Calendar },
-  { href: '/billing', label: 'Billing', icon: Banknote },
-  { href: '/analytics', label: 'Analytics', icon: AreaChart },
-  { href: '/admin', label: 'Admin', icon: Shield },
-];
+const navConfig = {
+  Admin: [
+    { href: '/', label: 'KPI Dashboard', icon: LayoutDashboard },
+    { href: '/analytics', label: 'Analytics', icon: AreaChart },
+    { href: '/billing', label: 'Billing', icon: Banknote },
+    { href: '/admin', label: 'System Admin', icon: Shield },
+  ],
+  Physician: [
+    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/patient-360', label: 'Patient 360', icon: User },
+    { href: '/orders', label: 'Orders', icon: ClipboardList },
+    { href: '/medications', label: 'Medications', icon: Pill },
+    { href: '/summarize', label: 'Summarization', icon: BrainCircuit },
+    { href: '/schedule', label: 'Scheduling', icon: Calendar },
+    { href: '/telehealth', label: 'Telehealth', icon: Video },
+    { href: '/imaging', label: 'Imaging', icon: FileImage },
+  ],
+  Nurse: [
+    { href: '/', label: 'My Tasks', icon: ClipboardList },
+    { href: '/patient-360', label: 'Patient 360', icon: User },
+    { href: '/medications', label: 'MAR', icon: Pill },
+    { href: '/vitals', label: 'Vitals', icon: HeartPulse },
+    { href: '/schedule', label: 'Schedule', icon: Calendar },
+  ],
+  Default: [
+    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/patient-360', label: 'Patient 360', icon: User },
+    { href: '/orders', label: 'Orders', icon: ClipboardList },
+    { href: '/medications', label: 'Medications', icon: Pill },
+    { href: '/schedule', label: 'Scheduling', icon: Calendar },
+    { href: '/billing', label: 'Billing', icon: Banknote },
+    { href: '/analytics', label: 'Analytics', icon: AreaChart },
+  ]
+};
+
+function getNavItems(user: AuthUser | null) {
+    if (!user) return navConfig.Default;
+    let items = navConfig[user.role as keyof typeof navConfig] || navConfig.Default;
+    if (user.isAdmin) {
+        const adminItem = { href: '/admin', label: 'Admin', icon: Shield };
+        if (!items.find(i => i.href === '/admin')) {
+            items = [...items, adminItem];
+        }
+    }
+    return items;
+}
+
 
 function AppHeader() {
   const userAvatar = placeholderImages.find(p => p.id === 'user-avatar');
@@ -103,7 +143,8 @@ function AppHeader() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-             <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+             <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+             <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">{user?.role}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
@@ -124,6 +165,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const navItems = getNavItems(user);
 
   React.useEffect(() => {
     if (!isLoading && !user) {
@@ -141,10 +183,6 @@ export default function DashboardLayout({
       </div>
     );
   }
-  
-  // Conditionally render Admin nav item
-  const displayNavItems = user.isAdmin ? navItems : navItems.filter(item => item.href !== '/admin');
-
 
   return (
     <SidebarProvider defaultOpen>
@@ -159,7 +197,7 @@ export default function DashboardLayout({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {displayNavItems.map((item) => (
+            {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild

@@ -7,7 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
-import { useAuth } from '@/hooks/use-mock-auth';
+import { useAuth, User } from '@/hooks/use-mock-auth';
+
+const mockUsers: { [key: string]: User } = {
+    'admin@medverse.com': { email: 'admin@medverse.com', isAdmin: true, role: 'Admin', name: 'Admin User' },
+    'physician@medverse.com': { email: 'physician@medverse.com', isAdmin: false, role: 'Physician', name: 'Dr. Emily Carter' },
+    'nurse@medverse.com': { email: 'nurse@medverse.com', isAdmin: false, role: 'Nurse', name: 'Nurse Michael Smith' },
+    'roimepuniran@gmail.com': { email: 'roimepuniran@gmail.com', isAdmin: true, role: 'Admin', name: 'Roi Mepuniran' },
+};
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,20 +31,24 @@ export default function LoginPage() {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Admin user check
-    if (email === 'roimepuniran@gmail.com' && password === 'Pudina@81') {
-        login({ email, isAdmin: true });
+    const user = mockUsers[email];
+
+    if (user && (user.email !== 'roimepuniran@gmail.com' || password === 'Pudina@81')) {
+        login(user);
         toast({
-          title: 'Admin Login Successful',
-          description: `Welcome back, Admin!`,
+          title: `Login Successful`,
+          description: `Welcome back, ${user.name}!`,
         });
         router.push('/');
-        return;
-    }
-    
-    // Regular user login
-    if(email) {
-        login({ email, isAdmin: false });
+    } else if (email === 'roimepuniran@gmail.com' && password !== 'Pudina@81') {
+        toast({
+            title: 'Login Failed',
+            description: 'Invalid password for admin user.',
+            variant: 'destructive',
+        });
+    } else if (!user) {
+        // Fallback for any other user
+        login({ email, isAdmin: false, role: 'Physician', name: 'Guest User' });
         toast({
             title: 'Login Successful',
             description: `Welcome back!`,
@@ -46,7 +57,7 @@ export default function LoginPage() {
     } else {
         toast({
             title: 'Login Failed',
-            description: 'Please enter a valid email.',
+            description: 'Please check your credentials.',
             variant: 'destructive',
         });
     }
@@ -68,7 +79,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="e.g., a.khan@hospital.org"
+                placeholder="e.g., physician@medverse.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -102,9 +113,9 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex-col gap-4 text-sm">
+        <CardFooter className="flex-col gap-4 text-sm text-center">
             <p className="text-muted-foreground">
-                For prototype: any email will work. Standard password is "password" if left blank.
+                Use `physician@medverse.com`, `nurse@medverse.com`, or `admin@medverse.com`. Password can be anything (except for `roimepuniran@gmail.com`).
             </p>
         </CardFooter>
       </Card>

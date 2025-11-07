@@ -2,9 +2,11 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-type User = {
+export type User = {
   email: string;
   isAdmin: boolean;
+  role: 'Physician' | 'Nurse' | 'Admin' | 'Pharmacist' | 'Patient' | 'Billing' | 'Scheduler' | 'Lab Tech' | 'Radiologist';
+  name: string;
 };
 
 type AuthContextType = {
