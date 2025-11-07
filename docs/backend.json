@@ -12,7 +12,12 @@
           "enum": ["physician", "nurse", "radiology", "lab", "billing", "admin", "pharmacist"],
           "description": "The role of the user, which determines their permissions and dashboard."
         },
-        "displayName": { "type": "string", "description": "User's display name." }
+        "displayName": { "type": "string", "description": "User's display name." },
+        "associatedCareSites": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "An array of care site IDs the user is associated with."
+        }
       },
       "required": ["uid", "email", "role"]
     },
@@ -686,5 +691,3 @@
     ]
   }
 }
-
-    

@@ -3,7 +3,7 @@
 // Example: `npx tsx src/lib/seed.ts`
 
 import { initializeApp, deleteApp } from 'firebase/app';
-import { getFirestore, collection, doc, writeBatch, getDocs, query, where } from 'firebase/firestore';
+import { getFirestore, collection, doc, writeBatch, getDocs, query, where, updateDoc } from 'firebase/firestore';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -99,6 +99,7 @@ async function seedCollections(db, physicianUserIds) {
 
   // Remap attendingProviderId and authorId from static ID to actual UID
   const getMappedUid = (staticId) => physicianUserIds.get(staticId) || null;
+  const physicianCareSites = new Map<string, Set<string>>();
 
   // Seed Patients
   console.log(`Seeding ${samplePatients.length} patients...`);
@@ -118,7 +119,16 @@ async function seedCollections(db, physicianUserIds) {
       'encounters',
       encounter.encounterId
     );
-    encounter.attendingProviderId = getMappedUid(encounter.attendingProviderId);
+    const physicianUid = getMappedUid(encounter.attendingProviderId);
+    encounter.attendingProviderId = physicianUid;
+
+    if (physicianUid && encounter.facilityId) {
+        if (!physicianCareSites.has(physicianUid)) {
+            physicianCareSites.set(physicianUid, new Set());
+        }
+        physicianCareSites.get(physicianUid)!.add(encounter.facilityId);
+    }
+
     batch.set(ref, encounter);
   });
 
@@ -191,6 +201,15 @@ async function seedCollections(db, physicianUserIds) {
   // Commit the master batch for all collections
   console.log('Committing all collection data...');
   await batch.commit();
+
+  // Update physician documents with their associated care sites
+  console.log('Updating physicians with associated care sites...');
+  for (const [physicianUid, careSiteIds] of physicianCareSites.entries()) {
+    const userRef = doc(db, 'users', physicianUid);
+    await updateDoc(userRef, {
+      associatedCareSites: Array.from(careSiteIds)
+    });
+  }
 }
 
 async function main() {
@@ -223,5 +242,3 @@ main()
     console.error('Seed script failed with an unhandled error:', e);
     process.exit(1);
   });
-
-    

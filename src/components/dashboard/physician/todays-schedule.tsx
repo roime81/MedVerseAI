@@ -10,8 +10,8 @@ import { Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import type { Appointment } from '@/lib/types';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, Timestamp, getDocs, doc, getDoc } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query, where, Timestamp, getDocs, doc, getDoc, collectionGroup, orderBy } from 'firebase/firestore';
 import type { Patient as PatientSchema } from '@/lib/schemas';
 import { useEffect, useState } from 'react';
 import { Patient } from '@/lib/types';
@@ -28,13 +28,14 @@ const getStatusClass = (status: Appointment['status']) => {
 }
 
 export function TodaysSchedule() {
+  const { user } = useUser();
   const firestore = useFirestore();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      if (!firestore) return;
+      if (!firestore || !user) return;
       setIsLoading(true);
 
       const today = new Date();
@@ -45,61 +46,59 @@ export function TodaysSchedule() {
       const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
 
       const encountersQuery = query(
-        collection(firestore, 'patients'),
+        collectionGroup(firestore, 'encounters'),
+        where('attendingProviderId', '==', user.uid),
+        where('admissionDatetime', '>=', todayTimestamp),
+        where('admissionDatetime', '<', tomorrowTimestamp),
+        orderBy('admissionDatetime', 'asc')
       );
       
-      const patientSnapshots = await getDocs(encountersQuery);
+      const encounterSnapshots = await getDocs(encountersQuery);
       const appointmentsData: Appointment[] = [];
       
-      for (const patientDoc of patientSnapshots.docs) {
-          const patientData = patientDoc.data() as Patient;
-          patientData.id = patientDoc.id;
+      for (const encounterDoc of encounterSnapshots.docs) {
+          const encounter = encounterDoc.data();
+          const patientRef = doc(firestore, 'patients', encounter.personId);
+          const patientDoc = await getDoc(patientRef);
 
-          const encountersCollection = collection(firestore, `patients/${patientDoc.id}/encounters`);
-          const patientEncountersQuery = query(encountersCollection,
-            where('admissionDatetime', '>=', todayTimestamp),
-            where('admissionDatetime', '<', tomorrowTimestamp));
-          const encounterSnapshots = await getDocs(patientEncountersQuery);
+          if (patientDoc.exists()) {
+              const patientData = patientDoc.data() as Patient;
+              const admissionTime = (encounter.admissionDatetime as Timestamp).toDate();
 
-          encounterSnapshots.forEach(encounterDoc => {
-            const encounter = encounterDoc.data();
-            const admissionTime = (encounter.admissionDatetime as Timestamp).toDate();
+              const getInitials = (name: string) => {
+                return name.split(' ').map(n => n[0]).join('');
+              }
 
-            const getInitials = (name: string) => {
-              return name.split(' ').map(n => n[0]).join('');
-            }
+              const calculateAge = (dob: string) => {
+                  const birthDate = new Date(dob);
+                  const today = new Date();
+                  let age = today.getFullYear() - birthDate.getFullYear();
+                  const m = today.getMonth() - birthDate.getMonth();
+                  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                      age--;
+                  }
+                  return age;
+              }
 
-            const calculateAge = (dob: string) => {
-                const birthDate = new Date(dob);
-                const today = new Date();
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const m = today.getMonth() - birthDate.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                return age;
-            }
-
-            appointmentsData.push({
-              time: admissionTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-              patient: {
-                name: patientData.fullName,
-                initials: getInitials(patientData.fullName),
-                age: calculateAge(patientData.dateOfBirth),
-                reason: encounter.visitReason,
-              },
-              status: encounter.visitStatus === 'Discharged' ? 'Completed' : 'Scheduled',
-            });
-          });
+              appointmentsData.push({
+                time: admissionTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+                patient: {
+                  name: patientData.fullName,
+                  initials: getInitials(patientData.fullName),
+                  age: calculateAge(patientData.dateOfBirth),
+                  reason: encounter.visitReason,
+                },
+                status: encounter.visitStatus === 'Discharged' ? 'Completed' : 'Scheduled',
+              });
+          }
       }
 
-      appointmentsData.sort((a, b) => a.time.localeCompare(b.time));
       setAppointments(appointmentsData);
       setIsLoading(false);
     };
 
     fetchAppointments();
-  }, [firestore]);
+  }, [firestore, user]);
 
 
   return (
