@@ -1,12 +1,18 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { PT_Sans, Space_Grotesk } from 'next/font/google';
 import { FirebaseClientProvider } from '@/firebase';
 import './globals.css';
 import { cn } from '@/lib/utils';
 
-const inter = Inter({
+const ptSans = PT_Sans({
   subsets: ['latin'],
+  weight: ['400', '700'],
   variable: '--font-sans',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-grotesk',
 });
 
 
@@ -22,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn('font-sans', inter.variable)}>
+      <body className={cn('font-sans', ptSans.variable, spaceGrotesk.variable)}>
         <FirebaseClientProvider>{children}</FirebaseClientProvider>
       </body>
     </html>

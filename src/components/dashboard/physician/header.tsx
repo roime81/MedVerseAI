@@ -9,7 +9,7 @@ export function PhysicianHeader() {
   return (
     <div className="flex items-start justify-between">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="font-grotesk text-2xl font-bold text-gray-800">
           Welcome back, {user?.displayName || 'Doctor'}
         </h1>
         <p className="text-muted-foreground">Here's what's happening today</p>

@@ -113,12 +113,12 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm border-0 shadow-none sm:border sm:shadow-sm">
+    <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
                 <BrainCircuit className="h-10 w-10 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-bold text-primary">MedVerseAI</CardTitle>
+            <CardTitle className="font-grotesk text-2xl font-bold">MedVerseAI</CardTitle>
             <CardDescription>The AI-powered clinical dashboard</CardDescription>
         </CardHeader>
         <CardContent>

@@ -53,7 +53,7 @@ export default function DashboardLayout({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search Patient..."
-              className="w-full rounded-full bg-white pl-10"
+              className="w-full rounded-full bg-card pl-10"
             />
           </div>
           <div className="ml-auto flex items-center gap-4">

@@ -43,13 +43,13 @@ export function SummaryCards() {
       {summaryData.map((summary, index) => (
         <Card key={index} className={`border-l-4 ${summary.borderColor} shadow-sm`}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="font-grotesk text-sm font-medium text-muted-foreground">
               {summary.title}
             </CardTitle>
             <summary.icon className={`h-5 w-5 ${summary.color}`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-800">{summary.value}</div>
+            <div className="font-grotesk text-2xl font-bold text-gray-800">{summary.value}</div>
           </CardContent>
         </Card>
       ))}

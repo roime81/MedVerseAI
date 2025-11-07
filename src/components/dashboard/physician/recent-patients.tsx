@@ -18,7 +18,7 @@ export function RecentPatients() {
   return (
     <Card>
         <CardHeader>
-            <CardTitle className="text-lg">Recent Patients</CardTitle>
+            <CardTitle className="font-grotesk text-lg">Recent Patients</CardTitle>
         </CardHeader>
         <CardContent>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

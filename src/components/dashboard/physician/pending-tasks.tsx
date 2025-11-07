@@ -27,7 +27,7 @@ export function PendingTasks() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-lg">Pending Tasks</CardTitle>
+                <CardTitle className="font-grotesk text-lg">Pending Tasks</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">

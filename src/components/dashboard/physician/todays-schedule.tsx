@@ -32,7 +32,7 @@ export function TodaysSchedule() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Today's Schedule</CardTitle>
+        <CardTitle className="font-grotesk text-lg">Today's Schedule</CardTitle>
         <Button variant="outline" size="sm">
           <Calendar className="mr-2 h-4 w-4" />
           View Full Calendar
