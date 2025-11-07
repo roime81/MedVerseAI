@@ -34,8 +34,7 @@ async function seedDatabase() {
   const auth = getAuth(firebaseApp);
 
   try {
-    const batch = writeBatch(db);
-
+    
     // Seed Users and create Auth accounts
     console.log(`Seeding ${sampleUsers.length} users...`);
     for (const user of sampleUsers) {
@@ -49,28 +48,32 @@ async function seedDatabase() {
         await updateProfile(authUser, { displayName: user.displayName });
         console.log(`Successfully updated profile for ${authUser.email}`);
 
-        // Add user data to Firestore
+        // Add user data to Firestore in a separate batch
+        const userDocBatch = writeBatch(db);
         const userRef = doc(db, 'users', authUser.uid);
         const { password, ...userData } = user; // Don't store password in Firestore
-        batch.set(userRef, { ...userData, uid: authUser.uid });
+        userDocBatch.set(userRef, { ...userData, uid: authUser.uid });
+        await userDocBatch.commit();
+        console.log(`Successfully created Firestore doc for ${authUser.email}`);
 
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
-          console.warn(`Auth user with email ${user.email} already exists. Skipping creation and Firestore data write for this user.`);
+          console.warn(`Auth user with email ${user.email} already exists. Skipping auth creation.`);
         } else {
           console.error(`Error creating auth user ${user.email}:`, error);
-           // If user creation fails, we should not proceed with the batch for this user
+          // If user creation fails, we should not proceed with seeding for this user
           continue;
         }
       }
     }
-
+    
+    const dataBatch = writeBatch(db);
 
     // Seed Patients
     console.log(`Seeding ${samplePatients.length} patients...`);
     for (const patient of samplePatients) {
       const patientRef = doc(db, 'patients', patient.personId);
-      batch.set(patientRef, patient);
+      dataBatch.set(patientRef, patient);
     }
 
     // Seed Encounters
@@ -80,7 +83,7 @@ async function seedDatabase() {
         collection(db, 'patients', encounter.personId, 'encounters'),
         encounter.encounterId
       );
-      batch.set(encounterRef, encounter);
+      dataBatch.set(encounterRef, encounter);
     }
 
     // Seed Conditions
@@ -90,7 +93,7 @@ async function seedDatabase() {
         collection(db, 'patients', condition.personId, 'conditions'),
         condition.diagnosisId
       );
-      batch.set(conditionRef, condition);
+      dataBatch.set(conditionRef, condition);
     }
 
     // Seed Drug Exposures
@@ -100,7 +103,7 @@ async function seedDatabase() {
         collection(db, 'patients', drug.personId, 'drugExposures'),
         drug.medicationId
       );
-      batch.set(drugRef, drug);
+      dataBatch.set(drugRef, drug);
     }
     
     // Seed Clinical Notes
@@ -109,7 +112,7 @@ async function seedDatabase() {
         const encounter = sampleEncounters.find(e => e.encounterId === note.encounterId);
         if (encounter) {
             const noteRef = doc(collection(db, 'patients', encounter.personId, 'clinicalNotes'), note.noteId);
-            batch.set(noteRef, note);
+            dataBatch.set(noteRef, note);
         }
     }
 
@@ -117,37 +120,37 @@ async function seedDatabase() {
     console.log(`Seeding ${sampleProcedures.length} procedures...`);
     for (const procedure of sampleProcedures) {
         const procedureRef = doc(collection(db, 'patients', procedure.personId, 'procedures'), procedure.procedureId);
-        batch.set(procedureRef, procedure);
+        dataBatch.set(procedureRef, procedure);
         const topLevelProcedureRef = doc(db, 'procedures', procedure.procedureId);
-        batch.set(topLevelProcedureRef, procedure);
+        dataBatch.set(topLevelProcedureRef, procedure);
     }
 
     // Seed Lab Results
     console.log(`Seeding ${sampleLabResults.length} lab results...`);
     for (const labResult of sampleLabResults) {
         const labResultRef = doc(collection(db, 'patients', labResult.personId, 'labResults'), labResult.labOrderId);
-        batch.set(labResultRef, labResult);
+        dataBatch.set(labResultRef, labResult);
     }
 
     // Seed Imaging Studies
     console.log(`Seeding ${sampleImagingStudies.length} imaging studies...`);
     for (const study of sampleImagingStudies) {
         const studyRef = doc(collection(db, 'patients', study.personId, 'imagingStudies'), study.imagingOrderId);
-        batch.set(studyRef, study);
+        dataBatch.set(studyRef, study);
     }
 
     // Seed Beds
     console.log(`Seeding ${sampleBeds.length} beds...`);
     for (const bed of sampleBeds) {
       const bedRef = doc(db, 'beds', bed.bedId);
-      batch.set(bedRef, bed);
+      dataBatch.set(bedRef, bed);
     }
 
     // Seed Care Sites (Hospitals)
     console.log(`Seeding ${sampleCareSites.length} care sites...`);
     for (const careSite of sampleCareSites) {
       const careSiteRef = doc(db, 'careSites', careSite.careSiteId);
-      batch.set(careSiteRef, careSite);
+      dataBatch.set(careSiteRef, careSite);
     }
 
     // Seed Costs
@@ -157,7 +160,7 @@ async function seedDatabase() {
         collection(db, 'patients', cost.personId, 'costs'),
         cost.chargeId
       );
-      batch.set(costRef, cost);
+      dataBatch.set(costRef, cost);
     }
 
     // Seed Payer Plan Periods
@@ -169,7 +172,7 @@ async function seedDatabase() {
         collection(db, 'patients', plan.personId, 'payerPlanPeriods'),
         plan.planId
       );
-      batch.set(planRef, plan);
+      dataBatch.set(planRef, plan);
     }
 
     // Seed Visit Details
@@ -179,11 +182,11 @@ async function seedDatabase() {
         collection(db, 'patients', detail.personId, 'visitDetails'),
         detail.visitDetailId
       );
-      batch.set(detailRef, detail);
+      dataBatch.set(detailRef, detail);
     }
 
     // Commit the batch
-    await batch.commit();
+    await dataBatch.commit();
     console.log('Database seeded successfully!');
   } catch (error) {
     console.error('Error seeding database:', error);
