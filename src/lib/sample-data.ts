@@ -58,14 +58,14 @@ const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)
 
 // --- DYNAMIC DATA GENERATION ---
 
-const generatePatients = (count: number) => {
+const generatePatients = (count: number, drCarterPatientCount: number) => {
     const patients = [];
     for (let i = 0; i < count; i++) {
         const gender = faker.person.sexType();
         const fullName = faker.person.fullName({ sex: gender });
 
-        // Assign first 5 patients to Dr. Carter, rest are random
-        const primaryProviderId = i < 5 ? drCarterId : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
+        // Assign first X patients to Dr. Carter, rest are random
+        const primaryProviderId = i < drCarterPatientCount ? drCarterId : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
 
         patients.push({
             personId: faker.string.uuid(),
@@ -157,7 +157,7 @@ const generateConditions = (patients: any[], encounters: any[]) => {
     return conditions;
 };
 
-const generateProcedures = (patients: any[], encounters: any[]) => {
+const generateProcedures = (patients: any[], encounters: any[], drCarterTodaysAppointments: number) => {
   const procedures = [];
   const procedureData = [
     { code: 'CPT:99213', name: 'Office Visit Level 3' },
@@ -165,7 +165,36 @@ const generateProcedures = (patients: any[], encounters: any[]) => {
     { code: 'CPT:31500', name: 'Endotracheal Intubation' },
     { code: 'CPT:71045', name: 'Chest X-Ray' }
   ];
+  
+  // Generate specific appointments for Dr. Carter for today
+  const drCarterPatients = patients.filter(p => p.primaryProviderId === drCarterId);
+  const today = new Date();
+  for (let i = 0; i < drCarterTodaysAppointments; i++) {
+      if (drCarterPatients.length > 0) {
+          const patient = drCarterPatients[i % drCarterPatients.length];
+          const proc = getRandomItem(procedureData);
+          const appointmentTime = new Date(today.setHours(9 + i, (i * 15) % 60, 0, 0));
+
+          procedures.push({
+              procedureId: faker.string.uuid(),
+              personId: patient.personId,
+              encounterId: faker.string.uuid(), // Can create a dummy encounter or link to a real one
+              procedureCode: proc.code,
+              procedureName: proc.name,
+              procedureDateTime: appointmentTime.toISOString(),
+              performingClinicianId: drCarterId,
+          });
+      }
+  }
+
+
+  // Generate random procedures for other encounters
   encounters.forEach(encounter => {
+    // Avoid creating duplicate procedures for today for Dr. Carter
+    if (encounter.attendingProviderId === drCarterId && new Date(encounter.admissionDatetime).toDateString() === today.toDateString()) {
+        return;
+    }
+
     if (Math.random() > 0.5) { // 50% chance of a procedure
       const proc = getRandomItem(procedureData);
       
@@ -234,15 +263,15 @@ const generateClinicalNotes = (encounters: any[]) => {
     return notes;
 }
 
-const generatePendingTasks = (users: any[], patients: any[]) => {
+const generatePendingTasks = (users: any[], patients: any[], drCarterTaskCount: number) => {
     const tasks = [];
     const physicianUsers = users.filter(u => u.role === 'physician');
     
-    // Create specific tasks for Dr. Carter for her patients
+    // Create specific tasks for Dr. Carter
     const drCarter = physicianUsers.find(u => u.id === drCarterId);
     const drCarterPatients = patients.filter(p => p.primaryProviderId === drCarterId);
     if (drCarter && drCarterPatients.length > 0) {
-        for(let i = 0; i < 3; i++) { // Create 3 tasks for Dr. Carter
+        for(let i = 0; i < drCarterTaskCount; i++) {
             const patient = drCarterPatients[i % drCarterPatients.length];
             tasks.push({
                 taskId: faker.string.uuid(),
@@ -278,14 +307,19 @@ const generatePendingTasks = (users: any[], patients: any[]) => {
 
 
 // Main generation function
-const generateAllData = (patientCount: number) => {
-    const samplePatients = generatePatients(patientCount);
+const generateAllData = ({
+    totalPatientCount,
+    drCarterPatientCount,
+    drCarterTodaysAppointments,
+    drCarterTaskCount
+}) => {
+    const samplePatients = generatePatients(totalPatientCount, drCarterPatientCount);
     const sampleEncounters = generateEncounters(samplePatients);
     const sampleConditions = generateConditions(samplePatients, sampleEncounters);
-    const sampleProcedures = generateProcedures(samplePatients, sampleEncounters);
+    const sampleProcedures = generateProcedures(samplePatients, sampleEncounters, drCarterTodaysAppointments);
     const sampleDrugExposures = generateDrugExposures(samplePatients, sampleEncounters);
     const sampleClinicalNotes = generateClinicalNotes(sampleEncounters);
-    const samplePendingTasks = generatePendingTasks(baseUsers, samplePatients);
+    const samplePendingTasks = generatePendingTasks(baseUsers, samplePatients, drCarterTaskCount);
 
     // Add active problem list to patients
     samplePatients.forEach(p => {
@@ -316,4 +350,9 @@ const generateAllData = (patientCount: number) => {
 };
 
 // Exporting the generator
-export const generatedData = generateAllData(100);
+export const generatedData = generateAllData({
+    totalPatientCount: 100,
+    drCarterPatientCount: 20,
+    drCarterTodaysAppointments: 10,
+    drCarterTaskCount: 10,
+});

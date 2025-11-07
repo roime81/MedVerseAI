@@ -31,7 +31,7 @@ export function RecentPatients() {
         const patientsQuery = query(
             collection(firestore, 'patients'), 
             where('primaryProviderId', '==', user.uid),
-            limit(3)
+            limit(10)
         );
         const patientSnapshots = await getDocs(patientsQuery);
         
