@@ -15,10 +15,10 @@ import { TreatmentJourney } from './treatment-journey';
 
 
 const kpiData = [
-    { title: "Today's Appointments", value: 12, icon: Calendar, color: "text-blue-500" },
-    { title: "Pending Tasks", value: allTasks.length, icon: AlertCircle, color: "text-orange-500" },
-    { title: "Active Patients", value: 156, icon: Users, color: "text-green-500" },
-    { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500" },
+    { title: "Today's Appointments", value: 12, icon: Calendar, color: "text-blue-500", id: "appointments" },
+    { title: "Pending Tasks", value: allTasks.length, icon: AlertCircle, color: "text-orange-500", id: "tasks" },
+    { title: "Active Patients", value: 156, icon: Users, color: "text-green-500", id: "patients" },
+    { title: "Avg. Wait Time", value: "15 min", icon: Clock, color: "text-purple-500", id: "wait-time" },
 ];
 
 const schedule = [
@@ -290,6 +290,7 @@ export default function PhysicianDashboard() {
   const [showAllPatients, setShowAllPatients] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
+  const [showActivePatients, setShowActivePatients] = useState(false);
   const { toast } = useToast();
   const [recentPatients, setRecentPatients] = useState(initialRecentPatients);
   const [selectedPatient, setSelectedPatient] = useState<RecentPatient | null>(null);
@@ -332,6 +333,11 @@ export default function PhysicianDashboard() {
     }
   };
 
+  const handleKpiClick = (id: string) => {
+    if (id === 'patients') {
+      setShowActivePatients(true);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -395,7 +401,11 @@ export default function PhysicianDashboard() {
         {/* KPI Cards */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {kpiData.map((kpi) => (
-              <Card key={kpi.title} className="flex items-center p-4">
+              <Card 
+                key={kpi.title} 
+                className={`flex items-center p-4 ${kpi.id === 'patients' ? 'cursor-pointer hover:bg-secondary/50' : ''}`}
+                onClick={() => handleKpiClick(kpi.id)}
+              >
                   <div className={`mr-4 p-3 rounded-lg bg-secondary ${kpi.color}`}>
                       <kpi.icon className="h-6 w-6" />
                   </div>
@@ -556,6 +566,40 @@ export default function PhysicianDashboard() {
             </Table>
         </DialogContent>
       </Dialog>
+      
+      <Dialog open={showActivePatients} onOpenChange={setShowActivePatients}>
+        <DialogContent className="max-w-4xl">
+            <DialogHeader>
+                <DialogTitle>All Active Patients</DialogTitle>
+                <DialogDescription>A complete list of all active patients in the system.</DialogDescription>
+            </DialogHeader>
+             <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>MRN</TableHead>
+                        <TableHead>Gender</TableHead>
+                        <TableHead>Last Seen</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {recentPatients.map((patient) => (
+                        <TableRow key={patient.mrn} className="cursor-pointer" onClick={() => {
+                            setSelectedPatient(patient);
+                            setShowActivePatients(false);
+                        }}>
+                            <TableCell className="font-medium">
+                                <Button variant="link" className="p-0 h-auto">{patient.name}</Button>
+                            </TableCell>
+                            <TableCell>{patient.mrn}</TableCell>
+                            <TableCell>{patient.gender}</TableCell>
+                            <TableCell>{patient.lastSeen}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showAllTasks} onOpenChange={setShowAllTasks}>
         <DialogContent className="max-w-4xl">
@@ -575,7 +619,7 @@ export default function PhysicianDashboard() {
                 </TableHeader>
                 <TableBody>
                     {allTasks.map((task, index) => (
-                        <TableRow key={index} className="cursor-pointer">
+                        <TableRow key={index} className="cursor-pointer" onClick={() => handleTaskClick(task.mrn)}>
                             <TableCell className="font-medium">{task.description}</TableCell>
                             <TableCell>{task.patient}</TableCell>
                             <TableCell>{task.mrn}</TableCell>
