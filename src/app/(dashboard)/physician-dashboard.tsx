@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { PatientDetailSheet } from './patient-detail-sheet';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TreatmentJourney } from './treatment-journey';
 import { Input } from '@/components/ui/input';
-import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, addDoc } from 'firebase/firestore';
 import type { Patient as PatientData, Task } from '@/lib/sample-data';
 
@@ -46,6 +47,7 @@ const PATIENTS_PER_PAGE = 5;
 
 export default function PhysicianDashboard() {
   const { firestore } = useFirebase();
+  const { user } = useUser();
 
   const [isFormOpen, setFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -69,7 +71,7 @@ export default function PhysicianDashboard() {
   const recentPatients = useMemo(() => {
     if (!allPatients) return [];
     // simple sort for recency for now
-    return allPatients.sort((a, b) => (a.lastSeen > b.lastSeen ? -1 : 1)).slice(0, 3);
+    return allPatients.sort((a, b) => (a.lastSeen && b.lastSeen && a.lastSeen > b.lastSeen ? -1 : 1)).slice(0, 3);
   }, [allPatients]);
   
   const handleSavePatient = async (data: PatientRegistrationData) => {
@@ -293,7 +295,7 @@ const treatmentJourneyLee: JourneyTask[] = [
         <header className="flex items-center justify-between">
           <div>
               <h1 className="font-headline text-3xl font-bold tracking-tight">
-              Welcome back, Dr. Anderson
+              Welcome back, {user?.displayName || 'Dr. Anderson'}
               </h1>
               <p className="text-muted-foreground">
               Here's what's happening today
@@ -413,7 +415,7 @@ const treatmentJourneyLee: JourneyTask[] = [
                                     <p className="text-sm text-muted-foreground">{patient.lastSeen}</p>
                                 </div>
                               </div>
-                              {patient.alerts > 0 && <Badge variant="destructive" className="flex items-center justify-center rounded-full h-6 w-6 p-0">{patient.alerts}</Badge>}
+                              {patient.alerts && patient.alerts > 0 && <Badge variant="destructive" className="flex items-center justify-center rounded-full h-6 w-6 p-0">{patient.alerts}</Badge>}
                           </div>
                           <div className="mt-3 flex flex-wrap gap-1">
                               {patient.conditions?.slice(0, 2).map((cond, j) => (

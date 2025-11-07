@@ -64,10 +64,21 @@ export function AppSidebar() {
   
   const userRole = user?.email ? emailToRole[user.email] : 'Patient';
 
-  const menuItems = allMenuItems.filter(item => {
+  let menuItems = allMenuItems.filter(item => {
     if (!item.roles || !userRole) return false;
     return item.roles.includes(userRole);
   });
+
+  if (userRole === 'Physician') {
+    menuItems = [
+        { 
+            href: '/', 
+            icon: LayoutDashboard, 
+            label: `${user?.displayName || 'Physician'}'s Dashboard`, 
+            roles: ['Physician'] 
+        }
+    ];
+  }
 
 
   return (

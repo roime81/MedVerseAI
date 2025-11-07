@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -282,18 +283,20 @@ export function PatientDetailSheet({
                       <CardContent className="space-y-3">
                         <DetailRow label="Phone" value={patient.contact.phone} />
                         <DetailRow label="Email" value={patient.contact.email} />
-                        <DetailRow
-                          label="Address"
-                          value={
-                            <>
-                              {patient.contact.address.line1}
-                              <br />
-                              {patient.contact.address.city},{' '}
-                              {patient.contact.address.state}{' '}
-                              {patient.contact.address.zip}
-                            </>
-                          }
-                        />
+                        {patient.contact.address && (
+                            <DetailRow
+                            label="Address"
+                            value={
+                                <>
+                                {patient.contact.address.line1}
+                                <br />
+                                {patient.contact.address.city},{' '}
+                                {patient.contact.address.state}{' '}
+                                {patient.contact.address.zip}
+                                </>
+                            }
+                            />
+                        )}
                         {patient.emergencyContact && (
                           <>
                             <Separator className="my-2"/>
@@ -453,9 +456,9 @@ export function PatientDetailSheet({
                             <CardHeader>
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <CardTitle className="text-lg">{visit.type}</CardTitle>
+                                        <CardTitle className="text-lg">{visit.type} at {visit.hospital}</CardTitle>
                                         <p className="text-sm text-muted-foreground">
-                                             {new Date(visit.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} &bull; {visit.doctor}
+                                             {new Date(visit.date).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })} &bull; {visit.doctor}
                                         </p>
                                     </div>
                                     <Button variant="outline" size="sm">View Full Note</Button>

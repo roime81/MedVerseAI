@@ -1,3 +1,4 @@
+
 export const staffProfiles: { [key: string]: { name: string; role: string; email: string, avatarId: string } } = {
   'Dr. Anderson': {
     name: 'Dr. Sarah Anderson',
@@ -21,6 +22,23 @@ export type Patient = {
   consultant: string;
   status: 'Occupied' | 'Discharging' | 'Admitted';
   mrn?: string;
+  visitHistory?: any[]; // Simplified for this example
+  conditions?: any[];
+  lastSeen?: string;
+  alerts?: number;
+  dob?: string;
+  gender?: 'Male' | 'Female' | 'Other';
+  ssnLast4?: string;
+  maritalStatus?: 'Married' | 'Single' | 'Divorced' | 'Widowed';
+  contact?: any;
+  emergencyContact?: any;
+  insurance?: any;
+  vitals?: any[];
+  medications?: any[];
+  labResults?: any[];
+  immunizationHistory?: any[];
+  socialHistory?: any;
+  familyHistory?: any[];
 };
 
 export type Ward = {
@@ -38,37 +56,85 @@ export type Task = {
   priority: 'High' | 'Medium' | 'Low';
 };
 
+const firstNames = ["John", "Jane", "Peter", "Mary", "David", "Sarah", "Michael", "Emily", "Jessica", "James", "Robert", "Patricia", "Linda", "William", "Elizabeth", "Richard", "Susan", "Joseph", "Karen", "Thomas"];
+const lastNames = ["Smith", "Doe", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Garcia", "Rodriguez", "Wilson", "Martinez", "Anderson", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson"];
+const hospitals = ["City General", "St. Lukes", "MetroWest", "County General", "University Hospital", "Riverside Medical", "Mountain View", "Central Hospital", "Oceanic Medical", "Sunnyside General"];
+const wards = ["Cardiology", "Orthopedics", "Neurology", "Pediatrics", "Oncology", "Geriatrics", "ICU", "Maternity", "Surgery", "Psychiatry"];
+const consultants = ["Dr. Evans", "Dr. Chen", "Dr. Rodriguez", "Dr. Williams", "Dr. Smith", "Dr. Jones"];
+const statuses: Patient['status'][] = ['Occupied', 'Discharging', 'Admitted'];
 
-export const allPatients: Patient[] = [
-  { id: 1, name: 'Jane Doe', ward: 'Cardiology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0001' },
-  { id: 2, name: 'John Smith', ward: 'Orthopedics', hospital: 'City General', consultant: 'Dr. Chen', status: 'Occupied', mrn: 'MRN-0002' },
-  { id: 3, name: 'Peter Jones', ward: 'Neurology', hospital: 'St. Lukes', consultant: 'Dr. Rodriguez', status: 'Occupied', mrn: 'MRN-0003' },
-  { id: 4, name: 'Mary Johnson', ward: 'Pediatrics', hospital: 'St. Lukes', consultant: 'Dr. Williams', status: 'Discharging', mrn: 'MRN-0004' },
-  { id: 5, name: 'David Williams', ward: 'Oncology', hospital: 'City General', consultant: 'Dr. Evans', status: 'Admitted', mrn: 'MRN-0005' },
-  { id: 6, name: 'Sarah Brown', ward: 'Cardiology', hospital: 'MetroWest', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0006' },
-  { id: 7, name: 'Michael Davis', ward: 'Geriatrics', hospital: 'MetroWest', consultant: 'Dr. Smith', status: 'Occupied', mrn: 'MRN-0007' },
-  { id: 8, name: 'Emily Miller', ward: 'ICU', hospital: 'City General', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0008' },
-  { id: 9, name: 'Jessica Garcia', ward: 'Maternity', hospital: 'St. Lukes', consultant: 'Dr. Jones', status: 'Discharging', mrn: 'MRN-0009' },
-  { id: 10, name: 'James Rodriguez', ward: 'Surgery', hospital: 'City General', consultant: 'Dr. Chen', status: 'Admitted', mrn: 'MRN-0010' },
-  { id: 11, name: 'Jane Doe', ward: 'Psychiatry', hospital: 'MetroWest', consultant: 'Dr. Rodriguez', status: 'Occupied', mrn: 'MRN-0011' },
-  { id: 12, name: 'John Smith', ward: 'Cardiology', hospital: 'St. Lukes', consultant: 'Dr. Evans', status: 'Occupied', mrn: 'MRN-0012' },
-  { id: 13, name: 'Peter Jones', ward: 'Oncology', hospital: 'City General', consultant: 'Dr. Rodriguez', status: 'Discharging', mrn: 'MRN-0013' },
-];
+const generateRandomPatient = (id: number): Patient => {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const name = `${firstName} ${lastName}`;
+    const hospital = hospitals[Math.floor(Math.random() * hospitals.length)];
 
-export const allWards: Ward[] = [
-  { name: 'Cardiology', hospital: 'City General', totalBeds: 20, occupiedBeds: 18 },
-  { name: 'Orthopedics', hospital: 'City General', totalBeds: 25, occupiedBeds: 22 },
-  { name: 'Oncology', hospital: 'City General', totalBeds: 15, occupiedBeds: 14 },
-  { name: 'ICU', hospital: 'City General', totalBeds: 10, occupiedBeds: 10 },
-  { name: 'Surgery', hospital: 'City General', totalBeds: 30, occupiedBeds: 25 },
-  { name: 'Neurology', hospital: 'St. Lukes', totalBeds: 18, occupiedBeds: 15 },
-  { name: 'Pediatrics', hospital: 'St. Lukes', totalBeds: 12, occupiedBeds: 8 },
-  { name: 'Maternity', hospital: 'St. Lukes', totalBeds: 15, occupiedBeds: 10 },
-  { name: 'Cardiology', hospital: 'St. Lukes', totalBeds: 20, occupiedBeds: 19 },
-  { name: 'Geriatrics', hospital: 'MetroWest', totalBeds: 30, occupiedBeds: 28 },
-  { name: 'Psychiatry', hospital: 'MetroWest', totalBeds: 22, occupiedBeds: 20 },
-  { name: 'Cardiology', hospital: 'MetroWest', totalBeds: 20, occupiedBeds: 15 },
-];
+    return {
+        id: id,
+        name: name,
+        ward: wards[Math.floor(Math.random() * wards.length)],
+        hospital: hospital,
+        consultant: consultants[Math.floor(Math.random() * consultants.length)],
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        mrn: `MRN-${1000 + id}`,
+        dob: new Date(1950 + Math.floor(Math.random() * 50), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+        gender: Math.random() > 0.5 ? 'Male' : 'Female',
+        lastSeen: new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toLocaleDateString(),
+        visitHistory: [{
+          type: 'Admission',
+          date: new Date().toISOString(),
+          doctor: consultants[Math.floor(Math.random() * consultants.length)],
+          chiefComplaint: 'Initial check-up',
+          diagnosis: 'Routine physical',
+          notes: 'Patient admitted for routine observation.',
+          hospital: hospital
+        }],
+    };
+};
+
+const generateAllPatients = (): Patient[] => {
+    const patients: Patient[] = [];
+    for (let i = 0; i < 1000; i++) {
+        patients.push(generateRandomPatient(i + 1));
+    }
+
+    // Add multi-hospital history to 70% of patients
+    for (let i = 0; i < 700; i++) {
+        const patient = patients[i];
+        const currentHospital = patient.hospital;
+        let otherHospital = currentHospital;
+        while(otherHospital === currentHospital) {
+            otherHospital = hospitals[Math.floor(Math.random() * hospitals.length)];
+        }
+        patient.visitHistory?.push({
+            type: 'Consultation',
+            date: new Date(2022, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
+            doctor: consultants[Math.floor(Math.random() * consultants.length)],
+            chiefComplaint: 'Follow-up',
+            diagnosis: 'Stable',
+            notes: 'Previous visit at another facility.',
+            hospital: otherHospital
+        });
+    }
+
+    return patients;
+}
+
+
+export const allPatients: Patient[] = generateAllPatients();
+
+export const allWards: Ward[] = hospitals.flatMap(hospital => 
+    wards.map(wardName => {
+        const totalBeds = Math.floor(Math.random() * 11) + 15; // 15-25 beds
+        const occupiedBeds = Math.floor(Math.random() * totalBeds);
+        return {
+            name: wardName,
+            hospital: hospital,
+            totalBeds: totalBeds,
+            occupiedBeds: occupiedBeds,
+        };
+    })
+);
 
 export const allTasks: Task[] = [
     { description: 'Review lab results', patient: 'David Lee', mrn: 'MRN-1055', time: '30 min ago', priority: 'High' },
