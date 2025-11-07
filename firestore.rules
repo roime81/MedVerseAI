@@ -9,12 +9,7 @@ service cloud.firestore {
 
     // Patients collection
     match /patients/{patientId} {
-      // Anyone can create a patient for now, but in a real app you'd restrict this.
-      allow create: if isSignedIn();
-
-      // Only authenticated users can read, update, or delete patient records.
-      // You would likely add more specific ownership-based rules here.
-      allow read, update, delete: if isSignedIn();
+      allow create, read, update, delete: if isSignedIn();
 
       // Sub-collections for patient-related data
       match /encounters/{encounterId} {
@@ -37,11 +32,26 @@ service cloud.firestore {
         allow read, write: if isSignedIn();
       }
     }
+    
+    // Rules for collection group queries
+    match /{path=**}/encounters/{encounterId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/conditions/{conditionId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/observations/{observationId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/measurements/{measurementId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/drugExposures/{drugExposureId} {
+      allow list: if isSignedIn();
+    }
 
     // Beds collection for occupancy management
     match /beds/{bedId} {
-      // Allow authenticated users to read and write bed information.
-      // In a real app, you might restrict write access to specific roles.
       allow read, write: if isSignedIn();
     }
   }
