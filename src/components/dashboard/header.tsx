@@ -16,15 +16,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth, useUser } from '@/firebase';
-import { initiateSignOut } from '@/firebase/non-blocking-login';
+import { signOut } from 'firebase/auth';
 import { Stethoscope } from 'lucide-react';
 
 export function Header() {
   const { user } = useUser();
   const auth = useAuth();
 
-  const handleSignOut = () => {
-    initiateSignOut(auth);
+  const handleSignOut = async () => {
+    if (!auth) return;
+    try {
+        await signOut(auth);
+        // After successful sign-out, redirect to home page.
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+    } catch (error) {
+        console.error("Sign-out error:", error);
+    }
   };
 
   return (
