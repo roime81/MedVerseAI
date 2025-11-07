@@ -260,7 +260,11 @@ export function PatientDetailSheet({
                                 <div>
                                     <p className="font-semibold">{med.name}</p>
                                     <p className="text-sm text-muted-foreground">{med.dosage} &bull; {med.frequency}</p>
-                                    <p className="text-xs text-muted-foreground mt-2">Prescribed by {med.prescriber}</p>
+                                    <div className="text-xs text-muted-foreground mt-2">Prescribed by{' '}
+                                        <Button variant="link" className="p-0 h-auto text-xs">
+                                            {med.prescriber}
+                                        </Button>
+                                    </div>
                                 </div>
                                 <div className="text-right">
                                     <Badge variant="outline" className="mb-2">{med.remaining} remaining</Badge>
