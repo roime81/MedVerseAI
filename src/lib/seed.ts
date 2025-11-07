@@ -15,6 +15,9 @@ import {
   sampleDrugExposures,
   sampleBeds,
   sampleCareSites,
+  sampleCosts,
+  samplePayerPlanPeriods,
+  sampleVisitDetails,
 } from './sample-data';
 
 async function seedDatabase() {
@@ -98,6 +101,38 @@ async function seedDatabase() {
       batch.set(careSiteRef, careSite);
     }
 
+    // Seed Costs
+    console.log(`Seeding ${sampleCosts.length} costs...`);
+    for (const cost of sampleCosts) {
+      const costRef = doc(
+        collection(db, 'patients', cost.personId, 'costs'),
+        cost.costId
+      );
+      batch.set(costRef, cost);
+    }
+
+    // Seed Payer Plan Periods
+    console.log(
+      `Seeding ${samplePayerPlanPeriods.length} payer plan periods...`
+    );
+    for (const plan of samplePayerPlanPeriods) {
+      const planRef = doc(
+        collection(db, 'patients', plan.personId, 'payerPlanPeriods'),
+        plan.payerPlanPeriodId
+      );
+      batch.set(planRef, plan);
+    }
+
+    // Seed Visit Details
+    console.log(`Seeding ${sampleVisitDetails.length} visit details...`);
+    for (const detail of sampleVisitDetails) {
+      const detailRef = doc(
+        collection(db, 'patients', detail.personId, 'visitDetails'),
+        detail.visitDetailId
+      );
+      batch.set(detailRef, detail);
+    }
+
     // Commit the batch
     await batch.commit();
     console.log('Database seeded successfully!');
@@ -110,3 +145,5 @@ seedDatabase().then(() => {
     // Manually exit the process because the Firebase connection keeps it alive.
     process.exit();
 });
+
+    

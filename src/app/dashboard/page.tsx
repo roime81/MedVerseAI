@@ -8,6 +8,9 @@ import MeasurementsTable from '@/components/dashboard/measurements-table';
 import DrugExposuresTable from '@/components/dashboard/drug-exposures-table';
 import BedsTable from '@/components/dashboard/beds-table';
 import HospitalsTable from '@/components/dashboard/hospitals-table';
+import CostsTable from '@/components/dashboard/costs-table';
+import PayerPlansTable from '@/components/dashboard/payer-plans-table';
+import VisitDetailsTable from '@/components/dashboard/visit-details-table';
 
 
 // MAIN DASHBOARD PAGE
@@ -23,6 +26,11 @@ export default function DashboardPage() {
       <MeasurementsTable />
       <DrugExposuresTable />
       <BedsTable />
+      <CostsTable />
+      <PayerPlansTable />
+      <VisitDetailsTable />
     </div>
   );
 }
+
+    

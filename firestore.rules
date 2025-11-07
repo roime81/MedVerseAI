@@ -31,6 +31,18 @@ service cloud.firestore {
       match /drugExposures/{drugExposureId} {
         allow read, write: if isSignedIn();
       }
+
+      match /costs/{costId} {
+        allow read, write: if isSignedIn();
+      }
+
+      match /payerPlanPeriods/{payerPlanPeriodId} {
+        allow read, write: if isSignedIn();
+      }
+
+      match /visitDetails/{visitDetailId} {
+        allow read, write: if isSignedIn();
+      }
     }
     
     // Rules for collection group queries
@@ -49,6 +61,15 @@ service cloud.firestore {
     match /{path=**}/drugExposures/{drugExposureId} {
       allow list: if isSignedIn();
     }
+    match /{path=**}/costs/{costId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/payerPlanPeriods/{payerPlanPeriodId} {
+      allow list: if isSignedIn();
+    }
+    match /{path=**}/visitDetails/{visitDetailId} {
+      allow list: if isSignedIn();
+    }
 
     // Beds collection for occupancy management
     match /beds/{bedId} {
@@ -61,3 +82,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

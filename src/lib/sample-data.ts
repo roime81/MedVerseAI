@@ -159,3 +159,74 @@ export const sampleCareSites = [
   { careSiteId: 'HOS-009', careSiteName: 'Mountain Ridge Cancer Center' },
   { careSiteId: 'HOS-010', careSiteName: 'Riverside Rehabilitation Hospital' },
 ];
+
+export const sampleCosts = [
+  {
+    costId: 'C-001',
+    personId: '1',
+    costEventId: '101',
+    costDomainId: 'Visit',
+    cost: 150.0,
+    paidByPayer: 120.0,
+    paidByPatient: 30.0,
+    revenueCode: '0450',
+  },
+  {
+    costId: 'C-002',
+    personId: '2',
+    costEventId: '102',
+    costDomainId: 'Visit',
+    cost: 12500.0,
+    paidByPayer: 10000.0,
+    paidByPatient: 2500.0,
+    revenueCode: '0121',
+  },
+];
+
+export const samplePayerPlanPeriods = [
+  {
+    payerPlanPeriodId: 'PPP-001',
+    personId: '1',
+    payerPlanPeriodStartDate: '2023-01-01',
+    payerPlanPeriodEndDate: '2023-12-31',
+    payerSourceName: 'United Health',
+    planSourceName: 'PPO-Gold',
+  },
+  {
+    payerPlanPeriodId: 'PPP-002',
+    personId: '2',
+    payerPlanPeriodStartDate: '2023-01-01',
+    payerPlanPeriodEndDate: '2023-12-31',
+    payerSourceName: 'Blue Cross',
+    planSourceName: 'HMO-Silver',
+  },
+];
+
+export const sampleVisitDetails = [
+  {
+    visitDetailId: 'VD-001',
+    personId: '1',
+    visitOccurrenceId: '101',
+    visitDetailConceptId: 'Office Visit',
+    visitDetailStartDate: '2023-01-10',
+    careSiteId: '1',
+  },
+  {
+    visitDetailId: 'VD-002',
+    personId: '2',
+    visitOccurrenceId: '102',
+    visitDetailConceptId: 'Inpatient Stay',
+    visitDetailStartDate: '2023-02-15',
+    careSiteId: '1',
+  },
+  {
+    visitDetailId: 'VD-003',
+    personId: '2',
+    visitOccurrenceId: '102',
+    visitDetailConceptId: 'X-Ray',
+    visitDetailStartDate: '2023-02-16',
+    careSiteId: '1',
+  },
+];
+
+    

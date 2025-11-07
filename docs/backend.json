@@ -288,6 +288,125 @@
         "careSiteId",
         "careSiteName"
       ]
+    },
+    "Cost": {
+      "title": "Cost",
+      "type": "object",
+      "description": "Represents billing and cost information for a clinical event.",
+      "properties": {
+        "costId": {
+          "type": "string",
+          "description": "Unique identifier for the Cost entity."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Identifier of the patient associated with this cost."
+        },
+        "costEventId": {
+          "type": "string",
+          "description": "ID of the clinical event this cost is for (e.g., visit_occurrence_id)."
+        },
+        "costDomainId": {
+          "type": "string",
+          "description": "The domain of the clinical event (e.g., 'Visit', 'Procedure')."
+        },
+        "cost": {
+          "type": "number",
+          "description": "The total charge for the event."
+        },
+        "paidByPayer": {
+          "type": "number",
+          "description": "Amount paid by the insurance payer."
+        },
+        "paidByPatient": {
+          "type": "number",
+          "description": "Amount paid by the patient (copay, coinsurance, deductible)."
+        },
+        "revenueCode": {
+          "type": "string",
+          "description": "Revenue code for the service."
+        }
+      },
+      "required": [
+        "costId",
+        "personId",
+        "costEventId"
+      ]
+    },
+    "PayerPlanPeriod": {
+      "title": "PayerPlanPeriod",
+      "type": "object",
+      "description": "Represents a patient's insurance coverage timeline.",
+      "properties": {
+        "payerPlanPeriodId": {
+          "type": "string",
+          "description": "Unique identifier for the PayerPlanPeriod entity."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Identifier of the patient."
+        },
+        "payerPlanPeriodStartDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Start date of the coverage."
+        },
+        "payerPlanPeriodEndDate": {
+          "type": "string",
+          "format": "date",
+          "description": "End date of the coverage."
+        },
+        "payerSourceName": {
+          "type": "string",
+          "description": "Name of the insurance payer (e.g., 'Blue Cross')."
+        },
+        "planSourceName": {
+          "type": "string",
+          "description": "Name of the insurance plan (e.g., 'PPO Gold')."
+        }
+      },
+      "required": [
+        "payerPlanPeriodId",
+        "personId",
+        "payerPlanPeriodStartDate"
+      ]
+    },
+    "VisitDetail": {
+      "title": "VisitDetail",
+      "type": "object",
+      "description": "Represents a specific claim line within a patient visit.",
+      "properties": {
+        "visitDetailId": {
+          "type": "string",
+          "description": "Unique identifier for the VisitDetail entity."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Identifier of the patient."
+        },
+        "visitOccurrenceId": {
+          "type": "string",
+          "description": "Identifier of the parent visit/encounter."
+        },
+        "visitDetailConceptId": {
+          "type": "string",
+          "description": "Concept identifying the service or product on the claim line."
+        },
+        "visitDetailStartDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Start date of the service on the claim line."
+        },
+        "careSiteId": {
+          "type": "string",
+          "description": "Identifier for the care site where the service was provided."
+        }
+      },
+      "required": [
+        "visitDetailId",
+        "personId",
+        "visitOccurrenceId"
+      ]
     }
   },
   "firestore": {
@@ -327,6 +446,24 @@
       },
       "description": "Sub-collection for a patient's drug exposures."
     },
+    "/patients/{patientId}/costs/{costId}": {
+      "schema": {
+        "$ref": "#/entities/Cost"
+      },
+      "description": "Sub-collection for a patient's billing costs."
+    },
+    "/patients/{patientId}/payerPlanPeriods/{payerPlanPeriodId}": {
+      "schema": {
+        "$ref": "#/entities/PayerPlanPeriod"
+      },
+      "description": "Sub-collection for a patient's insurance coverage history."
+    },
+    "/patients/{patientId}/visitDetails/{visitDetailId}": {
+      "schema": {
+        "$ref": "#/entities/VisitDetail"
+      },
+      "description": "Sub-collection for a patient's visit claim line details."
+    },
     "/beds/{bedId}": {
       "schema": {
         "$ref": "#/entities/Bed"
@@ -346,3 +483,5 @@
     ]
   }
 }
+
+    
