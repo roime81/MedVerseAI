@@ -15,6 +15,7 @@ import { Patient } from '@/lib/types';
 import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Hospital, Syringe, Link as LinkIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { ClinicalNoteDialog } from './clinical-note-dialog';
 
 
 interface PatientChartSheetProps {
@@ -23,7 +24,41 @@ interface PatientChartSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const sampleNotes = {
+    'note1': {
+        author: 'Dr. Emily Carter',
+        date: 'July 15, 2025',
+        type: 'Initial Consultation Note',
+        text: 'Patient presents with complaints of persistent fatigue and unexplained weight gain over the past 4-6 months. Denies any significant changes in diet or physical activity. Reports feeling sluggish throughout the day and experiencing increased sensitivity to cold. No history of thyroid issues in the family. Physical exam is largely unremarkable. Plan to order a full thyroid panel (TSH, T3, T4) and a complete blood count to investigate potential underlying causes.'
+    },
+    'note2': {
+        author: 'Dr. Emily Carter',
+        date: 'July 22, 2025',
+        type: 'Treatment Plan Note',
+        text: 'Lab results reviewed. TSH came back elevated at 8.2 mIU/L, confirming a diagnosis of primary hypothyroidism. Started patient on Levothyroxine 50mcg once daily. Discussed the nature of the condition, the importance of medication adherence, and potential side effects. Provided patient with educational materials. Advised on diet and lifestyle modifications to support thyroid health. Scheduled follow-up in 6 weeks to re-check TSH levels and adjust dosage as needed.'
+    },
+     'note3': {
+        author: 'Dr. Emily Carter',
+        date: 'September 5, 2025',
+        type: 'Follow-up Note',
+        text: 'Patient reports significant improvement in symptoms. Fatigue has decreased, and energy levels are better. Follow-up TSH level is 3.5 mIU/L, which is within the target range but could be optimized. To further alleviate remaining mild symptoms, dosage will be increased to Levothyroxine 75mcg daily. Patient understands the change and has no questions. Will continue to monitor. Next follow-up in 3 months.'
+    }
+};
+
+
 export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartSheetProps) {
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
+  const [selectedNote, setSelectedNote] = React.useState<{author: string; date: string; type: string; text: string} | null>(null);
+
+  const handleViewNote = (noteId: string) => {
+    const note = sampleNotes[noteId];
+    if (note) {
+      setSelectedNote(note);
+      setIsNoteDialogOpen(true);
+    }
+  };
+
+
   if (!patient) return null;
   
   const calculateAge = (dob: string) => {
@@ -207,7 +242,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 15, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
-                                        notesLink="#"
+                                        onViewNote={() => handleViewNote('note1')}
                                     />
                                     <TimelineItem 
                                         icon={HeartPulse}
@@ -222,7 +257,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 22, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
-                                        notesLink="#"
+                                        onViewNote={() => handleViewNote('note2')}
                                     />
                                      <TimelineItem 
                                         icon={Hospital}
@@ -230,7 +265,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="September 5, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
-                                        notesLink="#"
+                                        onViewNote={() => handleViewNote('note3')}
                                         isLast
                                     />
                                 </div>
@@ -240,6 +275,11 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                 </Tabs>
             </div>
         </div>
+        <ClinicalNoteDialog
+            isOpen={isNoteDialogOpen}
+            onOpenChange={setIsNoteDialogOpen}
+            note={selectedNote}
+        />
       </SheetContent>
     </Sheet>
   );
@@ -308,7 +348,7 @@ const LabResultItem = ({ testName, date, result, status, reference }: { testName
     </div>
 );
 
-const TimelineItem = ({ icon: Icon, title, date, description, clinician, notesLink, isLast = false }: { icon: React.ElementType, title: string, date: string, description: string, clinician?: string, notesLink?: string, isLast?: boolean }) => (
+const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewNote, isLast = false }: { icon: React.ElementType, title: string, date: string, description: string, clinician?: string, onViewNote?: () => void, isLast?: boolean }) => (
     <div className="relative pl-8">
         {!isLast && <div className="absolute left-3 top-5 -translate-x-1/2 h-full w-px bg-border"></div>}
         <div className="absolute left-3 top-1 h-6 w-6 bg-primary rounded-full flex items-center justify-center -translate-x-1/2">
@@ -326,8 +366,8 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, notesLi
                         <Link href="#" className="font-medium text-primary hover:underline">{clinician}</Link>
                     </div>
                 )}
-                {notesLink && (
-                     <Button variant="link" className="h-auto p-0 text-xs text-primary">
+                {onViewNote && (
+                     <Button variant="link" className="h-auto p-0 text-xs text-primary" onClick={onViewNote}>
                         <LinkIcon className="h-3 w-3 mr-1" />
                         View Notes
                     </Button>
