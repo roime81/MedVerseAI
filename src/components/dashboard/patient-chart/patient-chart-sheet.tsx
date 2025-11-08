@@ -49,8 +49,11 @@ const sampleJourneyNotes = [
 
 export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartSheetProps) {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
+  const [selectedNoteDate, setSelectedNoteDate] = React.useState<string | null>(null);
+
   
-  const handleViewNotes = () => {
+  const handleViewNotes = (date: string) => {
+    setSelectedNoteDate(date);
     setIsNoteDialogOpen(true);
   };
 
@@ -228,42 +231,42 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                     <TimelineItem 
                                         icon={Stethoscope}
                                         title="Outpatient Visit"
-                                        date="July 15, 2025"
+                                        date="2025-07-15T10:00:00Z"
                                         clinician="Dr. Emily Carter"
                                         description="Initial consultation for fatigue and weight gain."
-                                        onViewNote={handleViewNotes}
+                                        onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
                                     />
                                     <TimelineItem 
                                         icon={FlaskConical}
                                         title="Labs Ordered"
-                                        date="July 15, 2025"
+                                        date="2025-07-15T10:00:00Z"
                                         clinician="Dr. Emily Carter"
                                         description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
-                                        onViewNote={handleViewNotes}
+                                        onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
                                     />
                                     <TimelineItem 
                                         icon={HeartPulse}
                                         title="Diagnosis"
-                                        date="July 22, 2025"
+                                        date="2025-07-22T11:30:00Z"
                                         clinician="Dr. Emily Carter"
                                         description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
-                                        onViewNote={handleViewNotes}
+                                        onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
                                     />
                                     <TimelineItem 
                                         icon={Syringe}
                                         title="Treatment Started"
-                                        date="July 22, 2025"
+                                        date="2025-07-22T11:30:00Z"
                                         clinician="Dr. Emily Carter"
                                         description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
-                                        onViewNote={handleViewNotes}
+                                        onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
                                     />
                                      <TimelineItem 
                                         icon={Hospital}
                                         title="Follow-up Visit"
-                                        date="September 5, 2025"
+                                        date="2025-09-05T14:00:00Z"
                                         clinician="Dr. Emily Carter"
                                         description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
-                                        onViewNote={handleViewNotes}
+                                        onViewNote={() => handleViewNotes("2025-09-05T14:00:00Z")}
                                         isLast
                                     />
                                 </div>
@@ -277,6 +280,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
             isOpen={isNoteDialogOpen}
             onOpenChange={setIsNoteDialogOpen}
             notes={sampleJourneyNotes}
+            defaultDate={selectedNoteDate}
         />
       </SheetContent>
     </Sheet>
