@@ -25,38 +25,33 @@ interface PatientChartSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const sampleJourneyNotes = {
-    initialConsultation: {
+const sampleJourneyNotes = [
+    {
         author: 'Dr. Emily Carter',
-        date: 'July 15, 2025',
+        date: '2025-07-15T10:00:00Z',
         type: 'Initial Consultation Note',
         text: 'Patient presents with complaints of persistent fatigue and unexplained weight gain over the past 4-6 months. Denies any significant changes in diet or physical activity. Reports feeling sluggish throughout the day and experiencing increased sensitivity to cold. No history of thyroid issues in the family. Physical exam is largely unremarkable. Plan to order a full thyroid panel (TSH, T3, T4) and a complete blood count to investigate potential underlying causes.'
     },
-    treatmentPlan: {
+    {
         author: 'Dr. Emily Carter',
-        date: 'July 22, 2025',
+        date: '2025-07-22T11:30:00Z',
         type: 'Treatment Plan Note',
         text: 'Lab results reviewed. TSH came back elevated at 8.2 mIU/L, confirming a diagnosis of primary hypothyroidism. Started patient on Levothyroxine 50mcg once daily. Discussed the nature of the condition, the importance of medication adherence, and potential side effects. Provided patient with educational materials. Advised on diet and lifestyle modifications to support thyroid health. Scheduled follow-up in 6 weeks to re-check TSH levels and adjust dosage as needed.'
     },
-    followUp: {
+    {
         author: 'Dr. Emily Carter',
-        date: 'September 5, 2025',
+        date: '2025-09-05T14:00:00Z',
         type: 'Follow-up Note',
         text: 'Patient reports significant improvement in symptoms. Fatigue has decreased, and energy levels are better. Follow-up TSH level is 3.5 mIU/L, which is within the target range but could be optimized. To further alleviate remaining mild symptoms, dosage will be increased to Levothyroxine 75mcg daily. Patient understands the change and has no questions. Will continue to monitor. Next follow-up in 3 months.'
     }
-};
+];
 
 
 export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartSheetProps) {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
-  const [selectedNote, setSelectedNote] = React.useState<{author: string; date: string; type: string; text: string} | null>(null);
-
-  const handleViewNote = (noteKey: keyof typeof sampleJourneyNotes) => {
-    const note = sampleJourneyNotes[noteKey];
-    if (note) {
-      setSelectedNote(note);
-      setIsNoteDialogOpen(true);
-    }
+  
+  const handleViewNotes = () => {
+    setIsNoteDialogOpen(true);
   };
 
 
@@ -236,7 +231,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 15, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Initial consultation for fatigue and weight gain."
-                                        onViewNote={() => handleViewNote('initialConsultation')}
+                                        onViewNote={handleViewNotes}
                                     />
                                     <TimelineItem 
                                         icon={FlaskConical}
@@ -244,7 +239,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 15, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
-                                        onViewNote={() => handleViewNote('initialConsultation')}
+                                        onViewNote={handleViewNotes}
                                     />
                                     <TimelineItem 
                                         icon={HeartPulse}
@@ -252,7 +247,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 22, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
-                                        onViewNote={() => handleViewNote('treatmentPlan')}
+                                        onViewNote={handleViewNotes}
                                     />
                                     <TimelineItem 
                                         icon={Syringe}
@@ -260,7 +255,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 22, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
-                                        onViewNote={() => handleViewNote('treatmentPlan')}
+                                        onViewNote={handleViewNotes}
                                     />
                                      <TimelineItem 
                                         icon={Hospital}
@@ -268,7 +263,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="September 5, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
-                                        onViewNote={() => handleViewNote('followUp')}
+                                        onViewNote={handleViewNotes}
                                         isLast
                                     />
                                 </div>
@@ -281,7 +276,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
         <ClinicalNoteDialog
             isOpen={isNoteDialogOpen}
             onOpenChange={setIsNoteDialogOpen}
-            note={selectedNote}
+            notes={sampleJourneyNotes}
         />
       </SheetContent>
     </Sheet>
@@ -359,7 +354,7 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
         </div>
         <div className="mb-8 hover:bg-gray-50/50 p-2 rounded-md cursor-pointer" onClick={onViewNote}>
             <p className="font-semibold">{title}</p>
-            <p className="text-sm text-muted-foreground mb-1">{date}</p>
+            <p className="text-sm text-muted-foreground mb-1">{format(new Date(date), "MMMM dd, yyyy")}</p>
             <p className="text-sm mb-2">{description}</p>
             <div className="flex items-center gap-4 text-xs">
                 {clinician && (
@@ -372,11 +367,10 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
                 {onViewNote && (
                      <div className="flex items-center gap-1 text-primary">
                         <LinkIcon className="h-3 w-3" />
-                        <span>View Note</span>
+                        <span>View Notes</span>
                     </div>
                 )}
             </div>
         </div>
     </div>
 );
-
