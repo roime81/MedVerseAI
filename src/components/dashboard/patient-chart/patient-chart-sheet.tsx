@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Hospital, Syringe } from 'lucide-react';
 import { format } from 'date-fns';
 
 
@@ -183,6 +183,51 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                             </Card>
                         </div>
                     </TabsContent>
+                    <TabsContent value="visit-history">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center text-base font-semibold">
+                                    <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                                    Patient Journey
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pl-10">
+                                <div className="relative">
+                                    <TimelineItem 
+                                        icon={Stethoscope}
+                                        title="Outpatient Visit"
+                                        date="July 15, 2025"
+                                        description="Initial consultation with Dr. Carter for fatigue and weight gain."
+                                    />
+                                    <TimelineItem 
+                                        icon={FlaskConical}
+                                        title="Labs Ordered"
+                                        date="July 15, 2025"
+                                        description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
+                                    />
+                                    <TimelineItem 
+                                        icon={HeartPulse}
+                                        title="Diagnosis"
+                                        date="July 22, 2025"
+                                        description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
+                                    />
+                                    <TimelineItem 
+                                        icon={Syringe}
+                                        title="Treatment Started"
+                                        date="July 22, 2025"
+                                        description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
+                                    />
+                                     <TimelineItem 
+                                        icon={Hospital}
+                                        title="Follow-up Visit"
+                                        date="September 5, 2025"
+                                        description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
+                                        isLast
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
                 </Tabs>
             </div>
         </div>
@@ -250,6 +295,20 @@ const LabResultItem = ({ testName, date, result, status, reference }: { testName
         <div className="flex justify-between items-end mt-2">
             <p className="text-sm">Result: <span className="font-semibold">{result}</span></p>
             <p className="text-xs text-muted-foreground">Reference: {reference}</p>
+        </div>
+    </div>
+);
+
+const TimelineItem = ({ icon: Icon, title, date, description, isLast = false }: { icon: React.ElementType, title: string, date: string, description: string, isLast?: boolean }) => (
+    <div className="relative pl-8">
+        {!isLast && <div className="absolute left-3 top-5 h-full w-px bg-border -translate-x-1/2"></div>}
+        <div className="absolute left-3 top-1 h-6 w-6 bg-primary rounded-full flex items-center justify-center -translate-x-1/2">
+            <Icon className="h-4 w-4 text-primary-foreground" />
+        </div>
+        <div className="mb-8">
+            <p className="font-semibold">{title}</p>
+            <p className="text-sm text-muted-foreground mb-1">{date}</p>
+            <p className="text-sm">{description}</p>
         </div>
     </div>
 );
