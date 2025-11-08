@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope } from 'lucide-react';
 import { format } from 'date-fns';
 
 
@@ -112,6 +112,31 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                             </InfoCard>
                         </div>
                     </TabsContent>
+                    <TabsContent value="vitals">
+                      <div className="grid grid-cols-1 gap-6">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center text-base font-semibold">
+                              <Stethoscope className="mr-3 h-5 w-5 text-muted-foreground" />
+                              Vital Signs History
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <div className="rounded-lg border bg-card p-4">
+                                  <p className="font-medium mb-4">Nov 7, 2025</p>
+                                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
+                                      <VitalSignMetric label="Blood Pressure" value="116/74" />
+                                      <VitalSignMetric label="Heart Rate" value="68 bpm" />
+                                      <VitalSignMetric label="Temperature" value="98.2°F" />
+                                      <VitalSignMetric label="Weight" value="128 lbs" />
+                                      <VitalSignMetric label="Height" value="5'6&quot;" />
+                                      <VitalSignMetric label="BMI" value="20.7" />
+                                  </div>
+                              </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </TabsContent>
                 </Tabs>
             </div>
         </div>
@@ -140,5 +165,12 @@ const InfoItem = ({ label, value }: { label: string, value?: string | number }) 
     <div className="flex justify-between text-sm">
         <p className="text-muted-foreground">{label}:</p>
         <p className="font-medium text-right">{value}</p>
+    </div>
+);
+
+const VitalSignMetric = ({ label, value }: { label: string, value: string }) => (
+    <div>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="font-semibold text-lg">{value}</p>
     </div>
 );
