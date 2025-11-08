@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical } from 'lucide-react';
 import { format } from 'date-fns';
 
 
@@ -160,6 +160,29 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                             </Card>
                         </div>
                     </TabsContent>
+                     <TabsContent value="lab-results">
+                        <div className="grid grid-cols-1 gap-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center text-base font-semibold">
+                                        <FlaskConical className="mr-3 h-5 w-5 text-muted-foreground" />
+                                        Recent Laboratory Results
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <LabResultItem
+                                            testName="TSH"
+                                            date="Oct 30, 2025"
+                                            result="2.4 mIU/L"
+                                            status="Normal"
+                                            reference="0.4-4.0 mIU/L"
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
                 </Tabs>
             </div>
         </div>
@@ -211,6 +234,22 @@ const MedicationItem = ({ name, dose, prescribedBy, since, remaining }: { name: 
         <div className="flex justify-between items-end mt-4">
             <p className="text-xs text-muted-foreground">Prescribed by {prescribedBy}</p>
             <p className="text-xs text-muted-foreground">{since}</p>
+        </div>
+    </div>
+);
+
+const LabResultItem = ({ testName, date, result, status, reference }: { testName: string, date: string, result: string, status: "Normal" | "Abnormal", reference: string }) => (
+    <div className="rounded-lg border bg-card p-4">
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="font-semibold text-base">{testName}</p>
+                <p className="text-sm text-muted-foreground">{date}</p>
+            </div>
+            <Badge variant={status === "Normal" ? "default" : "destructive"} className={status === "Normal" ? "bg-gray-800" : ""}>{status}</Badge>
+        </div>
+        <div className="flex justify-between items-end mt-2">
+            <p className="text-sm">Result: <span className="font-semibold">{result}</span></p>
+            <p className="text-xs text-muted-foreground">Reference: {reference}</p>
         </div>
     </div>
 );
