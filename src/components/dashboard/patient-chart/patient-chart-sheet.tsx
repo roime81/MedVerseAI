@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Patient } from '@/lib/types';
+import { Appointment, Patient } from '@/lib/types';
 import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Hospital, Syringe, Link as LinkIcon, Activity, Users as UsersIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ import { ClinicalNoteDialog } from './clinical-note-dialog';
 
 interface PatientChartSheetProps {
   patient: Patient | null;
+  appointmentStatus?: Appointment['status'];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -47,7 +48,7 @@ const sampleJourneyNotes = [
 ];
 
 
-export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartSheetProps) {
+export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus }: PatientChartSheetProps) {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
   const [selectedNoteDate, setSelectedNoteDate] = React.useState<string | null>(null);
 
@@ -89,7 +90,9 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline"><Pencil className="mr-2 h-4 w-4" /> Edit</Button>
+                        {appointmentStatus === 'In Progress' && (
+                            <Button variant="outline"><Pencil className="mr-2 h-4 w-4" /> Edit</Button>
+                        )}
                         <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Export</Button>
                     </div>
                 </div>
@@ -459,3 +462,5 @@ const FamilyHistoryItem = ({ condition, relative, diagnosedAge }: { condition: s
         </div>
     </div>
 );
+
+    

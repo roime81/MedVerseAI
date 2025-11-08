@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -33,11 +34,11 @@ export function TodaysSchedule() {
   const firestore = useFirestore();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [isChartOpen, setIsChartOpen] = useState(false);
 
-  const handleOpenChart = (patient: Patient) => {
-    setSelectedPatient(patient);
+  const handleOpenChart = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
     setIsChartOpen(true);
   }
 
@@ -241,16 +242,17 @@ export function TodaysSchedule() {
                   <p className="text-sm text-muted-foreground">{`${appt.patient.age} yrs • ${appt.patient.reason}`}</p>
                 </div>
                 <Badge className={`font-semibold ${getStatusClass(appt.status)}`}>{appt.status}</Badge>
-                <Button variant="ghost" size="sm" onClick={() => handleOpenChart(appt.patient)}>Open Chart</Button>
+                <Button variant="ghost" size="sm" onClick={() => handleOpenChart(appt)}>Open Chart</Button>
               </div>
             ))}
           </div>
         )}
       </CardContent>
     </Card>
-     {selectedPatient && (
+     {selectedAppointment && (
         <PatientChartSheet 
-            patient={selectedPatient}
+            patient={selectedAppointment.patient}
+            appointmentStatus={selectedAppointment.status}
             open={isChartOpen}
             onOpenChange={setIsChartOpen}
         />
@@ -258,3 +260,5 @@ export function TodaysSchedule() {
     </>
   );
 }
+
+    
