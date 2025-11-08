@@ -56,7 +56,7 @@ export function TodaysSchedule() {
                            procDate.getMonth() === today.getMonth() &&
                            procDate.getDate() === today.getDate();
                 })
-                .map(p => {
+                .map((p, index) => {
                     const patient = generatedData.samplePatients.find(pat => pat.personId === p.personId);
                     if (!patient) return null;
                      const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('');
@@ -80,7 +80,7 @@ export function TodaysSchedule() {
                             age: calculateAge(patient.dateOfBirth),
                             reason: p.procedureName,
                         },
-                        status: 'Scheduled' as Appointment['status'],
+                        status: index === 0 ? 'In Progress' : 'Scheduled' as Appointment['status'],
                     }
                 })
                 .filter(Boolean) as Appointment[];
@@ -118,7 +118,7 @@ export function TodaysSchedule() {
                        procDate.getMonth() === today.getMonth() &&
                        procDate.getDate() === today.getDate();
             })
-            .map(p => {
+            .map((p, index) => {
                 const patient = generatedData.samplePatients.find(pat => pat.personId === p.personId);
                 if (!patient) return null;
                  const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('');
@@ -130,7 +130,6 @@ export function TodaysSchedule() {
                       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                           age--;
                       }
-                      return age;
                   }
 
                 return {
@@ -142,7 +141,7 @@ export function TodaysSchedule() {
                         age: calculateAge(patient.dateOfBirth),
                         reason: p.procedureName,
                     },
-                    status: 'Scheduled' as Appointment['status'],
+                    status: index === 0 ? 'In Progress' : 'Scheduled' as Appointment['status'],
                 }
             })
             .filter(Boolean) as Appointment[];
@@ -180,7 +179,6 @@ export function TodaysSchedule() {
                   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                       age--;
                   }
-                  return age;
               }
 
               appointmentsData.push({
@@ -201,6 +199,10 @@ export function TodaysSchedule() {
 
       // Sort appointments by time
       appointmentsData.sort((a, b) => a.time.localeCompare(b.time));
+
+      if (appointmentsData.length > 0) {
+        appointmentsData[0].status = 'In Progress';
+      }
 
       setAppointments(appointmentsData);
       setIsLoading(false);
@@ -260,5 +262,7 @@ export function TodaysSchedule() {
     </>
   );
 }
+
+    
 
     
