@@ -15,6 +15,7 @@ import { collection, query, where, Timestamp, getDocs, doc, getDoc, orderBy } fr
 import { useEffect, useState } from 'react';
 import { Patient } from '@/lib/types';
 import { generatedData } from '@/lib/sample-data';
+import { PatientChartSheet } from '../patient-chart/patient-chart-sheet';
 
 
 const getStatusClass = (status: Appointment['status']) => {
@@ -32,6 +33,13 @@ export function TodaysSchedule() {
   const firestore = useFirestore();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [isChartOpen, setIsChartOpen] = useState(false);
+
+  const handleOpenChart = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setIsChartOpen(true);
+  }
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -65,6 +73,7 @@ export function TodaysSchedule() {
                     return {
                         time: new Date(p.procedureDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
                         patient: {
+                            ...(patient as Patient),
                             name: patient.fullName,
                             initials: getInitials(patient.fullName),
                             age: calculateAge(patient.dateOfBirth),
@@ -89,8 +98,6 @@ export function TodaysSchedule() {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      // This query requires an index. To avoid this, we fetch all procedures for the user
-      // and then filter by date on the client side.
       const proceduresQuery = query(
         collection(firestore, 'procedures'),
         where('performingClinicianId', '==', user.uid)
@@ -128,6 +135,7 @@ export function TodaysSchedule() {
                 return {
                     time: new Date(p.procedureDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
                     patient: {
+                        ...(patient as Patient),
                         name: patient.fullName,
                         initials: getInitials(patient.fullName),
                         age: calculateAge(patient.dateOfBirth),
@@ -177,6 +185,8 @@ export function TodaysSchedule() {
               appointmentsData.push({
                 time: procedureTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
                 patient: {
+                  ...patientData,
+                  id: patientDoc.id,
                   name: patientData.fullName,
                   initials: getInitials(patientData.fullName),
                   age: calculateAge(patientData.dateOfBirth),
@@ -200,6 +210,7 @@ export function TodaysSchedule() {
 
 
   return (
+    <>
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-grotesk text-lg">Today's Schedule</CardTitle>
@@ -230,12 +241,20 @@ export function TodaysSchedule() {
                   <p className="text-sm text-muted-foreground">{`${appt.patient.age} yrs • ${appt.patient.reason}`}</p>
                 </div>
                 <Badge className={`font-semibold ${getStatusClass(appt.status)}`}>{appt.status}</Badge>
-                <Button variant="ghost" size="sm">Open Chart</Button>
+                <Button variant="ghost" size="sm" onClick={() => handleOpenChart(appt.patient)}>Open Chart</Button>
               </div>
             ))}
           </div>
         )}
       </CardContent>
     </Card>
+     {selectedPatient && (
+        <PatientChartSheet 
+            patient={selectedPatient}
+            open={isChartOpen}
+            onOpenChange={setIsChartOpen}
+        />
+     )}
+    </>
   );
 }

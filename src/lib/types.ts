@@ -8,16 +8,14 @@ export interface Patient extends PatientSchema {
     conditions?: Condition[];
     alerts?: number;
     initials?: string;
+    name?: string;
+    age?: number;
+    reason?: string;
 }
 
 export interface Appointment {
   time: string;
-  patient: {
-    initials: string;
-    name: string;
-    age: number;
-    reason: string;
-  };
+  patient: Patient;
   status: 'Completed' | 'In Progress' | 'Waiting' | 'Scheduled';
 }
 
