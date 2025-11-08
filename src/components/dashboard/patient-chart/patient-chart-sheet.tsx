@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill } from 'lucide-react';
 import { format } from 'date-fns';
 
 
@@ -137,6 +137,29 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                         </Card>
                       </div>
                     </TabsContent>
+                    <TabsContent value="medications">
+                        <div className="grid grid-cols-1 gap-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center text-base font-semibold">
+                                        <Pill className="mr-3 h-5 w-5 text-muted-foreground" />
+                                        Current Medications
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <MedicationItem 
+                                            name="Levothyroxine"
+                                            dose="75mcg • Once daily"
+                                            prescribedBy="Dr. Anderson"
+                                            since="Since Mar 2019"
+                                            remaining={6}
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
                 </Tabs>
             </div>
         </div>
@@ -172,5 +195,22 @@ const VitalSignMetric = ({ label, value }: { label: string, value: string }) => 
     <div>
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="font-semibold text-lg">{value}</p>
+    </div>
+);
+
+
+const MedicationItem = ({ name, dose, prescribedBy, since, remaining }: { name: string, dose: string, prescribedBy: string, since: string, remaining: number }) => (
+    <div className="rounded-lg border bg-card p-4">
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="font-semibold text-base">{name}</p>
+                <p className="text-sm text-muted-foreground">{dose}</p>
+            </div>
+            <Badge variant="outline">{remaining} remaining</Badge>
+        </div>
+        <div className="flex justify-between items-end mt-4">
+            <p className="text-xs text-muted-foreground">Prescribed by {prescribedBy}</p>
+            <p className="text-xs text-muted-foreground">{since}</p>
+        </div>
     </div>
 );
