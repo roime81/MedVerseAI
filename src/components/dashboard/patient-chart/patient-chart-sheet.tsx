@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Hospital, Syringe, Link as LinkIcon } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Hospital, Syringe, Link as LinkIcon, Activity, Users as UsersIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ClinicalNoteDialog } from './clinical-note-dialog';
@@ -273,6 +273,56 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                             </CardContent>
                         </Card>
                     </TabsContent>
+                    <TabsContent value="other">
+                        <div className="grid grid-cols-1 gap-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center text-base font-semibold">
+                                        <Activity className="mr-3 h-5 w-5 text-muted-foreground" />
+                                        Immunization History
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <ImmunizationItem
+                                        name="Influenza"
+                                        administeredBy="Dr. Anderson"
+                                        date="Oct 10, 2025"
+                                    />
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center text-base font-semibold">
+                                        <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                                        Social History
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                                        <SocialHistoryItem label="Smoking Status" value="Never" />
+                                        <SocialHistoryItem label="Alcohol Use" value="Occasional (1 drink/week)" />
+                                        <SocialHistoryItem label="Exercise" value="Running 3x/week" />
+                                        <SocialHistoryItem label="Occupation" value="Software Engineer" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center text-base font-semibold">
+                                        <UsersIcon className="mr-3 h-5 w-5 text-muted-foreground" />
+                                        Family History
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <FamilyHistoryItem
+                                        condition="Hypothyroidism"
+                                        relative="Mother"
+                                        diagnosedAge={52}
+                                    />
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
                 </Tabs>
             </div>
         </div>
@@ -375,6 +425,37 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
                     </div>
                 )}
             </div>
+        </div>
+    </div>
+);
+
+const ImmunizationItem = ({ name, administeredBy, date }: { name: string, administeredBy: string, date: string }) => (
+    <div className="rounded-lg bg-secondary/50 p-4">
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="font-semibold text-base">{name}</p>
+                <p className="text-sm text-muted-foreground">Administered by {administeredBy}</p>
+            </div>
+            <p className="text-sm font-medium">{date}</p>
+        </div>
+    </div>
+);
+
+const SocialHistoryItem = ({ label, value }: { label: string, value: string }) => (
+    <div>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="font-semibold">{value}</p>
+    </div>
+);
+
+const FamilyHistoryItem = ({ condition, relative, diagnosedAge }: { condition: string, relative: string, diagnosedAge: number }) => (
+    <div className="rounded-lg bg-secondary/50 p-4">
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="font-semibold text-base">{condition}</p>
+                <p className="text-sm text-muted-foreground">{relative}</p>
+            </div>
+            <p className="text-sm font-medium">Diagnosed at {diagnosedAge}</p>
         </div>
     </div>
 );
