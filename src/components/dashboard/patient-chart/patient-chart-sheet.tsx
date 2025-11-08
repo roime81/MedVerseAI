@@ -17,6 +17,7 @@ import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, Hear
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ClinicalNoteDialog } from './clinical-note-dialog';
+import { EncounterNoteDialog } from './encounter-note-dialog';
 
 
 interface PatientChartSheetProps {
@@ -24,6 +25,7 @@ interface PatientChartSheetProps {
   appointmentStatus?: Appointment['status'];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAppointmentComplete: () => void;
 }
 
 const sampleJourneyNotes = [
@@ -48,14 +50,23 @@ const sampleJourneyNotes = [
 ];
 
 
-export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus }: PatientChartSheetProps) {
+export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus, onAppointmentComplete }: PatientChartSheetProps) {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
+  const [isEncounterNoteDialogOpen, setIsEncounterNoteDialogOpen] = React.useState(false);
   const [selectedNoteDate, setSelectedNoteDate] = React.useState<string | null>(null);
 
   
   const handleViewNotes = (date: string) => {
     setSelectedNoteDate(date);
     setIsNoteDialogOpen(true);
+  };
+  
+  const handleSaveEncounterNote = () => {
+    // Here you would typically save the note to the backend
+    console.log("Encounter note saved.");
+    setIsEncounterNoteDialogOpen(false);
+    onAppointmentComplete(); // Trigger the status update
+    onOpenChange(false); // Close the patient chart sheet
   };
 
 
@@ -73,270 +84,280 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full max-w-4xl sm:max-w-4xl p-0">
-        <div className="flex h-full flex-col">
-            <SheetHeader className="p-6 border-b">
-                <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-16 w-16">
-                            <AvatarFallback className="text-xl bg-primary/20 text-primary font-bold">{patient.initials}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h2 className="text-2xl font-bold font-grotesk">{patient.fullName}</h2>
-                            <p className="text-muted-foreground">
-                                MRN: {patient.personId.substring(0, 8)} • {calculateAge(patient.dateOfBirth)} years old • {patient.gender}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {appointmentStatus === 'In Progress' && (
-                            <Button variant="outline"><Pencil className="mr-2 h-4 w-4" /> Edit</Button>
-                        )}
-                        <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Export</Button>
-                    </div>
-                </div>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto p-6">
-                <Tabs defaultValue="overview">
-                    <TabsList className="mb-4">
-                        <TabsTrigger value="overview">Overview</TabsTrigger>
-                        <TabsTrigger value="vitals">Vitals</TabsTrigger>
-                        <TabsTrigger value="medications">Medications</TabsTrigger>
-                        <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
-                        <TabsTrigger value="visit-history">Visit History</TabsTrigger>
-                        <TabsTrigger value="other">Other</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="overview">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                            <InfoCard icon={User} title="Demographics" className="xl:col-span-1">
-                                <InfoItem label="Date of Birth" value={format(new Date(patient.dateOfBirth), 'MMMM dd, yyyy')} />
-                                <InfoItem label="Gender" value={patient.gender} />
-                                <InfoItem label="SSN" value={`***-**-${patient.nationalId?.slice(-4)}`} />
-                                <InfoItem label="Marital Status" value={patient.maritalStatus} />
-                            </InfoCard>
-                            
-                            <InfoCard icon={Phone} title="Contact Information" className="xl:col-span-1">
-                                <InfoItem label="Phone" value={patient.contactInfo} />
-                                <InfoItem label="Email" value={patient.contactInfo} />
-                                <InfoItem label="Address" value={patient.address?.split(',')[0]} />
-                                <InfoItem label="City" value={patient.address?.split(',').slice(1).join(', ')} />
-                                <InfoItem label="Emergency Contact" value={patient.emergencyContact?.split(',')[0]} />
-                                <InfoItem label="Emergency Phone" value={patient.emergencyContact?.split(',')[1]} />
-                            </InfoCard>
-
-                            <InfoCard icon={Briefcase} title="Insurance" className="xl:col-span-1">
-                                <InfoItem label="Provider" value="Blue Cross Blue Shield" />
-                                <InfoItem label="Policy Number" value={patient.insuranceNumber} />
-                                <InfoItem label="Group Number" value="GRP-7890" />
-                                <InfoItem label="Subscriber" value={patient.fullName} />
-                            </InfoCard>
-
-                             <InfoCard icon={AlertTriangle} title="Allergies" className="xl:col-span-1">
-                                {patient.allergyFlag !== 'None' ? (
-                                    <Badge variant="destructive">{patient.allergyFlag}</Badge>
-                                ): (
-                                    <p className="text-sm text-muted-foreground">No known allergies.</p>
-                                )}
-                            </InfoCard>
-
-                             <InfoCard icon={HeartPulse} title="Active Conditions" className="xl:col-span-2">
-                                <div className="flex flex-wrap gap-2">
-                                    {patient.activeProblemList?.split(', ').map((problem, index) => (
-                                        problem && <Badge key={index} variant="secondary">{problem}</Badge>
-                                    ))}
-                                    {!patient.activeProblemList && <p className="text-sm text-muted-foreground">No active conditions.</p>}
-                                </div>
-                            </InfoCard>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="vitals">
-                      <div className="grid grid-cols-1 gap-6">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="flex items-center text-base font-semibold">
-                              <Stethoscope className="mr-3 h-5 w-5 text-muted-foreground" />
-                              Vital Signs History
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                              <div className="rounded-lg border bg-card p-4">
-                                  <p className="font-medium mb-4">Nov 7, 2025</p>
-                                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
-                                      <VitalSignMetric label="Blood Pressure" value="116/74" />
-                                      <VitalSignMetric label="Heart Rate" value="68 bpm" />
-                                      <VitalSignMetric label="Temperature" value="98.2°F" />
-                                      <VitalSignMetric label="Weight" value="128 lbs" />
-                                      <VitalSignMetric label="Height" value="5'6&quot;" />
-                                      <VitalSignMetric label="BMI" value="20.7" />
-                                  </div>
-                              </div>
-                          </CardContent>
-                        </Card>
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="w-full max-w-4xl sm:max-w-4xl p-0">
+          <div className="flex h-full flex-col">
+              <SheetHeader className="p-6 border-b">
+                  <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                          <Avatar className="h-16 w-16">
+                              <AvatarFallback className="text-xl bg-primary/20 text-primary font-bold">{patient.initials}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                              <h2 className="text-2xl font-bold font-grotesk">{patient.fullName}</h2>
+                              <p className="text-muted-foreground">
+                                  MRN: {patient.personId.substring(0, 8)} • {calculateAge(patient.dateOfBirth)} years old • {patient.gender}
+                              </p>
+                          </div>
                       </div>
-                    </TabsContent>
-                    <TabsContent value="medications">
+                      <div className="flex items-center gap-2">
+                          {appointmentStatus === 'In Progress' && (
+                              <Button variant="outline" onClick={() => setIsEncounterNoteDialogOpen(true)}><Pencil className="mr-2 h-4 w-4" /> Edit</Button>
+                          )}
+                          <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Export</Button>
+                      </div>
+                  </div>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto p-6">
+                  <Tabs defaultValue="overview">
+                      <TabsList className="mb-4">
+                          <TabsTrigger value="overview">Overview</TabsTrigger>
+                          <TabsTrigger value="vitals">Vitals</TabsTrigger>
+                          <TabsTrigger value="medications">Medications</TabsTrigger>
+                          <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
+                          <TabsTrigger value="visit-history">Visit History</TabsTrigger>
+                          <TabsTrigger value="other">Other</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="overview">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                              <InfoCard icon={User} title="Demographics" className="xl:col-span-1">
+                                  <InfoItem label="Date of Birth" value={format(new Date(patient.dateOfBirth), 'MMMM dd, yyyy')} />
+                                  <InfoItem label="Gender" value={patient.gender} />
+                                  <InfoItem label="SSN" value={`***-**-${patient.nationalId?.slice(-4)}`} />
+                                  <InfoItem label="Marital Status" value={patient.maritalStatus} />
+                              </InfoCard>
+                              
+                              <InfoCard icon={Phone} title="Contact Information" className="xl:col-span-1">
+                                  <InfoItem label="Phone" value={patient.contactInfo} />
+                                  <InfoItem label="Email" value={patient.contactInfo} />
+                                  <InfoItem label="Address" value={patient.address?.split(',')[0]} />
+                                  <InfoItem label="City" value={patient.address?.split(',').slice(1).join(', ')} />
+                                  <InfoItem label="Emergency Contact" value={patient.emergencyContact?.split(',')[0]} />
+                                  <InfoItem label="Emergency Phone" value={patient.emergencyContact?.split(',')[1]} />
+                              </InfoCard>
+
+                              <InfoCard icon={Briefcase} title="Insurance" className="xl:col-span-1">
+                                  <InfoItem label="Provider" value="Blue Cross Blue Shield" />
+                                  <InfoItem label="Policy Number" value={patient.insuranceNumber} />
+                                  <InfoItem label="Group Number" value="GRP-7890" />
+                                  <InfoItem label="Subscriber" value={patient.fullName} />
+                              </InfoCard>
+
+                               <InfoCard icon={AlertTriangle} title="Allergies" className="xl:col-span-1">
+                                  {patient.allergyFlag !== 'None' ? (
+                                      <Badge variant="destructive">{patient.allergyFlag}</Badge>
+                                  ): (
+                                      <p className="text-sm text-muted-foreground">No known allergies.</p>
+                                  )}
+                              </InfoCard>
+
+                               <InfoCard icon={HeartPulse} title="Active Conditions" className="xl:col-span-2">
+                                  <div className="flex flex-wrap gap-2">
+                                      {patient.activeProblemList?.split(', ').map((problem, index) => (
+                                          problem && <Badge key={index} variant="secondary">{problem}</Badge>
+                                      ))}
+                                      {!patient.activeProblemList && <p className="text-sm text-muted-foreground">No active conditions.</p>}
+                                  </div>
+                              </InfoCard>
+                          </div>
+                      </TabsContent>
+                      <TabsContent value="vitals">
                         <div className="grid grid-cols-1 gap-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-base font-semibold">
-                                        <Pill className="mr-3 h-5 w-5 text-muted-foreground" />
-                                        Current Medications
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <MedicationItem 
-                                            name="Levothyroxine"
-                                            dose="75mcg • Once daily"
-                                            prescribedBy="Dr. Anderson"
-                                            since="Since Mar 2019"
-                                            remaining={6}
-                                        />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
-                     <TabsContent value="lab-results">
-                        <div className="grid grid-cols-1 gap-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-base font-semibold">
-                                        <FlaskConical className="mr-3 h-5 w-5 text-muted-foreground" />
-                                        Recent Laboratory Results
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <LabResultItem
-                                            testName="TSH"
-                                            date="Oct 30, 2025"
-                                            result="2.4 mIU/L"
-                                            status="Normal"
-                                            reference="0.4-4.0 mIU/L"
-                                        />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="visit-history">
-                        <Card>
+                          <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center text-base font-semibold">
-                                    <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
-                                    Patient Journey
-                                </CardTitle>
+                              <CardTitle className="flex items-center text-base font-semibold">
+                                <Stethoscope className="mr-3 h-5 w-5 text-muted-foreground" />
+                                Vital Signs History
+                              </CardTitle>
                             </CardHeader>
-                            <CardContent className="pl-10">
-                                <div className="relative">
-                                    <TimelineItem 
-                                        icon={Stethoscope}
-                                        title="Outpatient Visit"
-                                        date="2025-07-15T10:00:00Z"
-                                        clinician="Dr. Emily Carter"
-                                        description="Initial consultation for fatigue and weight gain."
-                                        onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
-                                    />
-                                    <TimelineItem 
-                                        icon={FlaskConical}
-                                        title="Labs Ordered"
-                                        date="2025-07-15T10:00:00Z"
-                                        clinician="Dr. Emily Carter"
-                                        description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
-                                        onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
-                                    />
-                                    <TimelineItem 
-                                        icon={HeartPulse}
-                                        title="Diagnosis"
-                                        date="2025-07-22T11:30:00Z"
-                                        clinician="Dr. Emily Carter"
-                                        description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
-                                        onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
-                                    />
-                                    <TimelineItem 
-                                        icon={Syringe}
-                                        title="Treatment Started"
-                                        date="2025-07-22T11:30:00Z"
-                                        clinician="Dr. Emily Carter"
-                                        description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
-                                        onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
-                                    />
-                                     <TimelineItem 
-                                        icon={Hospital}
-                                        title="Follow-up Visit"
-                                        date="2025-09-05T14:00:00Z"
-                                        clinician="Dr. Emily Carter"
-                                        description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
-                                        onViewNote={() => handleViewNotes("2025-09-05T14:00:00Z")}
-                                        isLast
-                                    />
+                            <CardContent>
+                                <div className="rounded-lg border bg-card p-4">
+                                    <p className="font-medium mb-4">Nov 7, 2025</p>
+                                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
+                                        <VitalSignMetric label="Blood Pressure" value="116/74" />
+                                        <VitalSignMetric label="Heart Rate" value="68 bpm" />
+                                        <VitalSignMetric label="Temperature" value="98.2°F" />
+                                        <VitalSignMetric label="Weight" value="128 lbs" />
+                                        <VitalSignMetric label="Height" value="5'6&quot;" />
+                                        <VitalSignMetric label="BMI" value="20.7" />
+                                    </div>
                                 </div>
                             </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value="other">
-                        <div className="grid grid-cols-1 gap-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-base font-semibold">
-                                        <Activity className="mr-3 h-5 w-5 text-muted-foreground" />
-                                        Immunization History
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ImmunizationItem
-                                        name="Influenza"
-                                        administeredBy="Dr. Anderson"
-                                        date="Oct 10, 2025"
-                                    />
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-base font-semibold">
-                                        <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
-                                        Social History
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                                        <SocialHistoryItem label="Smoking Status" value="Never" />
-                                        <SocialHistoryItem label="Alcohol Use" value="Occasional (1 drink/week)" />
-                                        <SocialHistoryItem label="Exercise" value="Running 3x/week" />
-                                        <SocialHistoryItem label="Occupation" value="Software Engineer" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-base font-semibold">
-                                        <UsersIcon className="mr-3 h-5 w-5 text-muted-foreground" />
-                                        Family History
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <FamilyHistoryItem
-                                        condition="Hypothyroidism"
-                                        relative="Mother"
-                                        diagnosedAge={52}
-                                    />
-                                </CardContent>
-                            </Card>
+                          </Card>
                         </div>
-                    </TabsContent>
-                </Tabs>
-            </div>
-        </div>
-        <ClinicalNoteDialog
-            isOpen={isNoteDialogOpen}
-            onOpenChange={setIsNoteDialogOpen}
-            notes={sampleJourneyNotes}
-            defaultDate={selectedNoteDate}
+                      </TabsContent>
+                      <TabsContent value="medications">
+                          <div className="grid grid-cols-1 gap-6">
+                              <Card>
+                                  <CardHeader>
+                                      <CardTitle className="flex items-center text-base font-semibold">
+                                          <Pill className="mr-3 h-5 w-5 text-muted-foreground" />
+                                          Current Medications
+                                      </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                      <div className="space-y-4">
+                                          <MedicationItem 
+                                              name="Levothyroxine"
+                                              dose="75mcg • Once daily"
+                                              prescribedBy="Dr. Anderson"
+                                              since="Since Mar 2019"
+                                              remaining={6}
+                                          />
+                                      </div>
+                                  </CardContent>
+                              </Card>
+                          </div>
+                      </TabsContent>
+                       <TabsContent value="lab-results">
+                          <div className="grid grid-cols-1 gap-6">
+                              <Card>
+                                  <CardHeader>
+                                      <CardTitle className="flex items-center text-base font-semibold">
+                                          <FlaskConical className="mr-3 h-5 w-5 text-muted-foreground" />
+                                          Recent Laboratory Results
+                                      </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                      <div className="space-y-4">
+                                          <LabResultItem
+                                              testName="TSH"
+                                              date="Oct 30, 2025"
+                                              result="2.4 mIU/L"
+                                              status="Normal"
+                                              reference="0.4-4.0 mIU/L"
+                                          />
+                                      </div>
+                                  </CardContent>
+                              </Card>
+                          </div>
+                      </TabsContent>
+                      <TabsContent value="visit-history">
+                          <Card>
+                              <CardHeader>
+                                  <CardTitle className="flex items-center text-base font-semibold">
+                                      <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                                      Patient Journey
+                                  </CardTitle>
+                              </CardHeader>
+                              <CardContent className="pl-10">
+                                  <div className="relative">
+                                      <TimelineItem 
+                                          icon={Stethoscope}
+                                          title="Outpatient Visit"
+                                          date="2025-07-15T10:00:00Z"
+                                          clinician="Dr. Emily Carter"
+                                          description="Initial consultation for fatigue and weight gain."
+                                          onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
+                                      />
+                                      <TimelineItem 
+                                          icon={FlaskConical}
+                                          title="Labs Ordered"
+                                          date="2025-07-15T10:00:00Z"
+                                          clinician="Dr. Emily Carter"
+                                          description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
+                                          onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
+                                      />
+                                      <TimelineItem 
+                                          icon={HeartPulse}
+                                          title="Diagnosis"
+                                          date="2025-07-22T11:30:00Z"
+                                          clinician="Dr. Emily Carter"
+                                          description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
+                                          onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
+                                      />
+                                      <TimelineItem 
+                                          icon={Syringe}
+                                          title="Treatment Started"
+                                          date="2025-07-22T11:30:00Z"
+                                          clinician="Dr. Emily Carter"
+                                          description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
+                                          onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
+                                      />
+                                       <TimelineItem 
+                                          icon={Hospital}
+                                          title="Follow-up Visit"
+                                          date="2025-09-05T14:00:00Z"
+                                          clinician="Dr. Emily Carter"
+                                          description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
+                                          onViewNote={() => handleViewNotes("2025-09-05T14:00:00Z")}
+                                          isLast
+                                      />
+                                  </div>
+                              </CardContent>
+                          </Card>
+                      </TabsContent>
+                      <TabsContent value="other">
+                          <div className="grid grid-cols-1 gap-6">
+                              <Card>
+                                  <CardHeader>
+                                      <CardTitle className="flex items-center text-base font-semibold">
+                                          <Activity className="mr-3 h-5 w-5 text-muted-foreground" />
+                                          Immunization History
+                                      </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                      <ImmunizationItem
+                                          name="Influenza"
+                                          administeredBy="Dr. Anderson"
+                                          date="Oct 10, 2025"
+                                      />
+                                  </CardContent>
+                              </Card>
+                              <Card>
+                                  <CardHeader>
+                                      <CardTitle className="flex items-center text-base font-semibold">
+                                          <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                                          Social History
+                                      </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                                          <SocialHistoryItem label="Smoking Status" value="Never" />
+                                          <SocialHistoryItem label="Alcohol Use" value="Occasional (1 drink/week)" />
+                                          <SocialHistoryItem label="Exercise" value="Running 3x/week" />
+                                          <SocialHistoryItem label="Occupation" value="Software Engineer" />
+                                      </div>
+                                  </CardContent>
+                              </Card>
+                               <Card>
+                                  <CardHeader>
+                                      <CardTitle className="flex items-center text-base font-semibold">
+                                          <UsersIcon className="mr-3 h-5 w-5 text-muted-foreground" />
+                                          Family History
+                                      </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                      <FamilyHistoryItem
+                                          condition="Hypothyroidism"
+                                          relative="Mother"
+                                          diagnosedAge={52}
+                                      />
+                                  </CardContent>
+                              </Card>
+                          </div>
+                      </TabsContent>
+                  </Tabs>
+              </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+      <ClinicalNoteDialog
+          isOpen={isNoteDialogOpen}
+          onOpenChange={setIsNoteDialogOpen}
+          notes={sampleJourneyNotes}
+          defaultDate={selectedNoteDate}
+      />
+      {patient && (
+        <EncounterNoteDialog
+          isOpen={isEncounterNoteDialogOpen}
+          onOpenChange={setIsEncounterNoteDialogOpen}
+          patient={patient}
+          onSave={handleSaveEncounterNote}
         />
-      </SheetContent>
-    </Sheet>
+      )}
+    </>
   );
 }
 
@@ -462,5 +483,3 @@ const FamilyHistoryItem = ({ condition, relative, diagnosedAge }: { condition: s
         </div>
     </div>
 );
-
-    

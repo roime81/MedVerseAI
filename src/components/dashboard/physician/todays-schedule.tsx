@@ -42,6 +42,27 @@ export function TodaysSchedule() {
     setIsChartOpen(true);
   }
 
+  const handleAppointmentComplete = () => {
+    if (!selectedAppointment) return;
+
+    setAppointments(prev => {
+        const completedIndex = prev.findIndex(appt => appt.time === selectedAppointment.time);
+        if (completedIndex === -1) return prev;
+
+        const newAppointments = [...prev];
+        // Mark current as completed
+        newAppointments[completedIndex] = { ...newAppointments[completedIndex], status: 'Completed' };
+        
+        // Find the next 'Scheduled' appointment and mark it as 'In Progress'
+        const nextScheduledIndex = newAppointments.findIndex((appt, index) => index > completedIndex && appt.status === 'Scheduled');
+        if (nextScheduledIndex !== -1) {
+            newAppointments[nextScheduledIndex] = { ...newAppointments[nextScheduledIndex], status: 'In Progress' };
+        }
+        
+        return newAppointments;
+    });
+  };
+
   useEffect(() => {
     const fetchAppointments = async () => {
       if (!firestore || !user) {
@@ -80,12 +101,15 @@ export function TodaysSchedule() {
                             age: calculateAge(patient.dateOfBirth),
                             reason: p.procedureName,
                         },
-                        status: index === 0 ? 'In Progress' : 'Scheduled' as Appointment['status'],
+                        status: 'Scheduled' as Appointment['status'],
                     }
                 })
                 .filter(Boolean) as Appointment[];
             
             sampleAppointments.sort((a, b) => a.time.localeCompare(b.time));
+            if (sampleAppointments.length > 0) {
+              sampleAppointments[0].status = 'In Progress';
+            }
             setAppointments(sampleAppointments);
         }
         setIsLoading(false);
@@ -130,6 +154,7 @@ export function TodaysSchedule() {
                       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                           age--;
                       }
+                      return age;
                   }
 
                 return {
@@ -141,12 +166,16 @@ export function TodaysSchedule() {
                         age: calculateAge(patient.dateOfBirth),
                         reason: p.procedureName,
                     },
-                    status: index === 0 ? 'In Progress' : 'Scheduled' as Appointment['status'],
+                    status: 'Scheduled' as Appointment['status'],
                 }
             })
             .filter(Boolean) as Appointment[];
         
         sampleAppointments.sort((a, b) => a.time.localeCompare(b.time));
+        if (sampleAppointments.length > 0) {
+            sampleAppointments[0].status = 'In Progress';
+        }
+
         setAppointments(sampleAppointments);
         setIsLoading(false);
         return;
@@ -179,6 +208,7 @@ export function TodaysSchedule() {
                   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                       age--;
                   }
+                  return age;
               }
 
               appointmentsData.push({
@@ -201,7 +231,10 @@ export function TodaysSchedule() {
       appointmentsData.sort((a, b) => a.time.localeCompare(b.time));
 
       if (appointmentsData.length > 0) {
-        appointmentsData[0].status = 'In Progress';
+        const firstInProgress = appointmentsData.findIndex(a => a.status === 'Completed' || a.status === 'In Progress');
+        if (firstInProgress === -1) {
+            appointmentsData[0].status = 'In Progress';
+        }
       }
 
       setAppointments(appointmentsData);
@@ -257,12 +290,9 @@ export function TodaysSchedule() {
             appointmentStatus={selectedAppointment.status}
             open={isChartOpen}
             onOpenChange={setIsChartOpen}
+            onAppointmentComplete={handleAppointmentComplete}
         />
      )}
     </>
   );
 }
-
-    
-
-    
