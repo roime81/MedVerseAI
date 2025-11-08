@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -24,20 +25,20 @@ interface PatientChartSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const sampleNotes = {
-    'note1': {
+const sampleJourneyNotes = {
+    initialConsultation: {
         author: 'Dr. Emily Carter',
         date: 'July 15, 2025',
         type: 'Initial Consultation Note',
         text: 'Patient presents with complaints of persistent fatigue and unexplained weight gain over the past 4-6 months. Denies any significant changes in diet or physical activity. Reports feeling sluggish throughout the day and experiencing increased sensitivity to cold. No history of thyroid issues in the family. Physical exam is largely unremarkable. Plan to order a full thyroid panel (TSH, T3, T4) and a complete blood count to investigate potential underlying causes.'
     },
-    'note2': {
+    treatmentPlan: {
         author: 'Dr. Emily Carter',
         date: 'July 22, 2025',
         type: 'Treatment Plan Note',
         text: 'Lab results reviewed. TSH came back elevated at 8.2 mIU/L, confirming a diagnosis of primary hypothyroidism. Started patient on Levothyroxine 50mcg once daily. Discussed the nature of the condition, the importance of medication adherence, and potential side effects. Provided patient with educational materials. Advised on diet and lifestyle modifications to support thyroid health. Scheduled follow-up in 6 weeks to re-check TSH levels and adjust dosage as needed.'
     },
-     'note3': {
+    followUp: {
         author: 'Dr. Emily Carter',
         date: 'September 5, 2025',
         type: 'Follow-up Note',
@@ -50,8 +51,8 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
   const [selectedNote, setSelectedNote] = React.useState<{author: string; date: string; type: string; text: string} | null>(null);
 
-  const handleViewNote = (noteId: string) => {
-    const note = sampleNotes[noteId];
+  const handleViewNote = (noteKey: keyof typeof sampleJourneyNotes) => {
+    const note = sampleJourneyNotes[noteKey];
     if (note) {
       setSelectedNote(note);
       setIsNoteDialogOpen(true);
@@ -235,6 +236,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 15, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Initial consultation for fatigue and weight gain."
+                                        onViewNote={() => handleViewNote('initialConsultation')}
                                     />
                                     <TimelineItem 
                                         icon={FlaskConical}
@@ -242,7 +244,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 15, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
-                                        onViewNote={() => handleViewNote('note1')}
+                                        onViewNote={() => handleViewNote('initialConsultation')}
                                     />
                                     <TimelineItem 
                                         icon={HeartPulse}
@@ -250,6 +252,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 22, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
+                                        onViewNote={() => handleViewNote('treatmentPlan')}
                                     />
                                     <TimelineItem 
                                         icon={Syringe}
@@ -257,7 +260,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="July 22, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
-                                        onViewNote={() => handleViewNote('note2')}
+                                        onViewNote={() => handleViewNote('treatmentPlan')}
                                     />
                                      <TimelineItem 
                                         icon={Hospital}
@@ -265,7 +268,7 @@ export function PatientChartSheet({ patient, open, onOpenChange }: PatientChartS
                                         date="September 5, 2025"
                                         clinician="Dr. Emily Carter"
                                         description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
-                                        onViewNote={() => handleViewNote('note3')}
+                                        onViewNote={() => handleViewNote('followUp')}
                                         isLast
                                     />
                                 </div>
@@ -354,7 +357,7 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
         <div className="absolute left-3 top-1 h-6 w-6 bg-primary rounded-full flex items-center justify-center -translate-x-1/2">
             <Icon className="h-4 w-4 text-primary-foreground" />
         </div>
-        <div className="mb-8">
+        <div className="mb-8 hover:bg-gray-50/50 p-2 rounded-md cursor-pointer" onClick={onViewNote}>
             <p className="font-semibold">{title}</p>
             <p className="text-sm text-muted-foreground mb-1">{date}</p>
             <p className="text-sm mb-2">{description}</p>
@@ -363,16 +366,17 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
                     <div className="flex items-center gap-1 text-muted-foreground">
                         <User className="h-3 w-3" />
                         <span>By:</span>
-                        <Link href="#" className="font-medium text-primary hover:underline">{clinician}</Link>
+                        <Link href="#" className="font-medium text-primary hover:underline" onClick={(e) => e.stopPropagation()}>{clinician}</Link>
                     </div>
                 )}
                 {onViewNote && (
-                     <Button variant="link" className="h-auto p-0 text-xs text-primary" onClick={onViewNote}>
-                        <LinkIcon className="h-3 w-3 mr-1" />
-                        View Notes
-                    </Button>
+                     <div className="flex items-center gap-1 text-primary">
+                        <LinkIcon className="h-3 w-3" />
+                        <span>View Note</span>
+                    </div>
                 )}
             </div>
         </div>
     </div>
 );
+
