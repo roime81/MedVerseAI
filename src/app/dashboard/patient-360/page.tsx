@@ -40,6 +40,7 @@ import { collection, query, where } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, User as UserIcon } from 'lucide-react';
+import { generatedData } from '@/lib/sample-data';
 
 export default function Patient360Page() {
   const { user } = useUser();
@@ -60,7 +61,13 @@ export default function Patient360Page() {
     );
   }, [firestore, user]);
 
-  const { data: patients, isLoading } = useCollection<Patient>(patientsQuery);
+  const { data: patientsFromDb, isLoading } = useCollection<Patient>(patientsQuery);
+  
+  const patients = (patientsFromDb?.length)
+    ? patientsFromDb
+    : user 
+        ? generatedData.samplePatients.filter(p => p.primaryProviderId === 'dr_emily_carter') as Patient[]
+        : [];
 
   const columns: ColumnDef<Patient>[] = React.useMemo(() => [
     {

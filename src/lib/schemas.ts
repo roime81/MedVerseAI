@@ -54,4 +54,13 @@ export const ConditionSchema = z.object({
 });
 export type Condition = z.infer<typeof ConditionSchema>;
 
-// Add other schemas as needed from backend.json
+export const PendingTaskSchema = z.object({
+  taskId: z.string().describe("Unique identifier for the task."),
+  assignedTo: z.string().describe("UID of the user the task is assigned to."),
+  description: z.string().describe("A description of the task to be completed."),
+  priority: z.string().describe("The priority level of the task."),
+  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format" }).describe("The date the task is due."),
+  status: z.enum(["Pending", "Completed"]).describe("The current status of the task."),
+  patientId: z.string().optional().describe("Optional patient ID related to the task."),
+});
+export type PendingTask = z.infer<typeof PendingTaskSchema>;

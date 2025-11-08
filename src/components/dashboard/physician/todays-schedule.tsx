@@ -14,6 +14,7 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, query, where, Timestamp, getDocs, doc, getDoc, orderBy } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Patient } from '@/lib/types';
+import { generatedData } from '@/lib/sample-data';
 
 
 const getStatusClass = (status: Appointment['status']) => {
@@ -34,7 +35,53 @@ export function TodaysSchedule() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      if (!firestore || !user) return;
+      if (!firestore || !user) {
+        // Fallback for when firebase is not available
+        if (user) {
+            const today = new Date();
+            const sampleAppointments = generatedData.sampleProcedures
+                .filter(p => {
+                    const procDate = new Date(p.procedureDateTime);
+                    return p.performingClinicianId === 'dr_emily_carter' &&
+                           procDate.getFullYear() === today.getFullYear() &&
+                           procDate.getMonth() === today.getMonth() &&
+                           procDate.getDate() === today.getDate();
+                })
+                .map(p => {
+                    const patient = generatedData.samplePatients.find(pat => pat.personId === p.personId);
+                    if (!patient) return null;
+                     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('');
+                     const calculateAge = (dob: string) => {
+                          const birthDate = new Date(dob);
+                          const today = new Date();
+                          let age = today.getFullYear() - birthDate.getFullYear();
+                          const m = today.getMonth() - birthDate.getMonth();
+                          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                              age--;
+                          }
+                          return age;
+                      }
+
+                    return {
+                        time: new Date(p.procedureDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+                        patient: {
+                            name: patient.fullName,
+                            initials: getInitials(patient.fullName),
+                            age: calculateAge(patient.dateOfBirth),
+                            reason: p.procedureName,
+                        },
+                        status: 'Scheduled' as Appointment['status'],
+                    }
+                })
+                .filter(Boolean) as Appointment[];
+            
+            sampleAppointments.sort((a, b) => a.time.localeCompare(b.time));
+            setAppointments(sampleAppointments);
+        }
+        setIsLoading(false);
+        return;
+      };
+
       setIsLoading(true);
 
       const today = new Date();
@@ -52,6 +99,52 @@ export function TodaysSchedule() {
       const procedureSnapshots = await getDocs(proceduresQuery);
       const appointmentsData: Appointment[] = [];
       
+      if (procedureSnapshots.empty && user) {
+        // No data in DB, use sample data
+        const today = new Date();
+        const sampleAppointments = generatedData.sampleProcedures
+            .filter(p => {
+                const procDate = new Date(p.procedureDateTime);
+                return p.performingClinicianId === 'dr_emily_carter' &&
+                       procDate.getFullYear() === today.getFullYear() &&
+                       procDate.getMonth() === today.getMonth() &&
+                       procDate.getDate() === today.getDate();
+            })
+            .map(p => {
+                const patient = generatedData.samplePatients.find(pat => pat.personId === p.personId);
+                if (!patient) return null;
+                 const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('');
+                 const calculateAge = (dob: string) => {
+                      const birthDate = new Date(dob);
+                      const today = new Date();
+                      let age = today.getFullYear() - birthDate.getFullYear();
+                      const m = today.getMonth() - birthDate.getMonth();
+                      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                          age--;
+                      }
+                      return age;
+                  }
+
+                return {
+                    time: new Date(p.procedureDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+                    patient: {
+                        name: patient.fullName,
+                        initials: getInitials(patient.fullName),
+                        age: calculateAge(patient.dateOfBirth),
+                        reason: p.procedureName,
+                    },
+                    status: 'Scheduled' as Appointment['status'],
+                }
+            })
+            .filter(Boolean) as Appointment[];
+        
+        sampleAppointments.sort((a, b) => a.time.localeCompare(b.time));
+        setAppointments(sampleAppointments);
+        setIsLoading(false);
+        return;
+      }
+
+
       for (const procedureDoc of procedureSnapshots.docs) {
           const procedure = procedureDoc.data();
           

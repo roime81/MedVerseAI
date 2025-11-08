@@ -11,6 +11,8 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import type { Patient, Condition } from '@/lib/types';
 import { useEffect, useState } from 'react';
+import { generatedData } from '@/lib/sample-data';
+
 
 const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('');
@@ -25,7 +27,25 @@ export function RecentPatients() {
 
   useEffect(() => {
     const fetchRecentPatients = async () => {
-        if (!firestore || !user) return;
+        if (!firestore || !user) {
+            if (user) {
+                // Fallback to sample data
+                const samplePatients = generatedData.samplePatients
+                    .filter(p => p.primaryProviderId === 'dr_emily_carter')
+                    .slice(0, 10) // Show 10 recent
+                    .map(p => ({
+                        ...p,
+                        id: p.personId,
+                        lastSeen: '2 day(s) ago',
+                        conditions: generatedData.sampleConditions
+                            .filter(c => c.personId === p.personId && c.status === 'Active')
+                    })) as Patient[];
+                setPatients(samplePatients);
+            }
+            setIsLoading(false);
+            return;
+        };
+
         setIsLoading(true);
 
         const patientsQuery = query(
@@ -34,6 +54,22 @@ export function RecentPatients() {
             limit(10)
         );
         const patientSnapshots = await getDocs(patientsQuery);
+
+        if (patientSnapshots.empty && user) {
+             const samplePatients = generatedData.samplePatients
+                .filter(p => p.primaryProviderId === 'dr_emily_carter')
+                .slice(0, 10)
+                .map(p => ({
+                    ...p,
+                    id: p.personId,
+                    lastSeen: '2 day(s) ago', // Placeholder
+                    conditions: generatedData.sampleConditions
+                        .filter(c => c.personId === p.personId && c.status === 'Active')
+                })) as Patient[];
+            setPatients(samplePatients);
+            setIsLoading(false);
+            return;
+        }
         
         const patientsData: Patient[] = [];
         for (const doc of patientSnapshots.docs) {
@@ -67,6 +103,9 @@ export function RecentPatients() {
 
     if (firestore && user) {
         fetchRecentPatients();
+    } else {
+      // Handle no firestore connection
+      fetchRecentPatients();
     }
   }, [firestore, user]);
 

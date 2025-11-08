@@ -11,6 +11,8 @@ import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebas
 import { collection, query, where } from 'firebase/firestore';
 import type { PendingTask as Task } from '@/lib/types';
 import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { generatedData } from '@/lib/sample-data';
+
 
 const priorityIcons = {
   High: <AlertTriangle className="h-4 w-4 text-red-500" />,
@@ -39,7 +41,13 @@ export function PendingTasks() {
     );
   }, [firestore, user]);
 
-  const { data: tasks, isLoading } = useCollection<Task>(tasksQuery);
+  const { data: tasksFromDb, isLoading } = useCollection<Task>(tasksQuery);
+
+  const tasks = (tasksFromDb?.length)
+    ? tasksFromDb
+    : user
+        ? generatedData.samplePendingTasks.filter(t => t.assignedTo === 'dr_emily_carter') as Task[]
+        : [];
 
   return (
     <Card>

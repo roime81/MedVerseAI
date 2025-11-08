@@ -1,5 +1,5 @@
 // Type definitions for your data models
-import type { Patient as PatientSchema, Encounter, Condition } from "@/lib/schemas";
+import type { Patient as PatientSchema, Encounter, Condition as ConditionSchema, PendingTask as PendingTaskSchema } from "@/lib/schemas";
 
 
 export interface Patient extends PatientSchema {
@@ -21,9 +21,7 @@ export interface Appointment {
   status: 'Completed' | 'In Progress' | 'Waiting' | 'Scheduled';
 }
 
-export interface PendingTask {
-  description: string;
-  time: string;
+export interface PendingTask extends PendingTaskSchema {
   priority: 'High' | 'Medium' | 'Low';
 }
 
@@ -35,3 +33,5 @@ export interface RecentPatient {
   conditions: string[];
   alerts: number;
 }
+
+export interface Condition extends ConditionSchema {}
