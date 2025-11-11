@@ -35,6 +35,7 @@ export function PendingTasks() {
   const { user } = useUser();
   const firestore = useFirestore();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [journeyUntilDate, setJourneyUntilDate] = useState<string | undefined>(undefined);
   const [isChartOpen, setIsChartOpen] = useState(false);
 
   const tasksQuery = useMemoFirebase(() => {
@@ -53,13 +54,13 @@ export function PendingTasks() {
         ? generatedData.samplePendingTasks.filter(t => t.assignedTo === 'dr_emily_carter') as Task[]
         : [];
 
-  const handleOpenChart = async (patientId?: string) => {
-    if (!patientId) return;
+  const handleOpenChart = async (task: Task) => {
+    if (!task.patientId) return;
 
     let patientData: Patient | null = null;
 
     if (firestore) {
-      const patientRef = doc(firestore, 'patients', patientId);
+      const patientRef = doc(firestore, 'patients', task.patientId);
       const patientSnap = await getDoc(patientRef);
       if (patientSnap.exists()) {
         patientData = { ...patientSnap.data(), id: patientSnap.id } as Patient;
@@ -68,7 +69,7 @@ export function PendingTasks() {
     
     if (!patientData) {
       // Fallback to sample data if firestore fails or isn't available
-      const samplePatient = generatedData.samplePatients.find(p => p.personId === patientId);
+      const samplePatient = generatedData.samplePatients.find(p => p.personId === task.patientId);
       if (samplePatient) {
         patientData = { ...samplePatient, id: samplePatient.personId } as Patient;
       }
@@ -76,9 +77,10 @@ export function PendingTasks() {
     
     if (patientData) {
       setSelectedPatient(patientData);
+      setJourneyUntilDate(task.dueDate);
       setIsChartOpen(true);
     } else {
-      console.error("Could not find patient data for ID:", patientId);
+      console.error("Could not find patient data for ID:", task.patientId);
     }
   };
 
@@ -104,7 +106,7 @@ export function PendingTasks() {
                 <div 
                   key={index} 
                   className={`flex items-center space-x-3 rounded-lg border p-3 cursor-pointer hover:bg-gray-50/80 transition-colors ${getPriorityClass(task.priority)}`}
-                  onClick={() => handleOpenChart(task.patientId)}
+                  onClick={() => handleOpenChart(task)}
                 >
                   <div className="flex-shrink-0">
                       {priorityIcons[task.priority]}
@@ -126,6 +128,7 @@ export function PendingTasks() {
           open={isChartOpen}
           onOpenChange={setIsChartOpen}
           onAppointmentComplete={() => { /* Not applicable here */ }}
+          journeyUntilDate={journeyUntilDate}
         />
       )}
     </>

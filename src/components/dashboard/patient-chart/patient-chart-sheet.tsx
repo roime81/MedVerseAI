@@ -26,6 +26,7 @@ interface PatientChartSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAppointmentComplete: () => void;
+  journeyUntilDate?: string;
 }
 
 const sampleJourneyNotes = [
@@ -50,7 +51,7 @@ const sampleJourneyNotes = [
 ];
 
 
-export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus, onAppointmentComplete }: PatientChartSheetProps) {
+export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus, onAppointmentComplete, journeyUntilDate }: PatientChartSheetProps) {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
   const [isEncounterNoteDialogOpen, setIsEncounterNoteDialogOpen] = React.useState(false);
   const [selectedNoteDate, setSelectedNoteDate] = React.useState<string | null>(null);
@@ -83,6 +84,12 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
     return age;
   };
 
+  const filteredJourneyItems = journeyUntilDate
+    ? sampleJourneyNotes.filter(note => new Date(note.date) <= new Date(journeyUntilDate))
+    : sampleJourneyNotes;
+  
+  const journeyItemsToRender = filteredJourneyItems.length > 0 ? filteredJourneyItems : sampleJourneyNotes;
+  
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -243,47 +250,31 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                               </CardHeader>
                               <CardContent className="pl-10">
                                   <div className="relative">
-                                      <TimelineItem 
-                                          icon={Stethoscope}
-                                          title="Outpatient Visit"
-                                          date="2025-07-15T10:00:00Z"
-                                          clinician="Dr. Emily Carter"
-                                          description="Initial consultation for fatigue and weight gain."
-                                          onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
-                                      />
-                                      <TimelineItem 
-                                          icon={FlaskConical}
-                                          title="Labs Ordered"
-                                          date="2025-07-15T10:00:00Z"
-                                          clinician="Dr. Emily Carter"
-                                          description="TSH, T3, T4, and CBC labs were ordered to assess thyroid function."
-                                          onViewNote={() => handleViewNotes("2025-07-15T10:00:00Z")}
-                                      />
-                                      <TimelineItem 
-                                          icon={HeartPulse}
-                                          title="Diagnosis"
-                                          date="2025-07-22T11:30:00Z"
-                                          clinician="Dr. Emily Carter"
-                                          description="Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L)."
-                                          onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
-                                      />
-                                      <TimelineItem 
-                                          icon={Syringe}
-                                          title="Treatment Started"
-                                          date="2025-07-22T11:30:00Z"
-                                          clinician="Dr. Emily Carter"
-                                          description="Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes."
-                                          onViewNote={() => handleViewNotes("2025-07-22T11:30:00Z")}
-                                      />
-                                       <TimelineItem 
-                                          icon={Hospital}
-                                          title="Follow-up Visit"
-                                          date="2025-09-05T14:00:00Z"
-                                          clinician="Dr. Emily Carter"
-                                          description="Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg."
-                                          onViewNote={() => handleViewNotes("2025-09-05T14:00:00Z")}
-                                          isLast
-                                      />
+                                      {journeyItemsToRender.map((item, index) => {
+                                        const timelineItems = [
+                                          { icon: Stethoscope, title: "Outpatient Visit", description: "Initial consultation for fatigue and weight gain.", date: "2025-07-15T10:00:00Z" },
+                                          { icon: FlaskConical, title: "Labs Ordered", description: "TSH, T3, T4, and CBC labs were ordered to assess thyroid function.", date: "2025-07-15T10:00:00Z" },
+                                          { icon: HeartPulse, title: "Diagnosis", description: "Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L).", date: "2025-07-22T11:30:00Z"},
+                                          { icon: Syringe, title: "Treatment Started", description: "Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes.", date: "2025-07-22T11:30:00Z"},
+                                          { icon: Hospital, title: "Follow-up Visit", description: "Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg.", date: "2025-09-05T14:00:00Z"}
+                                        ];
+                                        const timelineItem = timelineItems.find(i => i.date === item.date);
+
+                                        if(!timelineItem) return null;
+
+                                        return (
+                                          <TimelineItem 
+                                              key={index}
+                                              icon={timelineItem.icon}
+                                              title={timelineItem.title}
+                                              date={timelineItem.date}
+                                              clinician={item.author}
+                                              description={timelineItem.description}
+                                              onViewNote={() => handleViewNotes(timelineItem.date)}
+                                              isLast={index === journeyItemsToRender.length -1}
+                                          />
+                                        )
+                                      })}
                                   </div>
                               </CardContent>
                           </Card>
