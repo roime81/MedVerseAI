@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Appointment, Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Hospital, Syringe, Link as LinkIcon, Activity, Users as UsersIcon } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Beaker, Scan, Hospital, Syringe, Link as LinkIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ClinicalNoteDialog } from './clinical-note-dialog';
@@ -162,11 +162,12 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                   <Tabs defaultValue="overview">
                       <TabsList className="mb-4">
                           <TabsTrigger value="overview">Overview</TabsTrigger>
-                          <TabsTrigger value="vitals">Vitals</TabsTrigger>
+                          <TabsTrigger value="problems">Problems</TabsTrigger>
                           <TabsTrigger value="medications">Medications</TabsTrigger>
-                          <TabsTrigger value="lab-results">Lab Results</TabsTrigger>
-                          <TabsTrigger value="visit-history">Visit History</TabsTrigger>
-                          <TabsTrigger value="other">Other</TabsTrigger>
+                          <TabsTrigger value="orders">Orders</TabsTrigger>
+                          <TabsTrigger value="labs">Labs</TabsTrigger>
+                          <TabsTrigger value="imaging">Imaging</TabsTrigger>
+                          <TabsTrigger value="notes">Notes</TabsTrigger>
                       </TabsList>
                       <TabsContent value="overview">
                           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -200,29 +201,8 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                                       <p className="text-sm text-muted-foreground">No known allergies.</p>
                                   )}
                               </InfoCard>
-
-                               <InfoCard icon={HeartPulse} title="Active Conditions" className="xl:col-span-2">
-                                  <div className="flex flex-wrap gap-2">
-                                      {patient.activeProblemList?.split(', ').map((problem, index) => (
-                                          problem && <Badge key={index} variant="secondary">{problem}</Badge>
-                                      ))}
-                                      {!patient.activeProblemList && <p className="text-sm text-muted-foreground">No active conditions.</p>}
-                                  </div>
-                              </InfoCard>
-                          </div>
-                      </TabsContent>
-                      <TabsContent value="vitals">
-                        <div className="grid grid-cols-1 gap-6">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle className="flex items-center text-base font-semibold">
-                                <Stethoscope className="mr-3 h-5 w-5 text-muted-foreground" />
-                                Vital Signs History
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
+                               <InfoCard icon={Stethoscope} title="Vitals" className="xl:col-span-2">
                                 <div className="rounded-lg border bg-card p-4">
-                                    <p className="font-medium mb-4">Nov 7, 2025</p>
                                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
                                         <VitalSignMetric label="Blood Pressure" value="116/74" />
                                         <VitalSignMetric label="Heart Rate" value="68 bpm" />
@@ -232,9 +212,20 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                                         <VitalSignMetric label="BMI" value="20.7" />
                                     </div>
                                 </div>
-                            </CardContent>
-                          </Card>
-                        </div>
+                              </InfoCard>
+                          </div>
+                      </TabsContent>
+                       <TabsContent value="problems">
+                          <div className="grid grid-cols-1 gap-6">
+                              <InfoCard icon={HeartPulse} title="Active Conditions">
+                                  <div className="flex flex-wrap gap-2">
+                                      {patient.activeProblemList?.split(', ').map((problem, index) => (
+                                          problem && <Badge key={index} variant="secondary">{problem}</Badge>
+                                      ))}
+                                      {!patient.activeProblemList && <p className="text-sm text-muted-foreground">No active conditions.</p>}
+                                  </div>
+                              </InfoCard>
+                          </div>
                       </TabsContent>
                       <TabsContent value="medications">
                           <div className="grid grid-cols-1 gap-6">
@@ -259,7 +250,13 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                               </Card>
                           </div>
                       </TabsContent>
-                       <TabsContent value="lab-results">
+                      <TabsContent value="orders">
+                          <div className="flex items-center justify-center h-40 text-muted-foreground">
+                            <Beaker className="mr-2 h-5 w-5" />
+                            <span>No active orders.</span>
+                          </div>
+                      </TabsContent>
+                       <TabsContent value="labs">
                           <div className="grid grid-cols-1 gap-6">
                               <Card>
                                   <CardHeader>
@@ -282,58 +279,14 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                               </Card>
                           </div>
                       </TabsContent>
-                      <TabsContent value="visit-history">
-                        {JourneyContent}
-                      </TabsContent>
-                      <TabsContent value="other">
-                          <div className="grid grid-cols-1 gap-6">
-                              <Card>
-                                  <CardHeader>
-                                      <CardTitle className="flex items-center text-base font-semibold">
-                                          <Activity className="mr-3 h-5 w-5 text-muted-foreground" />
-                                          Immunization History
-                                      </CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                      <ImmunizationItem
-                                          name="Influenza"
-                                          administeredBy="Dr. Anderson"
-                                          date="Oct 10, 2025"
-                                      />
-                                  </CardContent>
-                              </Card>
-                              <Card>
-                                  <CardHeader>
-                                      <CardTitle className="flex items-center text-base font-semibold">
-                                          <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
-                                          Social History
-                                      </CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                                          <SocialHistoryItem label="Smoking Status" value="Never" />
-                                          <SocialHistoryItem label="Alcohol Use" value="Occasional (1 drink/week)" />
-                                          <SocialHistoryItem label="Exercise" value="Running 3x/week" />
-                                          <SocialHistoryItem label="Occupation" value="Software Engineer" />
-                                      </div>
-                                  </CardContent>
-                              </Card>
-                               <Card>
-                                  <CardHeader>
-                                      <CardTitle className="flex items-center text-base font-semibold">
-                                          <UsersIcon className="mr-3 h-5 w-5 text-muted-foreground" />
-                                          Family History
-                                      </CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                      <FamilyHistoryItem
-                                          condition="Hypothyroidism"
-                                          relative="Mother"
-                                          diagnosedAge={52}
-                                      />
-                                  </CardContent>
-                              </Card>
+                      <TabsContent value="imaging">
+                           <div className="flex items-center justify-center h-40 text-muted-foreground">
+                            <Scan className="mr-2 h-5 w-5" />
+                            <span>No imaging studies found.</span>
                           </div>
+                      </TabsContent>
+                      <TabsContent value="notes">
+                        {JourneyContent}
                       </TabsContent>
                   </Tabs>
                 ) : (
@@ -449,37 +402,6 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
                     </div>
                 )}
             </div>
-        </div>
-    </div>
-);
-
-const ImmunizationItem = ({ name, administeredBy, date }: { name: string, administeredBy: string, date: string }) => (
-    <div className="rounded-lg bg-secondary/50 p-4">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="font-semibold text-base">{name}</p>
-                <p className="text-sm text-muted-foreground">Administered by {administeredBy}</p>
-            </div>
-            <p className="text-sm font-medium">{date}</p>
-        </div>
-    </div>
-);
-
-const SocialHistoryItem = ({ label, value }: { label: string, value: string }) => (
-    <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="font-semibold">{value}</p>
-    </div>
-);
-
-const FamilyHistoryItem = ({ condition, relative, diagnosedAge }: { condition: string, relative: string, diagnosedAge: number }) => (
-    <div className="rounded-lg bg-secondary/50 p-4">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="font-semibold text-base">{condition}</p>
-                <p className="text-sm text-muted-foreground">{relative}</p>
-            </div>
-            <p className="text-sm font-medium">Diagnosed at {diagnosedAge}</p>
         </div>
     </div>
 );
