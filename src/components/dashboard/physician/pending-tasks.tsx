@@ -5,9 +5,11 @@ import { useState } from 'react';
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, getDoc } from 'firebase/firestore';
@@ -38,6 +40,8 @@ export function PendingTasks() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [journeyUntilDate, setJourneyUntilDate] = useState<string | undefined>(undefined);
   const [isChartOpen, setIsChartOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 5;
 
   const tasksQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
@@ -85,6 +89,12 @@ export function PendingTasks() {
     }
   };
 
+  // Pagination logic
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
+  const totalPages = Math.ceil(tasks.length / tasksPerPage);
+
 
   return (
     <>
@@ -92,18 +102,18 @@ export function PendingTasks() {
         <CardHeader>
           <CardTitle className="font-grotesk text-lg">Pending Tasks</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-h-[350px]">
           {isLoading ? (
-            <div className="flex h-40 items-center justify-center">
+            <div className="flex h-full items-center justify-center">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : !tasks || tasks.length === 0 ? (
-            <div className="flex h-40 items-center justify-center">
+            <div className="flex h-full items-center justify-center">
               <p className="text-muted-foreground">No pending tasks.</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {tasks.map((task, index) => (
+              {currentTasks.map((task, index) => (
                 <div 
                   key={index} 
                   className={`flex items-center space-x-3 rounded-lg border p-3 cursor-pointer hover:bg-gray-50/80 transition-colors ${getPriorityClass(task.priority)}`}
@@ -122,6 +132,31 @@ export function PendingTasks() {
             </div>
           )}
         </CardContent>
+         {totalPages > 1 && (
+            <CardFooter className="flex items-center justify-between pt-4 border-t">
+                <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                </span>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </CardFooter>
+        )}
       </Card>
       {selectedPatient && (
         <PatientChartSheet
