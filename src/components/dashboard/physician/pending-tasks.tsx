@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -129,6 +130,7 @@ export function PendingTasks() {
           onOpenChange={setIsChartOpen}
           onAppointmentComplete={() => { /* Not applicable here */ }}
           journeyUntilDate={journeyUntilDate}
+          view="journey"
         />
       )}
     </>

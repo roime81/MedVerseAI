@@ -27,6 +27,7 @@ interface PatientChartSheetProps {
   onOpenChange: (open: boolean) => void;
   onAppointmentComplete: () => void;
   journeyUntilDate?: string;
+  view?: 'full' | 'journey';
 }
 
 const sampleJourneyNotes = [
@@ -51,7 +52,7 @@ const sampleJourneyNotes = [
 ];
 
 
-export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus, onAppointmentComplete, journeyUntilDate }: PatientChartSheetProps) {
+export function PatientChartSheet({ patient, open, onOpenChange, appointmentStatus, onAppointmentComplete, journeyUntilDate, view = 'full' }: PatientChartSheetProps) {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = React.useState(false);
   const [isEncounterNoteDialogOpen, setIsEncounterNoteDialogOpen] = React.useState(false);
   const [selectedNoteDate, setSelectedNoteDate] = React.useState<string | null>(null);
@@ -89,6 +90,46 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
     : sampleJourneyNotes;
   
   const journeyItemsToRender = filteredJourneyItems.length > 0 ? filteredJourneyItems : sampleJourneyNotes;
+
+  const JourneyContent = (
+    <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center text-base font-semibold">
+                <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                Patient Journey
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="pl-10">
+            <div className="relative">
+                {journeyItemsToRender.map((item, index) => {
+                  const timelineItems = [
+                    { icon: Stethoscope, title: "Outpatient Visit", description: "Initial consultation for fatigue and weight gain.", date: "2025-07-15T10:00:00Z" },
+                    { icon: FlaskConical, title: "Labs Ordered", description: "TSH, T3, T4, and CBC labs were ordered to assess thyroid function.", date: "2025-07-15T10:00:00Z" },
+                    { icon: HeartPulse, title: "Diagnosis", description: "Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L).", date: "2025-07-22T11:30:00Z"},
+                    { icon: Syringe, title: "Treatment Started", description: "Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes.", date: "2025-07-22T11:30:00Z"},
+                    { icon: Hospital, title: "Follow-up Visit", description: "Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg.", date: "2025-09-05T14:00:00Z"}
+                  ];
+                  const timelineItem = timelineItems.find(i => i.date === item.date);
+
+                  if(!timelineItem) return null;
+
+                  return (
+                    <TimelineItem 
+                        key={index}
+                        icon={timelineItem.icon}
+                        title={timelineItem.title}
+                        date={timelineItem.date}
+                        clinician={item.author}
+                        description={timelineItem.description}
+                        onViewNote={() => handleViewNotes(timelineItem.date)}
+                        isLast={index === journeyItemsToRender.length -1}
+                    />
+                  )
+                })}
+            </div>
+        </CardContent>
+    </Card>
+  );
   
   return (
     <>
@@ -117,6 +158,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                   </div>
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-6">
+                {view === 'full' ? (
                   <Tabs defaultValue="overview">
                       <TabsList className="mb-4">
                           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -241,43 +283,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                           </div>
                       </TabsContent>
                       <TabsContent value="visit-history">
-                          <Card>
-                              <CardHeader>
-                                  <CardTitle className="flex items-center text-base font-semibold">
-                                      <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
-                                      Patient Journey
-                                  </CardTitle>
-                              </CardHeader>
-                              <CardContent className="pl-10">
-                                  <div className="relative">
-                                      {journeyItemsToRender.map((item, index) => {
-                                        const timelineItems = [
-                                          { icon: Stethoscope, title: "Outpatient Visit", description: "Initial consultation for fatigue and weight gain.", date: "2025-07-15T10:00:00Z" },
-                                          { icon: FlaskConical, title: "Labs Ordered", description: "TSH, T3, T4, and CBC labs were ordered to assess thyroid function.", date: "2025-07-15T10:00:00Z" },
-                                          { icon: HeartPulse, title: "Diagnosis", description: "Diagnosed with Hypothyroidism based on lab results (TSH: 8.2 mIU/L).", date: "2025-07-22T11:30:00Z"},
-                                          { icon: Syringe, title: "Treatment Started", description: "Prescribed Levothyroxine 50mcg daily. Advised on lifestyle and diet changes.", date: "2025-07-22T11:30:00Z"},
-                                          { icon: Hospital, title: "Follow-up Visit", description: "Patient reported feeling better. TSH levels improved. Adjusted dosage to 75mcg.", date: "2025-09-05T14:00:00Z"}
-                                        ];
-                                        const timelineItem = timelineItems.find(i => i.date === item.date);
-
-                                        if(!timelineItem) return null;
-
-                                        return (
-                                          <TimelineItem 
-                                              key={index}
-                                              icon={timelineItem.icon}
-                                              title={timelineItem.title}
-                                              date={timelineItem.date}
-                                              clinician={item.author}
-                                              description={timelineItem.description}
-                                              onViewNote={() => handleViewNotes(timelineItem.date)}
-                                              isLast={index === journeyItemsToRender.length -1}
-                                          />
-                                        )
-                                      })}
-                                  </div>
-                              </CardContent>
-                          </Card>
+                        {JourneyContent}
                       </TabsContent>
                       <TabsContent value="other">
                           <div className="grid grid-cols-1 gap-6">
@@ -330,6 +336,9 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                           </div>
                       </TabsContent>
                   </Tabs>
+                ) : (
+                  JourneyContent
+                )}
               </div>
           </div>
         </SheetContent>
