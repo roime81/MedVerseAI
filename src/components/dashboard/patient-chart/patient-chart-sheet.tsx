@@ -103,7 +103,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                       </div>
                       <div className="flex items-center gap-2">
                           {appointmentStatus === 'In Progress' && (
-                              <Button variant="outline" onClick={() => setIsEncounterNoteDialogOpen(true)}><Pencil className="mr-2 h-4 w-4" /> Edit</Button>
+                              <Button variant="outline" onClick={() => setIsEncounterNoteDialogOpen(true)}><Pencil className="mr-2 h-4 w-4" /> New Notes</Button>
                           )}
                           <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Export</Button>
                       </div>
