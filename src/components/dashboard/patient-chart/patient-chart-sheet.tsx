@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Appointment, Patient, DrugExposure } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Beaker, Scan, Hospital, Syringe, Link as LinkIcon, Activity, Users as UsersIcon } from 'lucide-react';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Beaker, Scan, Hospital, Syringe, Link as LinkIcon, Activity, Users as UsersIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ClinicalNoteDialog } from './clinical-note-dialog';
@@ -68,10 +68,10 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
     return collection(firestore, 'patients', patient.personId, 'drugExposures');
   }, [firestore, patient]);
 
-  const { data: drugExposures, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
+  const { data: drugExposuresFromDb, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
   
-  const medications = (drugExposures?.length)
-    ? drugExposures
+  const medications = (drugExposuresFromDb && drugExposuresFromDb.length > 0)
+    ? drugExposuresFromDb
     : patient
         ? generatedData.sampleDrugExposures.filter(de => de.personId === patient.personId)
         : [];
@@ -257,7 +257,9 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                                   <CardContent>
                                       <div className="space-y-4">
                                         {isLoadingMedications ? (
-                                            <p>Loading medications...</p>
+                                            <div className="flex items-center justify-center h-24">
+                                                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                            </div>
                                         ) : medications.length > 0 ? (
                                             medications.map((med) => (
                                                 <MedicationItem 
@@ -269,7 +271,9 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                                                 />
                                             ))
                                         ) : (
-                                            <p className="text-sm text-muted-foreground">No current medications found.</p>
+                                            <div className="flex items-center justify-center h-24 text-muted-foreground">
+                                                <span>No current medications found.</span>
+                                            </div>
                                         )}
                                       </div>
                                   </CardContent>
@@ -371,7 +375,7 @@ const VitalSignMetric = ({ label, value }: { label: string, value: string }) => 
 );
 
 
-const MedicationItem = ({ name, dose, prescribedBy, since }: { name: string, dose: string, prescribedBy: string, since: string }) => (
+const MedicationItem = ({ name, dose, prescribedBy, since }: { name: string, dose?: string, prescribedBy?: string, since: string }) => (
     <div className="rounded-lg border bg-card p-4">
         <div className="flex justify-between items-start">
             <div>
@@ -381,7 +385,7 @@ const MedicationItem = ({ name, dose, prescribedBy, since }: { name: string, dos
             
         </div>
         <div className="flex justify-between items-end mt-4">
-            <p className="text-xs text-muted-foreground">Prescribed by {prescribedBy}</p>
+            <p className="text-xs text-muted-foreground">Prescribed by {prescribedBy || 'Unknown'}</p>
             <p className="text-xs text-muted-foreground">{since}</p>
         </div>
     </div>
@@ -431,3 +435,4 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
         </div>
     </div>
 );
+
