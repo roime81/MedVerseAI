@@ -44,7 +44,7 @@ export default function DashboardLayout({
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-white px-6">
         <div className="flex items-center gap-8">
             <div className="font-bold font-grotesk text-xl">
-                <span className="text-gray-800">Design-Driven HIS</span>
+                <span className="text-gray-800">MedVerseAI</span>
                 <span className="block text-xs font-normal text-gray-500 -mt-1">Prototype Implementation</span>
             </div>
             <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1">
