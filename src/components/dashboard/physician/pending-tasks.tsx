@@ -53,11 +53,19 @@ export function PendingTasks() {
 
   const { data: tasksFromDb, isLoading } = useCollection<Task>(tasksQuery);
 
-  const tasks = (tasksFromDb?.length)
+  const tasksFromSource = (tasksFromDb?.length)
     ? tasksFromDb
     : user
         ? generatedData.samplePendingTasks.filter(t => t.assignedTo === 'dr_emily_carter') as Task[]
         : [];
+
+  const priorityOrder: { [key in Task['priority']]: number } = {
+    High: 1,
+    Medium: 2,
+    Low: 3,
+  };
+
+  const tasks = tasksFromSource.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
   const handleOpenChart = async (task: Task) => {
     if (!task.patientId) return;
