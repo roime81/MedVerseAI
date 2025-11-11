@@ -36,6 +36,15 @@ export function TodaysSchedule() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [isChartOpen, setIsChartOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }));
+  }, []);
 
   const handleOpenChart = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -108,7 +117,12 @@ export function TodaysSchedule() {
             
             sampleAppointments.sort((a, b) => a.time.localeCompare(b.time));
             if (sampleAppointments.length > 0) {
-              sampleAppointments[0].status = 'In Progress';
+              const inProgressIndex = sampleAppointments.findIndex(a => a.time > new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
+              if (inProgressIndex > -1) {
+                sampleAppointments[inProgressIndex].status = 'In Progress';
+              } else {
+                 sampleAppointments[0].status = 'In Progress';
+              }
             }
             setAppointments(sampleAppointments);
         }
@@ -173,7 +187,12 @@ export function TodaysSchedule() {
         
         sampleAppointments.sort((a, b) => a.time.localeCompare(b.time));
         if (sampleAppointments.length > 0) {
-            sampleAppointments[0].status = 'In Progress';
+            const inProgressIndex = sampleAppointments.findIndex(a => a.time > new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
+            if (inProgressIndex > -1) {
+              sampleAppointments[inProgressIndex].status = 'In Progress';
+            } else {
+                sampleAppointments[0].status = 'In Progress';
+            }
         }
 
         setAppointments(sampleAppointments);
@@ -249,7 +268,10 @@ export function TodaysSchedule() {
     <>
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="font-grotesk text-lg">Today's Schedule</CardTitle>
+        <div className="flex items-center gap-4">
+            <CardTitle className="font-grotesk text-lg">Today's Schedule</CardTitle>
+            <p className="text-sm text-muted-foreground">{currentDate}</p>
+        </div>
         <Button variant="outline" size="sm">
           <Calendar className="mr-2 h-4 w-4" />
           View Full Calendar
