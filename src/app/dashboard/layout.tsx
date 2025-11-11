@@ -1,26 +1,14 @@
 'use client';
 
-import { useUser, useFirebase } from '@/firebase';
+import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { getAuth, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Sidebar } from '@/components/dashboard/sidebar';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronsUpDown, LogOut } from 'lucide-react';
+import { Search, Bell, LogOut, User as UserIcon, Briefcase, LayoutGrid } from 'lucide-react';
+import { useAuth } from '@/firebase';
+import Link from 'next/link';
 
 export default function DashboardLayout({
   children,
@@ -29,7 +17,7 @@ export default function DashboardLayout({
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const { firebaseApp } = useFirebase();
+  const auth = useAuth();
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -38,7 +26,6 @@ export default function DashboardLayout({
   }, [user, isUserLoading, router]);
 
   const handleSignOut = () => {
-    const auth = getAuth(firebaseApp);
     signOut(auth).then(() => {
       router.push('/login');
     });
@@ -53,42 +40,48 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-background font-sans">
-      <Sidebar />
-      <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search Patient..."
-              className="w-full rounded-full bg-card pl-10"
-            />
-          </div>
-          <div className="ml-auto flex items-center gap-4">
-            <Button variant="outline" className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              City General
-              <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+    <div className="flex min-h-screen w-full flex-col bg-background font-sans">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-white px-6">
+        <div className="flex items-center gap-8">
+            <div className="font-bold font-grotesk text-xl">
+                <span className="text-gray-800">Design-Driven HIS</span>
+                <span className="block text-xs font-normal text-gray-500 -mt-1">Prototype Implementation</span>
+            </div>
+            <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1">
+                <Button size="sm" className="bg-white shadow-sm text-primary">
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    Clinician Workbench
+                </Button>
+                <Button size="sm" variant="ghost" className="text-muted-foreground">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Patient Portal
+                </Button>
+                <Button size="sm" variant="ghost" className="text-muted-foreground">
+                    <LayoutGrid className="mr-2 h-4 w-4" />
+                    Command Center
+                </Button>
+            </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+            <div className="relative w-full max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                placeholder="Search patients..."
+                className="w-full rounded-md bg-background pl-10"
+                />
+            </div>
+            <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5" />
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Avatar className="h-9 w-9 cursor-pointer">
-                  <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || ''} />
-                  <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-500">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-        <main className="flex-1 p-6">{children}</main>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+            </Button>
+        </div>
+      </header>
+      <div className="flex flex-1">
+        <main className="flex-1">{children}</main>
       </div>
     </div>
   );
