@@ -54,6 +54,21 @@ export const ConditionSchema = z.object({
 });
 export type Condition = z.infer<typeof ConditionSchema>;
 
+export const DrugExposureSchema = z.object({
+  medicationId: z.string().describe("Unique identifier for the Medication order."),
+  personId: z.string().describe("Link to the Patient."),
+  encounterId: z.string().optional().describe("Link to the Encounter when prescribed."),
+  drugCode: z.string().optional().describe("RxNorm / ATC code for the drug."),
+  drugName: z.string().describe("Name of the medication."),
+  dose: z.string().optional().describe("Dosage details (e.g., '10mg')."),
+  startDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date-time format" }).describe("Start time of the drug exposure."),
+  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date-time format" }).optional().describe("End time of the drug exposure."),
+  prescribingPhysicianId: z.string().optional().describe("ID of the prescribing doctor."),
+  dispenseStatus: z.string().optional().describe("Dispensed or Not dispensed."),
+});
+export type DrugExposure = z.infer<typeof DrugExposureSchema>;
+
+
 export const PendingTaskSchema = z.object({
   taskId: z.string().describe("Unique identifier for the task."),
   assignedTo: z.string().describe("UID of the user the task is assigned to."),

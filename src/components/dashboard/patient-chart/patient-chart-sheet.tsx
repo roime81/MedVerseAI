@@ -12,12 +12,16 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Appointment, Patient } from '@/lib/types';
-import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Beaker, Scan, Hospital, Syringe, Link as LinkIcon } from 'lucide-react';
+import { Appointment, Patient, DrugExposure } from '@/lib/types';
+import { FileText, Pencil, Download, User, Phone, Briefcase, AlertTriangle, HeartPulse, Stethoscope, Pill, FlaskConical, Beaker, Scan, Hospital, Syringe, Link as LinkIcon, Activity, Users as UsersIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ClinicalNoteDialog } from './clinical-note-dialog';
 import { EncounterNoteDialog } from './encounter-note-dialog';
+import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { collection } from 'firebase/firestore';
+import { generatedData } from '@/lib/sample-data';
 
 
 interface PatientChartSheetProps {
@@ -57,6 +61,20 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
   const [isEncounterNoteDialogOpen, setIsEncounterNoteDialogOpen] = React.useState(false);
   const [selectedNoteDate, setSelectedNoteDate] = React.useState<string | null>(null);
 
+  const firestore = useFirestore();
+
+  const drugExposuresQuery = useMemoFirebase(() => {
+    if (!firestore || !patient) return null;
+    return collection(firestore, 'patients', patient.personId, 'drugExposures');
+  }, [firestore, patient]);
+
+  const { data: drugExposures, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
+  
+  const medications = (drugExposures?.length)
+    ? drugExposures
+    : patient
+        ? generatedData.sampleDrugExposures.filter(de => de.personId === patient.personId)
+        : [];
   
   const handleViewNotes = (date: string) => {
     setSelectedNoteDate(date);
@@ -140,7 +158,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                   <div className="flex items-start justify-between">
                       <div className="flex items-center gap-4">
                           <Avatar className="h-16 w-16">
-                              <AvatarFallback className="text-xl bg-primary/20 text-primary font-bold">{patient.initials}</AvatarFallback>
+                              <AvatarFallback className="text-xl bg-primary/20 text-primary font-bold">{patient.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                           </Avatar>
                           <div>
                               <h2 className="text-2xl font-bold font-grotesk">{patient.fullName}</h2>
@@ -238,13 +256,21 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                                   </CardHeader>
                                   <CardContent>
                                       <div className="space-y-4">
-                                          <MedicationItem 
-                                              name="Levothyroxine"
-                                              dose="75mcg • Once daily"
-                                              prescribedBy="Dr. Anderson"
-                                              since="Since Mar 2019"
-                                              remaining={6}
-                                          />
+                                        {isLoadingMedications ? (
+                                            <p>Loading medications...</p>
+                                        ) : medications.length > 0 ? (
+                                            medications.map((med) => (
+                                                <MedicationItem 
+                                                    key={med.medicationId}
+                                                    name={med.drugName}
+                                                    dose={med.dose}
+                                                    prescribedBy={med.prescribingPhysicianId} // This should be resolved to a name
+                                                    since={`Since ${format(new Date(med.startDate), 'MMM yyyy')}`}
+                                                />
+                                            ))
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground">No current medications found.</p>
+                                        )}
                                       </div>
                                   </CardContent>
                               </Card>
@@ -345,14 +371,14 @@ const VitalSignMetric = ({ label, value }: { label: string, value: string }) => 
 );
 
 
-const MedicationItem = ({ name, dose, prescribedBy, since, remaining }: { name: string, dose: string, prescribedBy: string, since: string, remaining: number }) => (
+const MedicationItem = ({ name, dose, prescribedBy, since }: { name: string, dose: string, prescribedBy: string, since: string }) => (
     <div className="rounded-lg border bg-card p-4">
         <div className="flex justify-between items-start">
             <div>
                 <p className="font-semibold text-base">{name}</p>
                 <p className="text-sm text-muted-foreground">{dose}</p>
             </div>
-            <Badge variant="outline">{remaining} remaining</Badge>
+            
         </div>
         <div className="flex justify-between items-end mt-4">
             <p className="text-xs text-muted-foreground">Prescribed by {prescribedBy}</p>
