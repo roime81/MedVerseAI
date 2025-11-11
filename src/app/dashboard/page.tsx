@@ -18,26 +18,9 @@ export default function DashboardRedirect() {
       return;
     }
     
-    if (firestore && user) {
-        const fetchUserRole = async () => {
-        const userRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const role = userData.role;
-          if (role) {
-            router.push(`/dashboard/${role}`);
-          } else {
-            console.error('User role not found.');
-            router.push('/login');
-          }
-        } else {
-            console.log('User document does not exist yet, waiting for creation.');
-        }
-      };
+    // Always redirect to the physician dashboard for now
+    router.push('/dashboard/physician');
 
-      fetchUserRole();
-    }
   }, [user, isUserLoading, firestore, router]);
 
   return (

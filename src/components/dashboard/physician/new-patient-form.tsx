@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, User, Phone, Briefcase, HeartPulse, ScrollText } from 'lucide-react';
+import { CalendarIcon, User, Phone, Briefcase, ScrollText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore } from '@/firebase';
@@ -92,10 +92,10 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-card border-border text-white">
         <DialogHeader>
           <DialogTitle>New Patient Registration</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             Complete the form below to register a new patient in the system.
           </DialogDescription>
         </DialogHeader>
@@ -116,7 +116,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "w-full justify-start text-left font-normal bg-background border-border",
                           !dateOfBirth && "text-muted-foreground"
                         )}
                       >
@@ -136,7 +136,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                 </FormField>
                 <FormField label="Gender" required>
                     <Select onValueChange={setGender} value={gender}>
-                        <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+                        <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select gender" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
@@ -149,7 +149,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                 </FormField>
                 <FormField label="Marital Status">
                     <Select onValueChange={setMaritalStatus} value={maritalStatus}>
-                        <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                        <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select status" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="single">Single</SelectItem>
                             <SelectItem value="married">Married</SelectItem>
@@ -194,7 +194,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                 <div className="grid grid-cols-2 gap-4">
                      <FormField label="Insurance Provider">
                         <Select onValueChange={setInsuranceProvider} value={insuranceProvider}>
-                            <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                            <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select provider" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="provider1">BlueCross BlueShield</SelectItem>
                                 <SelectItem value="provider2">Aetna</SelectItem>

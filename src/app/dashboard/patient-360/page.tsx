@@ -36,11 +36,12 @@ import {
 } from '@/components/ui/table';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User as UserIcon } from 'lucide-react';
+import { Loader2, User as UserIcon, Plus } from 'lucide-react';
 import { generatedData } from '@/lib/sample-data';
+import { NewPatientForm } from '@/components/dashboard/physician/new-patient-form';
 
 export default function Patient360Page() {
   const { user } = useUser();
@@ -52,12 +53,12 @@ export default function Patient360Page() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [isNewPatientFormOpen, setIsNewPatientFormOpen] = React.useState(false);
 
   const patientsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
     return query(
-      collection(firestore, 'patients'),
-      where('primaryProviderId', '==', user.uid)
+      collection(firestore, 'patients')
     );
   }, [firestore, user]);
 
@@ -65,9 +66,7 @@ export default function Patient360Page() {
   
   const patients = (patientsFromDb?.length)
     ? patientsFromDb
-    : user 
-        ? generatedData.samplePatients.filter(p => p.primaryProviderId === 'dr_emily_carter') as Patient[]
-        : [];
+    : generatedData.samplePatients as Patient[];
 
   const columns: ColumnDef<Patient>[] = React.useMemo(() => [
     {
@@ -83,7 +82,7 @@ export default function Patient360Page() {
           </Button>
         );
       },
-      cell: ({ row }) => <div className="font-medium">{row.getValue('fullName')}</div>,
+      cell: ({ row }) => <div className="font-medium text-white">{row.getValue('fullName')}</div>,
     },
     {
       accessorKey: 'dateOfBirth',
@@ -172,134 +171,150 @@ export default function Patient360Page() {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+        pagination: {
+            pageSize: 8,
+        }
+    }
   });
 
   return (
-    <div className="w-full">
-      <div className="mb-6">
-        <h1 className="font-grotesk text-2xl font-bold text-gray-800">Patient 360&deg;</h1>
-        <p className="text-muted-foreground">A comprehensive list of your assigned patients.</p>
-      </div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter by name..."
-          value={(table.getColumn('fullName')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('fullName')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                    <div className="flex justify-center items-center">
-                        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                        <span>Loading patients...</span>
-                    </div>
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                        <UserIcon className="h-8 w-8 text-muted-foreground" />
-                        <span className="font-medium">No Patients Found</span>
-                        <span className="text-sm text-muted-foreground">No patients are currently assigned to you.</span>
-                    </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+    <>
+    <div className="w-full text-white">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+            <h1 className="font-grotesk text-3xl font-bold">Patients</h1>
+            <p className="text-muted-foreground">Manage all patients in the system.</p>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+        <Button onClick={() => setIsNewPatientFormOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Patient
+        </Button>
+      </div>
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="flex items-center py-4">
+            <Input
+            placeholder="Filter by name..."
+            value={(table.getColumn('fullName')?.getFilterValue() as string) ?? ''}
+            onChange={(event) =>
+                table.getColumn('fullName')?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm bg-background border-border"
+            />
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto bg-card border-border">
+                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                    return (
+                    <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                        }
+                    >
+                        {column.id}
+                    </DropdownMenuCheckboxItem>
+                    );
+                })}
+            </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+        <div className="rounded-md border-t border-border">
+            <Table>
+            <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-border">
+                    {headerGroup.headers.map((header) => {
+                    return (
+                        <TableHead key={header.id} className="text-muted-foreground">
+                        {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                            )}
+                        </TableHead>
+                    );
+                    })}
+                </TableRow>
+                ))}
+            </TableHeader>
+            <TableBody>
+                {isLoading ? (
+                <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        <div className="flex justify-center items-center">
+                            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                            <span>Loading patients...</span>
+                        </div>
+                    </TableCell>
+                </TableRow>
+                ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                    <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className="border-border"
+                    >
+                    {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                        {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                        )}
+                        </TableCell>
+                    ))}
+                    </TableRow>
+                ))
+                ) : (
+                <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                            <UserIcon className="h-8 w-8 text-muted-foreground" />
+                            <span className="font-medium">No Patients Found</span>
+                        </div>
+                    </TableCell>
+                </TableRow>
+                )}
+            </TableBody>
+            </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} of{' '}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+            </div>
+            <div className="space-x-2">
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+            >
+                Previous
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+            >
+                Next
+            </Button>
+            </div>
         </div>
       </div>
     </div>
+    <NewPatientForm open={isNewPatientFormOpen} onOpenChange={setIsNewPatientFormOpen} />
+    </>
   );
 }
