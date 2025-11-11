@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -12,6 +13,7 @@ import { collection, query, orderBy, limit, getDocs, where } from 'firebase/fire
 import type { Patient, Condition } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import { generatedData } from '@/lib/sample-data';
+import { PatientChartSheet } from '../patient-chart/patient-chart-sheet';
 
 
 const getInitials = (name: string) => {
@@ -24,6 +26,13 @@ export function RecentPatients() {
   const { user } = useUser();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [isChartOpen, setIsChartOpen] = useState(false);
+
+  const handleOpenChart = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setIsChartOpen(true);
+  };
 
   useEffect(() => {
     const fetchRecentPatients = async () => {
@@ -111,6 +120,7 @@ export function RecentPatients() {
 
 
   return (
+    <>
     <Card>
         <CardHeader>
             <CardTitle className="font-grotesk text-lg">Recent Patients</CardTitle>
@@ -127,7 +137,7 @@ export function RecentPatients() {
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {patients.map((patient, index) => (
-                    <Card key={index} className="p-4">
+                    <Card key={index} className="p-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => handleOpenChart(patient)}>
                         <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-4">
                                 <Avatar className="h-10 w-10">
@@ -158,5 +168,14 @@ export function RecentPatients() {
             )}
         </CardContent>
     </Card>
+    {selectedPatient && (
+        <PatientChartSheet
+            patient={selectedPatient}
+            open={isChartOpen}
+            onOpenChange={setIsChartOpen}
+            onAppointmentComplete={() => { /* Not applicable here, but required by prop */ }}
+        />
+    )}
+    </>
   );
 }
