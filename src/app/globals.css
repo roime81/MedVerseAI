@@ -7,8 +7,9 @@
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
+    /* Header/Banner colors */
+    --card: 224 71.4% 4.1%; /* Black for the header */
+    --card-foreground: 210 20% 98%; /* White text for the header */
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -19,8 +20,9 @@
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted foreground for inactive header buttons */
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 215.4 16.3% 56.9%;
 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -28,13 +30,14 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 215 27.9% 16.9%; /* Using a dark border color */
+    --input: 215 27.9% 16.9%;
+    --ring: 197 35% 50%;
 
     --radius: 0.5rem;
   }
 
+  /* The .dark class can be used if you want to support a full dark mode toggle later */
   .dark {
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;

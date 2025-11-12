@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Bell, LogOut, LayoutDashboard, User, BarChart } from 'lucide-react';
 import { useAuth } from '@/firebase';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +43,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen w-full flex-col bg-slate-50 font-sans text-foreground">
+    <div className="flex h-screen w-full flex-col font-sans">
       <header className="sticky top-0 z-40 flex h-16 flex-shrink-0 items-center justify-between gap-4 border-b bg-card px-6 text-card-foreground">
         <div className="flex items-center gap-6">
           <h1 className="font-grotesk text-xl font-bold">MedVerseAI</h1>
@@ -52,7 +51,7 @@ export default function DashboardLayout({
             <Button
               size="sm"
               variant={pathname === '/dashboard/physician' ? 'secondary' : 'ghost'}
-              className={cn(pathname === '/dashboard/physician' && 'bg-primary/10 text-primary')}
+              className={cn(pathname === '/dashboard/physician' && 'bg-primary/10 text-primary', pathname !== '/dashboard/physician' && 'text-muted-foreground hover:text-card-foreground')}
               asChild
             >
                 <Link href="/dashboard/physician">
@@ -63,7 +62,7 @@ export default function DashboardLayout({
             <Button 
                 size="sm" 
                 variant={pathname === '/dashboard/patient-portal' ? 'secondary' : 'ghost'}
-                className={cn(pathname === '/dashboard/patient-portal' ? 'bg-primary/10 text-primary' : 'text-muted-foreground')}
+                className={cn(pathname === '/dashboard/patient-portal' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
                 asChild
             >
                <Link href="/dashboard/patient-portal">
@@ -71,7 +70,7 @@ export default function DashboardLayout({
                 Patient Portal
                </Link>
             </Button>
-            <Button size="sm" variant="ghost" className="text-muted-foreground">
+            <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-card-foreground">
                <BarChart className="mr-2 h-4 w-4" />
               Command Center
             </Button>
@@ -82,13 +81,13 @@ export default function DashboardLayout({
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search patients..."
-              className="w-full rounded-md bg-background/10 pl-10 border-border/50 placeholder:text-muted-foreground"
+              className="w-full rounded-md bg-background/10 pl-10 border-border/50 placeholder:text-muted-foreground text-card-foreground"
             />
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full">
+          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-card-foreground">
             <Bell className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
+          <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-card-foreground">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>
