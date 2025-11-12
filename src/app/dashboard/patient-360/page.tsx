@@ -180,7 +180,7 @@ export default function Patient360Page() {
 
   return (
     <>
-    <div className="w-full text-white">
+    <div className="w-full text-white p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
             <h1 className="font-grotesk text-3xl font-bold">Patients</h1>
