@@ -27,35 +27,49 @@ import { Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
-const PatientListItem = ({ patient, isActive, onClick, alerts, time, location }) => (
-    <div
-        onClick={onClick}
-        className={cn(
-            "cursor-pointer rounded-lg border p-4 transition-all",
-            isActive ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
-        )}
-    >
-        <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-white">{patient.fullName}</h3>
-            {alerts > 0 && (
+const PatientListItem = ({ patient, isActive, onClick }) => {
+    const alerts = patient.allergyFlag && patient.allergyFlag !== 'None' ? 1 : 0;
+    const age = calculateAge(patient.dateOfBirth);
+
+    return (
+        <div
+            onClick={onClick}
+            className={cn(
+                "cursor-pointer border-b p-4 transition-all",
+                isActive ? "bg-primary/10" : "hover:bg-muted/50"
+            )}
+        >
+            <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
-                    <Badge variant="destructive" className="flex-shrink-0">{alerts}</Badge>
+                    <h3 className="font-semibold text-white">{patient.fullName}</h3>
+                    {alerts > 0 && <AlertTriangle className="h-4 w-4 text-destructive" />}
+                </div>
+                {alerts > 0 && <Badge variant="destructive" className="flex-shrink-0">{alerts}</Badge>}
+            </div>
+            
+            <p className="text-sm text-muted-foreground">{patient.gender?.charAt(0)}{age} • MRN-{patient.nationalId?.slice(-6)}</p>
+            
+            <p className="mt-2 text-sm">{patient.activeProblemList?.split(',')[0] || 'No active problems'}</p>
+            
+            {patient.allergyFlag && patient.allergyFlag !== 'None' && (
+                <div className="mt-2">
+                    <Badge variant="destructive" className="w-full justify-start text-xs font-normal">
+                        <AlertTriangle className="mr-2 h-3 w-3" />
+                        {patient.allergyFlag}
+                    </Badge>
                 </div>
             )}
-        </div>
-        <p className="text-sm text-muted-foreground">{patient.gender.charAt(0)}{calculateAge(patient.dateOfBirth)} • MRN-{patient.nationalId?.slice(-6)}</p>
-        <p className="mt-2 text-sm">{patient.activeProblemList?.split(',')[0] || 'No active problems'}</p>
-        
-        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span>{time}</span>
+
+            <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    <span>14:23 (2h 15m)</span>
+                </div>
+                <span>ED - Bay {patient.personId.slice(-1)}</span>
             </div>
-            <span>{location}</span>
         </div>
-    </div>
-);
+    );
+};
 
 const VitalSignMetric = ({ label, value }: { label: string, value: string }) => (
     <div>
@@ -133,45 +147,46 @@ export default function PhysicianDashboard() {
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Left column: Patient List */}
-        <div className="w-1/4 max-w-sm flex-shrink-0 border-r overflow-y-auto p-4">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-white">My Patients</h2>
-                <Button variant="ghost" size="icon"><Filter className="h-4 w-4" /></Button>
-            </div>
-            <div className="flex gap-2 mb-4">
-                <Button size="sm" variant="secondary" className="flex-grow">My Patients</Button>
-                <Button size="sm" variant="outline" className="flex-grow">All ED</Button>
+        <div className="w-1/4 max-w-sm flex-shrink-0 border-r overflow-y-auto flex flex-col">
+            <div className="p-4 border-b">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-white">My Patients</h2>
+                    <Button variant="ghost" size="icon"><Filter className="h-4 w-4" /></Button>
+                </div>
+                <div className="flex gap-2">
+                    <Button size="sm" variant="secondary" className="flex-grow">All Patients</Button>
+                    <Button size="sm" variant="outline" className="flex-grow">New Assigned <Badge className="ml-2 bg-destructive text-destructive-foreground">2</Badge></Button>
+                </div>
             </div>
 
-            {isLoadingPatients ? (
-                 <div className="flex justify-center items-center h-full">
-                    <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                </div>
-            ) : !patients || patients.length === 0 ? (
-                <div className="text-center text-muted-foreground py-10">
-                    <p>No patients found.</p>
-                    <p className="text-xs mt-2">Run the seed script to populate sample data.</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                {patients.slice(0, 10).map((patient, index) => (
-                    <PatientListItem
-                        key={patient.personId}
-                        patient={patient}
-                        isActive={patient.personId === selectedPatientId}
-                        onClick={() => setSelectedPatientId(patient.personId)}
-                        alerts={patient.allergyFlag !== 'None' ? 1 : 0}
-                        time={`14:23`}
-                        location={`ED - Bay ${index + 1}`}
-                    />
-                ))}
-                </div>
-            )}
-             <Card className="mt-4 text-center text-sm">
+            <div className="flex-1 overflow-y-auto">
+                {isLoadingPatients ? (
+                     <div className="flex justify-center items-center h-full">
+                        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                    </div>
+                ) : !patients || patients.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-10">
+                        <p>No patients found.</p>
+                        <p className="text-xs mt-2">Run the seed script to populate sample data.</p>
+                    </div>
+                ) : (
+                    <div>
+                    {patients.slice(0, 10).map((patient, index) => (
+                        <PatientListItem
+                            key={patient.personId}
+                            patient={patient}
+                            isActive={patient.personId === selectedPatientId}
+                            onClick={() => setSelectedPatientId(patient.personId)}
+                        />
+                    ))}
+                    </div>
+                )}
+            </div>
+             <Card className="m-4 text-center text-sm rounded-lg">
                 <CardContent className="p-3">
-                    <div className="grid grid-cols-3 divide-x">
+                    <div className="grid grid-cols-3 divide-x divide-border">
                         <div><span className="font-bold text-lg text-white">{patients?.length || 0}</span><p className="text-muted-foreground">Active</p></div>
-                        <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground">Urgent</p></div>
+                        <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground">New</p></div>
                         <div><span className="font-bold text-lg text-white">12</span><p className="text-muted-foreground">Today</p></div>
                     </div>
                 </CardContent>
@@ -305,3 +320,5 @@ export default function PhysicianDashboard() {
     </div>
   );
 }
+
+    
