@@ -1,3 +1,4 @@
+
 import { faker } from '@faker-js/faker';
 
 // Static base data
@@ -60,12 +61,33 @@ const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)
 
 const generatePatients = (count: number, drCarterPatientCount: number) => {
     const patients = [];
-    for (let i = 0; i < count; i++) {
+
+    // Add specific patient: Leila Richardson
+    patients.push({
+        personId: 'leila_richardson_123',
+        nationalId: faker.string.nanoid(10),
+        fullName: 'Leila Richardson',
+        dateOfBirth: '1982-08-22',
+        gender: 'Female',
+        race: 'Black',
+        ethnicity: 'Not Hispanic',
+        maritalStatus: 'Married',
+        contactInfo: 'leila.richardson@example.com',
+        address: faker.location.streetAddress(true),
+        emergencyContact: `${faker.person.fullName()}, Spouse, ${faker.phone.number()}`,
+        primaryProviderId: drCarterId,
+        insuranceNumber: `INS-${faker.string.alphanumeric(8).toUpperCase()}`,
+        allergyFlag: 'None',
+        activeProblemList: 'Hypothyroidism, Iron Deficiency Anemia',
+    });
+
+
+    for (let i = 0; i < count - 1; i++) { // Generate `count - 1` to make room for Leila
         const gender = faker.person.sexType();
         const fullName = faker.person.fullName({ sex: gender });
 
         // Assign first X patients to Dr. Carter, rest are random
-        const primaryProviderId = i < drCarterPatientCount ? drCarterId : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
+        const primaryProviderId = i < drCarterPatientCount -1 ? drCarterId : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
 
         patients.push({
             personId: faker.string.uuid(),
@@ -134,7 +156,35 @@ const generateConditions = (patients: any[], encounters: any[]) => {
         { code: 'I10', desc: 'Hypertension' }, { code: 'E11.9', desc: 'Type 2 Diabetes' }, { code: 'J45.909', desc: 'Asthma' },
         { code: 'F33.1', desc: 'Depression' }, { code: 'M10.00', desc: 'Gout' }, { code: 'I25.10', desc: 'Coronary Artery Disease' }
     ];
-    patients.forEach(patient => {
+
+    // Add specific conditions for Leila Richardson
+    const leila = patients.find(p => p.personId === 'leila_richardson_123');
+    const leilaEncounters = encounters.filter(e => e.personId === leila?.personId);
+    if(leila && leilaEncounters.length > 0) {
+        conditions.push({
+            diagnosisId: faker.string.uuid(),
+            personId: leila.personId,
+            encounterId: leilaEncounters[0].encounterId,
+            icd10Code: 'E03.9',
+            diagnosisType: 'Principal',
+            onsetDate: '2022-05-10',
+            status: 'Active',
+            certainty: 'Confirmed',
+        });
+        conditions.push({
+            diagnosisId: faker.string.uuid(),
+            personId: leila.personId,
+            encounterId: leilaEncounters[0].encounterId,
+            icd10Code: 'D50.9',
+            diagnosisType: 'Secondary',
+            onsetDate: '2023-01-15',
+            status: 'Active',
+            certainty: 'Confirmed',
+        });
+    }
+
+
+    patients.filter(p => p.personId !== 'leila_richardson_123').forEach(patient => {
         const numConditions = faker.number.int({ min: 1, max: 4 });
         const patientEncounters = encounters.filter(e => e.personId === patient.personId);
         if (patientEncounters.length === 0) return;
@@ -323,6 +373,9 @@ const generateAllData = ({
 
     // Add active problem list to patients
     samplePatients.forEach(p => {
+        // Skip for Leila, as it's set statically
+        if (p.personId === 'leila_richardson_123') return;
+
         p.activeProblemList = sampleConditions
             .filter(c => c.personId === p.personId && c.status === 'Active')
             .map(c => c.icd10Code)
