@@ -5,14 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   User as UserIcon,
@@ -171,29 +163,10 @@ export default function PhysicianDashboard() {
               <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
                 <Bell className="h-5 w-5" />
               </Button>
-               <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex items-center gap-2">
-                           <Avatar className="h-8 w-8">
-                                <AvatarImage src={user?.photoURL || undefined} />
-                                <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <span className="hidden md:inline">{user?.displayName}</span>
-                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleSignOut}>
-                             <LogOut className="mr-2 h-4 w-4" />
-                             Sign Out
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+               <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
             </div>
         </div>
       </div>
