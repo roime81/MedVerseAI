@@ -42,9 +42,9 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen w-full flex-col bg-background font-sans text-foreground">
-      <header className="sticky top-0 z-40 flex h-16 flex-shrink-0 items-center justify-between gap-4 border-b bg-card px-6">
+      <header className="sticky top-0 z-40 flex h-16 flex-shrink-0 items-center justify-between gap-4 border-b bg-card px-6 text-card-foreground">
         <div className="flex items-center gap-6">
-          <h1 className="font-grotesk text-xl font-bold text-white">MedVerseAI</h1>
+          <h1 className="font-grotesk text-xl font-bold">MedVerseAI</h1>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="secondary" className="bg-primary/10 text-primary">
               <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -65,7 +65,7 @@ export default function DashboardLayout({
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search patients..."
-              className="w-full rounded-md bg-background pl-10"
+              className="w-full rounded-md bg-background/10 pl-10 border-border/50 placeholder:text-muted-foreground"
             />
           </div>
           <Button variant="ghost" size="icon" className="rounded-full">
@@ -79,7 +79,7 @@ export default function DashboardLayout({
       </header>
       
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-background text-foreground">
             {children}
         </main>
       </div>

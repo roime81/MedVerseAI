@@ -41,7 +41,7 @@ const PatientListItem = ({ patient, isActive, onClick }) => {
         >
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-white">{patient.fullName}</h3>
+                    <h3 className="font-semibold text-foreground">{patient.fullName}</h3>
                     {alerts > 0 && <AlertTriangle className="h-4 w-4 text-destructive" />}
                 </div>
                 {alerts > 0 && <Badge variant="destructive" className="flex-shrink-0">{alerts}</Badge>}
@@ -130,12 +130,12 @@ export default function PhysicianDashboard() {
 
   return (
     <div className="flex h-full flex-col">
-       <div className="flex-shrink-0 border-b bg-card p-4">
+       <div className="flex-shrink-0 border-b bg-card text-card-foreground p-4">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <UserIcon className="h-8 w-8 text-primary" />
                 <div>
-                    <h2 className="font-semibold text-white">{user?.displayName || 'Clinician'}</h2>
+                    <h2 className="font-semibold">{user?.displayName || 'Clinician'}</h2>
                     <p className="text-sm text-muted-foreground">Emergency Department</p>
                 </div>
             </div>
@@ -147,10 +147,10 @@ export default function PhysicianDashboard() {
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Left column: Patient List */}
-        <div className="w-1/4 max-w-sm flex-shrink-0 border-r overflow-y-auto flex flex-col">
+        <div className="w-1/4 max-w-sm flex-shrink-0 border-r overflow-y-auto flex flex-col bg-white">
             <div className="p-4 border-b">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-white">My Patients</h2>
+                    <h2 className="text-lg font-semibold text-foreground">My Patients</h2>
                     <Button variant="ghost" size="icon"><Filter className="h-4 w-4" /></Button>
                 </div>
                 <div className="flex gap-2">
@@ -182,19 +182,19 @@ export default function PhysicianDashboard() {
                     </div>
                 )}
             </div>
-             <Card className="m-4 text-center text-sm rounded-lg">
+             <Card className="m-4 text-center text-sm rounded-lg bg-white">
                 <CardContent className="p-3">
                     <div className="grid grid-cols-3 divide-x divide-border">
-                        <div><span className="font-bold text-lg text-white">{patients?.length || 0}</span><p className="text-muted-foreground">Active</p></div>
+                        <div><span className="font-bold text-lg text-foreground">{patients?.length || 0}</span><p className="text-muted-foreground">Active</p></div>
                         <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground">New</p></div>
-                        <div><span className="font-bold text-lg text-white">12</span><p className="text-muted-foreground">Today</p></div>
+                        <div><span className="font-bold text-lg text-foreground">12</span><p className="text-muted-foreground">Today</p></div>
                     </div>
                 </CardContent>
              </Card>
         </div>
 
         {/* Right column: Patient Details */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
             {!selectedPatient ? (
                 <div className="flex h-full items-center justify-center">
                     <p className="text-muted-foreground">Select a patient to view details.</p>
@@ -204,7 +204,7 @@ export default function PhysicianDashboard() {
                     {/* Patient Header */}
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-2xl font-bold text-white">{selectedPatient.fullName}</h1>
+                            <h1 className="text-2xl font-bold text-foreground">{selectedPatient.fullName}</h1>
                             <p className="text-muted-foreground">
                                 {selectedPatient.gender.charAt(0)}{calculateAge(selectedPatient.dateOfBirth)} • MRN-{selectedPatient.nationalId?.slice(-6)} • {selectedPatient.activeProblemList?.split(',')[0] || 'No active problems'} • ED - Bay 3
                             </p>
@@ -220,7 +220,7 @@ export default function PhysicianDashboard() {
                      )}
 
                     {/* Vitals */}
-                    <Card>
+                    <Card className="bg-white">
                         <CardContent className="p-4">
                             <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
                                 <VitalSignMetric label="BP" value="168/95" />
@@ -251,10 +251,10 @@ export default function PhysicianDashboard() {
                                 </div>
                             ) : conditions && conditions.length > 0 ? (
                                 conditions.map((condition) => (
-                                    <Card key={condition.diagnosisId}>
+                                    <Card key={condition.diagnosisId} className="bg-white">
                                         <CardContent className="p-4 flex justify-between items-center">
                                             <div>
-                                                <p className="font-semibold text-white">{condition.icd10Code}</p>
+                                                <p className="font-semibold text-foreground">{condition.icd10Code}</p>
                                                 <p className="text-sm text-muted-foreground">Onset: {condition.onsetDate ? format(new Date(condition.onsetDate), 'yyyy') : 'N/A'}</p>
                                             </div>
                                             <Badge variant="outline" className="text-green-400 border-green-400/50">{condition.status}</Badge>
@@ -276,9 +276,9 @@ export default function PhysicianDashboard() {
                               </div>
                           ) : medications && medications.length > 0 ? (
                               medications.map((med) => (
-                                  <Card key={med.medicationId}>
+                                  <Card key={med.medicationId} className="bg-white">
                                       <CardContent className="p-4">
-                                          <p className="font-semibold text-white">{med.drugName}</p>
+                                          <p className="font-semibold text-foreground">{med.drugName}</p>
                                           <p className="text-sm text-muted-foreground">{med.dose}</p>
                                           <div className="flex justify-between items-end mt-2">
                                               <p className="text-xs text-muted-foreground">Prescribed by {med.prescribingPhysicianId || 'Unknown'}</p>
@@ -320,5 +320,3 @@ export default function PhysicianDashboard() {
     </div>
   );
 }
-
-    

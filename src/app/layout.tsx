@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={cn('font-sans', ptSans.variable, spaceGrotesk.variable)}>
         <FirebaseClientProvider>{children}</FirebaseClientProvider>
       </body>
