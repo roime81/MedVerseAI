@@ -142,12 +142,15 @@ export default function PhysicianDashboard() {
        <div className="flex-shrink-0 border-b bg-white p-4">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-                <UserIcon className="h-8 w-8 text-primary" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <UserIcon className="h-6 w-6 text-primary" />
+                </div>
                 <div>
                     <h2 className="font-semibold text-foreground">{user?.displayName || 'Clinician'}</h2>
                     <p className="text-sm text-muted-foreground">Emergency Department</p>
                 </div>
-                 <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
+                <div className="h-8 border-l border-border"></div>
+                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>Shift: 08:00 - 16:00</span>
                 </div>
