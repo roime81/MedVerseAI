@@ -92,7 +92,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-card border-border text-white">
+      <DialogContent className="max-w-2xl bg-white text-foreground">
         <DialogHeader>
           <DialogTitle>New Patient Registration</DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -116,7 +116,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal bg-background border-border",
+                          "w-full justify-start text-left font-normal",
                           !dateOfBirth && "text-muted-foreground"
                         )}
                       >
@@ -136,7 +136,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                 </FormField>
                 <FormField label="Gender" required>
                     <Select onValueChange={setGender} value={gender}>
-                        <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select gender" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
@@ -149,7 +149,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                 </FormField>
                 <FormField label="Marital Status">
                     <Select onValueChange={setMaritalStatus} value={maritalStatus}>
-                        <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select status" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="single">Single</SelectItem>
                             <SelectItem value="married">Married</SelectItem>
@@ -194,7 +194,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
                 <div className="grid grid-cols-2 gap-4">
                      <FormField label="Insurance Provider">
                         <Select onValueChange={setInsuranceProvider} value={insuranceProvider}>
-                            <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select provider" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="provider1">BlueCross BlueShield</SelectItem>
                                 <SelectItem value="provider2">Aetna</SelectItem>
@@ -235,7 +235,7 @@ export function NewPatientForm({ open, onOpenChange }: NewPatientFormProps) {
 function FormSection({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) {
     return (
         <div className="space-y-4">
-            <h3 className="flex items-center text-lg font-semibold">
+            <h3 className="flex items-center text-lg font-semibold text-foreground">
                 <Icon className="mr-3 h-5 w-5 text-primary" />
                 {title}
             </h3>
@@ -247,7 +247,7 @@ function FormSection({ icon: Icon, title, children }: { icon: React.ElementType,
 function FormField({ label, required, fullWidth, children }: { label: string, required?: boolean, fullWidth?: boolean, children: React.ReactNode }) {
     return (
         <div className={cn("space-y-2", fullWidth && 'col-span-2')}>
-            <Label>
+            <Label className="text-foreground">
                 {label} {required && <span className="text-destructive">*</span>}
             </Label>
             {children}

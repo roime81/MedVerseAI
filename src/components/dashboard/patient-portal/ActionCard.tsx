@@ -19,7 +19,7 @@ export function ActionCard({ icon: Icon, title, subtitle, className }: ActionCar
         <div className="p-2 bg-primary/10 rounded-lg">
             <Icon className="h-6 w-6 text-primary" />
         </div>
-        <div>
+        <div className="text-foreground">
             <p className="font-semibold">{title}</p>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>

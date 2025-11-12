@@ -17,7 +17,7 @@ export function HealthSummary({ conditions, medications, allergies }: HealthSumm
   return (
     <Card className="bg-white">
         <CardHeader>
-            <CardTitle>My Health Summary</CardTitle>
+            <CardTitle className="text-foreground">My Health Summary</CardTitle>
         </CardHeader>
         <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -27,7 +27,7 @@ export function HealthSummary({ conditions, medications, allergies }: HealthSumm
                         {conditions ? (
                             conditions.length > 0 ? (
                                 conditions.map(condition => (
-                                    <div key={condition.diagnosisId} className="p-3 rounded-md bg-slate-50 text-sm font-medium">
+                                    <div key={condition.diagnosisId} className="p-3 rounded-md bg-slate-100 text-sm font-medium text-foreground">
                                         {condition.icd10Code}
                                     </div>
                                 ))
@@ -41,7 +41,7 @@ export function HealthSummary({ conditions, medications, allergies }: HealthSumm
                         {medications ? (
                             medications.length > 0 ? (
                                 medications.map(med => (
-                                    <div key={med.medicationId} className="p-3 rounded-md bg-slate-50 text-sm font-medium">
+                                    <div key={med.medicationId} className="p-3 rounded-md bg-slate-100 text-sm font-medium text-foreground">
                                         {med.drugName}
                                     </div>
                                 ))

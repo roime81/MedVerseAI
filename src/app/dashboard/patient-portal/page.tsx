@@ -55,7 +55,7 @@ export default function PatientPortalPage() {
     const patientName = patient?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'User';
 
     return (
-        <div className="p-8 space-y-8">
+        <div className="p-8 space-y-8 bg-background text-foreground">
             <div>
                 <h1 className="text-3xl font-bold text-foreground">Welcome back, {patientName}</h1>
                 <p className="text-muted-foreground">Manage your health, your way</p>

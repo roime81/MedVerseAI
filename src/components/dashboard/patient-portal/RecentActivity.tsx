@@ -14,14 +14,14 @@ export function RecentActivity() {
   return (
     <Card className="bg-white">
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle className="text-foreground">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {activities.map((item, index) => {
             const Icon = item.icon;
             return (
                 <div key={index} className="flex items-center gap-4">
-                    <div className={`p-2 rounded-full bg-primary-foreground ${item.color.replace('text-', 'bg-').replace('-500', '/10')}`}>
+                    <div className={`p-2 rounded-full bg-slate-100 ${item.color.replace('text-', 'bg-').replace('-500', '/10')}`}>
                         <Icon className={`h-5 w-5 ${item.color}`} />
                     </div>
                     <div>

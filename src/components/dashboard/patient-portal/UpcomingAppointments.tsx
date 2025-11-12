@@ -26,13 +26,13 @@ export function UpcomingAppointments() {
   return (
     <Card className="bg-white">
       <CardHeader>
-        <CardTitle>Upcoming Appointments</CardTitle>
+        <CardTitle className="text-foreground">Upcoming Appointments</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {appointments.map((appt, index) => (
-            <div key={index} className="flex items-center justify-between p-4 rounded-lg border bg-background">
-                <div>
-                    <p className="font-semibold text-foreground">{appt.type}</p>
+            <div key={index} className="flex items-center justify-between p-4 rounded-lg border bg-slate-50">
+                <div className="text-foreground">
+                    <p className="font-semibold">{appt.type}</p>
                     <p className="text-sm text-muted-foreground">{appt.doctor}</p>
                     <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />

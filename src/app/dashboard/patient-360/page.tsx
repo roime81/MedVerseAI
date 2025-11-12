@@ -77,7 +77,7 @@ export default function Patient360Page() {
           </Button>
         );
       },
-      cell: ({ row }) => <div className="font-medium text-white">{row.getValue('fullName')}</div>,
+      cell: ({ row }) => <div className="font-medium text-foreground">{row.getValue('fullName')}</div>,
     },
     {
       accessorKey: 'dateOfBirth',
@@ -177,7 +177,7 @@ export default function Patient360Page() {
 
   return (
     <>
-    <div className="w-full text-white p-8">
+    <div className="w-full text-foreground p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
             <h1 className="font-grotesk text-3xl font-bold">Patients</h1>
@@ -188,7 +188,7 @@ export default function Patient360Page() {
             Add New Patient
         </Button>
       </div>
-      <div className="rounded-lg border border-border bg-card p-6">
+      <div className="rounded-lg border border-border bg-white p-6">
         <div className="flex items-center py-4">
             <Input
             placeholder="Filter by name..."
@@ -200,7 +200,7 @@ export default function Patient360Page() {
             />
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto bg-card border-border">
+                <Button variant="outline" className="ml-auto">
                 Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>

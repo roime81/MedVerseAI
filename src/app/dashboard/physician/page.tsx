@@ -36,7 +36,7 @@ const PatientListItem = ({ patient, isActive, onClick }) => {
             onClick={onClick}
             className={cn(
                 "cursor-pointer border-b p-4 transition-all",
-                isActive ? "bg-primary/10" : "hover:bg-muted/50"
+                isActive ? "bg-primary/10" : "hover:bg-muted"
             )}
         >
             <div className="flex items-start justify-between">
@@ -49,7 +49,7 @@ const PatientListItem = ({ patient, isActive, onClick }) => {
             
             <p className="text-sm text-muted-foreground">{patient.gender?.charAt(0)}{age} • MRN-{patient.nationalId?.slice(-6)}</p>
             
-            <p className="mt-2 text-sm">{patient.activeProblemList?.split(',')[0] || 'No active problems'}</p>
+            <p className="mt-2 text-sm text-foreground">{patient.activeProblemList?.split(',')[0] || 'No active problems'}</p>
             
             {patient.allergyFlag && patient.allergyFlag !== 'None' && (
                 <div className="mt-2">
@@ -74,7 +74,7 @@ const PatientListItem = ({ patient, isActive, onClick }) => {
 const VitalSignMetric = ({ label, value }: { label: string, value: string }) => (
     <div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="font-semibold text-lg">{value}</p>
+        <p className="font-semibold text-lg text-foreground">{value}</p>
     </div>
 );
 
@@ -130,12 +130,12 @@ export default function PhysicianDashboard() {
 
   return (
     <div className="flex h-full flex-col">
-       <div className="flex-shrink-0 border-b bg-card text-card-foreground p-4">
+       <div className="flex-shrink-0 border-b bg-white p-4">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <UserIcon className="h-8 w-8 text-primary" />
                 <div>
-                    <h2 className="font-semibold">{user?.displayName || 'Clinician'}</h2>
+                    <h2 className="font-semibold text-foreground">{user?.displayName || 'Clinician'}</h2>
                     <p className="text-sm text-muted-foreground">Emergency Department</p>
                 </div>
             </div>
@@ -151,7 +151,7 @@ export default function PhysicianDashboard() {
             <div className="p-4 border-b">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-foreground">My Patients</h2>
-                    <Button variant="ghost" size="icon"><Filter className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon"><Filter className="h-4 w-4 text-muted-foreground" /></Button>
                 </div>
                 <div className="flex gap-2">
                     <Button size="sm" variant="secondary" className="flex-grow">All Patients</Button>
@@ -162,7 +162,7 @@ export default function PhysicianDashboard() {
             <div className="flex-1 overflow-y-auto">
                 {isLoadingPatients ? (
                      <div className="flex justify-center items-center h-full">
-                        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                        <Loader2 className="mr-2 h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                 ) : !patients || patients.length === 0 ? (
                     <div className="text-center text-muted-foreground py-10">
@@ -194,7 +194,7 @@ export default function PhysicianDashboard() {
         </div>
 
         {/* Right column: Patient Details */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-50 text-foreground">
             {!selectedPatient ? (
                 <div className="flex h-full items-center justify-center">
                     <p className="text-muted-foreground">Select a patient to view details.</p>
