@@ -3,21 +3,28 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   User as UserIcon,
   Filter,
   Clock,
   AlertTriangle,
-  Stethoscope,
-  Pill,
-  FlaskConical,
-  Beaker,
-  Scan,
-  FileText,
-  HeartPulse
+  Search,
+  Bell,
+  LogOut,
+  ChevronDown
 } from 'lucide-react';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, useAuth } from '@/firebase';
 import type { Patient, DrugExposure, Condition } from '@/lib/types';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query } from 'firebase/firestore';
@@ -25,6 +32,8 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 
 const PatientListItem = ({ patient, isActive, onClick }) => {
@@ -42,7 +51,6 @@ const PatientListItem = ({ patient, isActive, onClick }) => {
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-foreground">{patient.fullName}</h3>
-                    {alerts > 0 && <AlertTriangle className="h-4 w-4 text-destructive" />}
                 </div>
                 {alerts > 0 && <Badge variant="destructive" className="flex-shrink-0">{alerts}</Badge>}
             </div>
@@ -94,6 +102,8 @@ const calculateAge = (dob: string) => {
 export default function PhysicianDashboard() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const auth = useAuth();
+  const router = useRouter();
   const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
 
   const patientsQuery = useMemoFirebase(() => {
@@ -126,10 +136,17 @@ export default function PhysicianDashboard() {
     return collection(firestore, 'patients', selectedPatient.personId, 'conditions');
     }, [firestore, selectedPatient]);
 
-    const { data: conditions, isLoading: isLoadingConditions } = useCollection<Condition>(conditionsQuery);
+  const { data: conditions, isLoading: isLoadingConditions } = useCollection<Condition>(conditionsQuery);
+
+  const handleSignOut = () => {
+    signOut(auth).then(() => {
+      router.push('/login');
+    });
+  };
+
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-slate-50 text-foreground">
        <div className="flex-shrink-0 border-b bg-white p-4">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -138,10 +155,45 @@ export default function PhysicianDashboard() {
                     <h2 className="font-semibold text-foreground">{user?.displayName || 'Clinician'}</h2>
                     <p className="text-sm text-muted-foreground">Emergency Department</p>
                 </div>
+                 <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
+                    <Clock className="h-4 w-4" />
+                    <span>Shift: 08:00 - 16:00</span>
+                </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Shift: 08:00 - 16:00</span>
+             <div className="flex items-center gap-4">
+              <div className="relative w-full max-w-xs">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search patients..."
+                  className="w-full rounded-md bg-background pl-10 border-border placeholder:text-muted-foreground text-foreground"
+                />
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
+                <Bell className="h-5 w-5" />
+              </Button>
+               <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="flex items-center gap-2">
+                           <Avatar className="h-8 w-8">
+                                <AvatarImage src={user?.photoURL || undefined} />
+                                <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <span className="hidden md:inline">{user?.displayName}</span>
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                        <DropdownMenuItem>Settings</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleSignOut}>
+                             <LogOut className="mr-2 h-4 w-4" />
+                             Sign Out
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
       </div>
@@ -171,7 +223,7 @@ export default function PhysicianDashboard() {
                     </div>
                 ) : (
                     <div>
-                    {patients.slice(0, 10).map((patient, index) => (
+                    {patients.slice(0, 10).map((patient) => (
                         <PatientListItem
                             key={patient.personId}
                             patient={patient}
@@ -182,12 +234,12 @@ export default function PhysicianDashboard() {
                     </div>
                 )}
             </div>
-             <Card className="m-4 text-center text-sm rounded-lg bg-white">
+             <Card className="m-4 text-center text-sm rounded-lg bg-white shadow-none border">
                 <CardContent className="p-3">
                     <div className="grid grid-cols-3 divide-x divide-border">
-                        <div><span className="font-bold text-lg text-foreground">{patients?.length || 0}</span><p className="text-muted-foreground">Active</p></div>
-                        <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground">New</p></div>
-                        <div><span className="font-bold text-lg text-foreground">12</span><p className="text-muted-foreground">Today</p></div>
+                        <div><span className="font-bold text-lg text-foreground">{patients?.length || 0}</span><p className="text-muted-foreground text-xs">Active</p></div>
+                        <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground text-xs">Alerts</p></div>
+                        <div><span className="font-bold text-lg text-foreground">12</span><p className="text-muted-foreground text-xs">Total</p></div>
                     </div>
                 </CardContent>
              </Card>
@@ -197,7 +249,8 @@ export default function PhysicianDashboard() {
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50 text-foreground">
             {!selectedPatient ? (
                 <div className="flex h-full items-center justify-center">
-                    <p className="text-muted-foreground">Select a patient to view details.</p>
+                     <Loader2 className="mr-2 h-6 w-6 animate-spin text-muted-foreground" />
+                    <p className="text-muted-foreground">Loading patient details...</p>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -235,7 +288,7 @@ export default function PhysicianDashboard() {
 
                     {/* Main Content Tabs */}
                     <Tabs defaultValue="problems" className="w-full">
-                      <TabsList>
+                      <TabsList className="bg-white">
                           <TabsTrigger value="overview">Overview</TabsTrigger>
                           <TabsTrigger value="problems">Problems</TabsTrigger>
                           <TabsTrigger value="medications">Medications</TabsTrigger>
@@ -295,20 +348,17 @@ export default function PhysicianDashboard() {
                         </div>
                       </TabsContent>
                       <TabsContent value="labs" className="mt-4">
-                        <div className="flex items-center justify-center h-40 text-muted-foreground">
-                              <FlaskConical className="mr-2 h-5 w-5" />
+                        <div className="flex items-center justify-center h-40 rounded-lg border-2 border-dashed border-border text-muted-foreground">
                               <span>No lab results found.</span>
                         </div>
                       </TabsContent>
                        <TabsContent value="orders" className="mt-4">
-                        <div className="flex items-center justify-center h-40 text-muted-foreground">
-                              <Beaker className="mr-2 h-5 w-5" />
+                        <div className="flex items-center justify-center h-40 rounded-lg border-2 border-dashed border-border text-muted-foreground">
                               <span>No active orders.</span>
                         </div>
                       </TabsContent>
                        <TabsContent value="notes" className="mt-4">
-                        <div className="flex items-center justify-center h-40 text-muted-foreground">
-                              <FileText className="mr-2 h-5 w-5" />
+                        <div className="flex items-center justify-center h-40 rounded-lg border-2 border-dashed border-border text-muted-foreground">
                               <span>No notes found.</span>
                         </div>
                       </TabsContent>

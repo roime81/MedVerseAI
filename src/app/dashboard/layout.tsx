@@ -61,8 +61,8 @@ export default function DashboardLayout({
             </Button>
             <Button 
                 size="sm" 
-                variant={pathname === '/dashboard/patient-portal' ? 'secondary' : 'ghost'}
-                className={cn(pathname === '/dashboard/patient-portal' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
+                variant={pathname.startsWith('/dashboard/patient') ? 'secondary' : 'ghost'}
+                className={cn(pathname.startsWith('/dashboard/patient') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
                 asChild
             >
                <Link href="/dashboard/patient-portal">
@@ -75,22 +75,6 @@ export default function DashboardLayout({
               Command Center
             </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="relative w-full max-w-xs">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search patients..."
-              className="w-full rounded-md bg-background/10 pl-10 border-border/50 placeholder:text-muted-foreground text-card-foreground"
-            />
-          </div>
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-card-foreground">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-card-foreground">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
         </div>
       </header>
       
