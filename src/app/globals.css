@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 220 20% 96%; /* Light Gray */
-    --foreground: 222.2 84% 4.9%; /* Dark Blue/Black */
+    --background: 197 50% 96%; /* Very light desaturated teal */
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%; /* White */
     --card-foreground: 222.2 84% 4.9%;
@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 217.9 91.2% 59.8%; /* Bright Blue */
+    --primary: 197 35% 43%; /* Deep teal (#468499) */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 15% 90%; /* Light gray for selected items */
+    --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 220 15% 90%;
-    --muted-foreground: 215 20.2% 65.1%; /* Grayish text */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 220 15% 90%;
+    --accent: 195 86% 75%; /* Pale Cyan (#77B5FE) - Using as accent */
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -30,7 +30,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 217.9 91.2% 59.8%;
+    --ring: 197 35% 43%;
 
     --radius: 0.5rem;
   }
@@ -45,7 +45,7 @@
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 217.9 91.2% 59.8%; /* Bright Blue */
+    --primary: 197 35% 50%; /* Deep teal */
     --primary-foreground: 210 20% 98%;
 
     --secondary: 215 27.9% 16.9%; /* Darker blue for selected items */
@@ -54,7 +54,7 @@
     --muted: 215 27.9% 16.9%;
     --muted-foreground: 215.4 16.3% 56.9%; /* Grayish text */
 
-    --accent: 215 27.9% 16.9%;
+    --accent: 195 86% 75%;
     --accent-foreground: 210 20% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -62,7 +62,7 @@
 
     --border: 215 27.9% 16.9%; /* Slightly lighter border */
     --input: 215 27.9% 16.9%;
-    --ring: 217.9 91.2% 59.8%;
+    --ring: 197 35% 50%;
   }
 }
 
