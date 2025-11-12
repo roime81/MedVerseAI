@@ -21,7 +21,6 @@ import { EncounterNoteDialog } from './encounter-note-dialog';
 import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection } from 'firebase/firestore';
-import { generatedData } from '@/lib/sample-data';
 
 
 interface PatientChartSheetProps {
@@ -68,13 +67,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
     return collection(firestore, 'patients', patient.personId, 'drugExposures');
   }, [firestore, patient]);
 
-  const { data: drugExposuresFromDb, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
-  
-  const medications = (drugExposuresFromDb && drugExposuresFromDb.length > 0)
-    ? drugExposuresFromDb
-    : patient
-        ? generatedData.sampleDrugExposures.filter(de => de.personId === patient.personId)
-        : [];
+  const { data: medications, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
   
   const handleViewNotes = (date: string) => {
     setSelectedNoteDate(date);
@@ -93,6 +86,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
   if (!patient) return null;
   
   const calculateAge = (dob: string) => {
+    if(!dob) return '';
     const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -190,9 +184,9 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                       <TabsContent value="overview">
                           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                               <InfoCard icon={User} title="Demographics" className="xl:col-span-1">
-                                  <InfoItem label="Date of Birth" value={format(new Date(patient.dateOfBirth), 'MMMM dd, yyyy')} />
+                                  <InfoItem label="Date of Birth" value={patient.dateOfBirth ? format(new Date(patient.dateOfBirth), 'MMMM dd, yyyy') : 'N/A'} />
                                   <InfoItem label="Gender" value={patient.gender} />
-                                  <InfoItem label="SSN" value={`***-**-${patient.nationalId?.slice(-4)}`} />
+                                  <InfoItem label="SSN" value={patient.nationalId ? `***-**-${patient.nationalId.slice(-4)}` : 'N/A'} />
                                   <InfoItem label="Marital Status" value={patient.maritalStatus} />
                               </InfoCard>
                               
@@ -213,7 +207,7 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                               </InfoCard>
 
                                <InfoCard icon={AlertTriangle} title="Allergies" className="xl:col-span-1">
-                                  {patient.allergyFlag !== 'None' ? (
+                                  {patient.allergyFlag && patient.allergyFlag !== 'None' ? (
                                       <Badge variant="destructive">{patient.allergyFlag}</Badge>
                                   ): (
                                       <p className="text-sm text-muted-foreground">No known allergies.</p>
@@ -260,14 +254,14 @@ export function PatientChartSheet({ patient, open, onOpenChange, appointmentStat
                                             <div className="flex items-center justify-center h-24">
                                                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                                             </div>
-                                        ) : medications.length > 0 ? (
+                                        ) : medications && medications.length > 0 ? (
                                             medications.map((med) => (
                                                 <MedicationItem 
                                                     key={med.medicationId}
                                                     name={med.drugName}
                                                     dose={med.dose}
                                                     prescribedBy={med.prescribingPhysicianId} // This should be resolved to a name
-                                                    since={`Since ${format(new Date(med.startDate), 'MMM yyyy')}`}
+                                                    since={med.startDate ? `Since ${format(new Date(med.startDate), 'MMM yyyy')}` : ''}
                                                 />
                                             ))
                                         ) : (
@@ -363,7 +357,7 @@ const InfoCard = ({ icon: Icon, title, children, className }: { icon: React.Elem
 const InfoItem = ({ label, value }: { label: string, value?: string | number }) => (
     <div className="flex justify-between text-sm">
         <p className="text-muted-foreground">{label}:</p>
-        <p className="font-medium text-right">{value}</p>
+        <p className="font-medium text-right">{value || 'N/A'}</p>
     </div>
 );
 
@@ -435,4 +429,3 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
         </div>
     </div>
 );
-

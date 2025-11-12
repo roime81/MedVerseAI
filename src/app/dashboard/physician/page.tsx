@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Patient, DrugExposure, Condition } from '@/lib/types';
-import { generatedData } from '@/lib/sample-data';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query } from 'firebase/firestore';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -38,13 +37,15 @@ const PatientListItem = ({ patient, isActive, onClick, alerts, time, location })
     >
         <div className="flex items-center justify-between">
             <h3 className="font-semibold text-white">{patient.fullName}</h3>
-            <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-destructive" />
-                <Badge variant="destructive" className="flex-shrink-0">{alerts}</Badge>
-            </div>
+            {alerts > 0 && (
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <Badge variant="destructive" className="flex-shrink-0">{alerts}</Badge>
+                </div>
+            )}
         </div>
         <p className="text-sm text-muted-foreground">{patient.gender.charAt(0)}{calculateAge(patient.dateOfBirth)} • MRN-{patient.nationalId?.slice(-6)}</p>
-        <p className="mt-2 text-sm">{patient.activeProblemList.split(',')[0] || 'No active problems'}</p>
+        <p className="mt-2 text-sm">{patient.activeProblemList?.split(',')[0] || 'No active problems'}</p>
         
         <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
@@ -64,6 +65,7 @@ const VitalSignMetric = ({ label, value }: { label: string, value: string }) => 
 );
 
 const calculateAge = (dob: string) => {
+    if (!dob) return '';
     const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -85,20 +87,16 @@ export default function PhysicianDashboard() {
     return query(collection(firestore, 'patients'));
   }, [firestore]);
 
-  const { data: patientsFromDb, isLoading: isLoadingPatients } = useCollection<Patient>(patientsQuery);
-  
-  const patients = (patientsFromDb?.length)
-    ? patientsFromDb
-    : generatedData.samplePatients as Patient[];
+  const { data: patients, isLoading: isLoadingPatients } = useCollection<Patient>(patientsQuery);
   
   React.useEffect(() => {
-    if (!selectedPatientId && patients.length > 0) {
+    if (!selectedPatientId && patients && patients.length > 0) {
       setSelectedPatientId(patients[0].personId);
     }
   }, [patients, selectedPatientId]);
 
   const selectedPatient = React.useMemo(() => {
-    return patients.find(p => p.personId === selectedPatientId) || null;
+    return patients?.find(p => p.personId === selectedPatientId) || null;
   }, [patients, selectedPatientId]);
 
 
@@ -107,26 +105,14 @@ export default function PhysicianDashboard() {
     return collection(firestore, 'patients', selectedPatient.personId, 'drugExposures');
   }, [firestore, selectedPatient]);
 
-  const { data: drugExposuresFromDb, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
-  
-  const medications = (drugExposuresFromDb && drugExposuresFromDb.length > 0)
-    ? drugExposuresFromDb
-    : selectedPatient
-        ? generatedData.sampleDrugExposures.filter(de => de.personId === selectedPatient.personId)
-        : [];
+  const { data: medications, isLoading: isLoadingMedications } = useCollection<DrugExposure>(drugExposuresQuery);
   
   const conditionsQuery = useMemoFirebase(() => {
     if (!firestore || !selectedPatient) return null;
     return collection(firestore, 'patients', selectedPatient.personId, 'conditions');
     }, [firestore, selectedPatient]);
 
-    const { data: conditionsFromDb, isLoading: isLoadingConditions } = useCollection<Condition>(conditionsQuery);
-
-    const conditions = (conditionsFromDb && conditionsFromDb.length > 0)
-    ? conditionsFromDb
-    : selectedPatient
-        ? generatedData.sampleConditions.filter(c => c.personId === selectedPatient.personId)
-        : [];
+    const { data: conditions, isLoading: isLoadingConditions } = useCollection<Condition>(conditionsQuery);
 
   return (
     <div className="flex h-full flex-col">
@@ -161,6 +147,11 @@ export default function PhysicianDashboard() {
                  <div className="flex justify-center items-center h-full">
                     <Loader2 className="mr-2 h-6 w-6 animate-spin" />
                 </div>
+            ) : !patients || patients.length === 0 ? (
+                <div className="text-center text-muted-foreground py-10">
+                    <p>No patients found.</p>
+                    <p className="text-xs mt-2">Run the seed script to populate sample data.</p>
+                </div>
             ) : (
                 <div className="space-y-3">
                 {patients.slice(0, 10).map((patient, index) => (
@@ -169,8 +160,8 @@ export default function PhysicianDashboard() {
                         patient={patient}
                         isActive={patient.personId === selectedPatientId}
                         onClick={() => setSelectedPatientId(patient.personId)}
-                        alerts={2}
-                        time={`14:23 (${formatDistanceToNow(new Date(patient.dateOfBirth), { addSuffix: false })})`}
+                        alerts={patient.allergyFlag !== 'None' ? 1 : 0}
+                        time={`14:23`}
                         location={`ED - Bay ${index + 1}`}
                     />
                 ))}
@@ -179,8 +170,8 @@ export default function PhysicianDashboard() {
              <Card className="mt-4 text-center text-sm">
                 <CardContent className="p-3">
                     <div className="grid grid-cols-3 divide-x">
-                        <div><span className="font-bold text-lg text-white">4</span><p className="text-muted-foreground">Active</p></div>
-                        <div><span className="font-bold text-lg text-destructive">2</span><p className="text-muted-foreground">Urgent</p></div>
+                        <div><span className="font-bold text-lg text-white">{patients?.length || 0}</span><p className="text-muted-foreground">Active</p></div>
+                        <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground">Urgent</p></div>
                         <div><span className="font-bold text-lg text-white">12</span><p className="text-muted-foreground">Today</p></div>
                     </div>
                 </CardContent>
@@ -191,7 +182,7 @@ export default function PhysicianDashboard() {
         <div className="flex-1 overflow-y-auto p-6">
             {!selectedPatient ? (
                 <div className="flex h-full items-center justify-center">
-                    <p>Select a patient to view details.</p>
+                    <p className="text-muted-foreground">Select a patient to view details.</p>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -200,17 +191,18 @@ export default function PhysicianDashboard() {
                         <div>
                             <h1 className="text-2xl font-bold text-white">{selectedPatient.fullName}</h1>
                             <p className="text-muted-foreground">
-                                {selectedPatient.gender.charAt(0)}{calculateAge(selectedPatient.dateOfBirth)} • MRN-{selectedPatient.nationalId?.slice(-6)} • {selectedPatient.activeProblemList.split(',')[0] || 'No active problems'} • ED - Bay 3
+                                {selectedPatient.gender.charAt(0)}{calculateAge(selectedPatient.dateOfBirth)} • MRN-{selectedPatient.nationalId?.slice(-6)} • {selectedPatient.activeProblemList?.split(',')[0] || 'No active problems'} • ED - Bay 3
                             </p>
                         </div>
                         <Button>+ New Order</Button>
                     </div>
 
                     {/* Alerts */}
-                    <div className="flex gap-2">
-                        <Badge variant="destructive" className="p-2 text-sm"><AlertTriangle className="h-4 w-4 mr-2" />Penicillin - Anaphylaxis</Badge>
-                        <Badge variant="secondary" className="p-2 text-sm bg-amber-500/10 text-amber-500 border-amber-500/20"><AlertTriangle className="h-4 w-4 mr-2" />High fall risk</Badge>
-                    </div>
+                     {selectedPatient.allergyFlag !== 'None' && (
+                        <div className="flex gap-2">
+                            <Badge variant="destructive" className="p-2 text-sm"><AlertTriangle className="h-4 w-4 mr-2" />{selectedPatient.allergyFlag}</Badge>
+                        </div>
+                     )}
 
                     {/* Vitals */}
                     <Card>
@@ -242,13 +234,13 @@ export default function PhysicianDashboard() {
                                 <div className="flex items-center justify-center h-24">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                                 </div>
-                            ) : conditions.length > 0 ? (
+                            ) : conditions && conditions.length > 0 ? (
                                 conditions.map((condition) => (
                                     <Card key={condition.diagnosisId}>
                                         <CardContent className="p-4 flex justify-between items-center">
                                             <div>
                                                 <p className="font-semibold text-white">{condition.icd10Code}</p>
-                                                <p className="text-sm text-muted-foreground">Onset: {format(new Date(condition.onsetDate), 'yyyy')}</p>
+                                                <p className="text-sm text-muted-foreground">Onset: {condition.onsetDate ? format(new Date(condition.onsetDate), 'yyyy') : 'N/A'}</p>
                                             </div>
                                             <Badge variant="outline" className="text-green-400 border-green-400/50">{condition.status}</Badge>
                                         </CardContent>
@@ -267,7 +259,7 @@ export default function PhysicianDashboard() {
                               <div className="flex items-center justify-center h-24">
                                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                               </div>
-                          ) : medications.length > 0 ? (
+                          ) : medications && medications.length > 0 ? (
                               medications.map((med) => (
                                   <Card key={med.medicationId}>
                                       <CardContent className="p-4">
@@ -275,7 +267,7 @@ export default function PhysicianDashboard() {
                                           <p className="text-sm text-muted-foreground">{med.dose}</p>
                                           <div className="flex justify-between items-end mt-2">
                                               <p className="text-xs text-muted-foreground">Prescribed by {med.prescribingPhysicianId || 'Unknown'}</p>
-                                              <p className="text-xs text-muted-foreground">Since {format(new Date(med.startDate), 'MMM yyyy')}</p>
+                                              <p className="text-xs text-muted-foreground">Since {med.startDate ? format(new Date(med.startDate), 'MMM yyyy') : 'N/A'}</p>
                                           </div>
                                       </CardContent>
                                   </Card>

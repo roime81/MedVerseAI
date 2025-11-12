@@ -40,7 +40,6 @@ import { collection, query } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, User as UserIcon, Plus } from 'lucide-react';
-import { generatedData } from '@/lib/sample-data';
 import { NewPatientForm } from '@/components/dashboard/physician/new-patient-form';
 
 export default function Patient360Page() {
@@ -62,11 +61,7 @@ export default function Patient360Page() {
     );
   }, [firestore, user]);
 
-  const { data: patientsFromDb, isLoading } = useCollection<Patient>(patientsQuery);
-  
-  const patients = (patientsFromDb?.length)
-    ? patientsFromDb
-    : generatedData.samplePatients as Patient[];
+  const { data: patients, isLoading } = useCollection<Patient>(patientsQuery);
 
   const columns: ColumnDef<Patient>[] = React.useMemo(() => [
     {
@@ -88,7 +83,9 @@ export default function Patient360Page() {
       accessorKey: 'dateOfBirth',
       header: 'DOB',
       cell: ({ row }) => {
-        const date = new Date(row.getValue('dateOfBirth'));
+        const dob = row.getValue('dateOfBirth');
+        if (!dob) return 'N/A';
+        const date = new Date(dob as string);
         const formattedDate = new Intl.DateTimeFormat('en-US').format(date);
         const age = new Date().getFullYear() - date.getFullYear();
         return <div>{formattedDate} ({age})</div>;
@@ -115,7 +112,7 @@ export default function Patient360Page() {
         return (
           <div className="flex flex-wrap gap-1">
             {problems.split(', ').slice(0, 2).map((problem, index) => (
-              <Badge key={index} variant="outline">{problem}</Badge>
+              problem && <Badge key={index} variant="outline">{problem}</Badge>
             ))}
             {problems.split(', ').length > 2 && (
               <Badge variant="ghost">+{problems.split(', ').length - 2} more</Badge>
@@ -281,6 +278,7 @@ export default function Patient360Page() {
                         <div className="flex flex-col items-center justify-center gap-2">
                             <UserIcon className="h-8 w-8 text-muted-foreground" />
                             <span className="font-medium">No Patients Found</span>
+                            <span className="text-xs text-muted-foreground">Run the seed script to populate your database.</span>
                         </div>
                     </TableCell>
                 </TableRow>
