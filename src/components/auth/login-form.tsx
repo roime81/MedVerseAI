@@ -123,13 +123,19 @@ export function LoginForm() {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="h-10 w-10 text-primary"
                     >
-                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                    <path d="M2 12C3.6 7.3 7.5 4 12 4C16.5 4 20.4 7.3 22 12C20.4 16.7 16.5 20 12 20C7.5 20 3.6 16.7 2 12Z" />
+                    <circle cx="12" cy="12" r="3" />
+                    <line x1="12" y1="4" x2="12" y2="2" />
+                    <line x1="9" y1="5.5" x2="8" y2="4" />
+                    <line x1="15" y1="5.5" x2="16" y2="4" />
+                    <line x1="12" y1="20" x2="12" y2="22" />
+                    <line x1="9" y1="18.5" x2="8" y2="20" />
+                    <line x1="15" y1="18.5" x2="16" y2="20" />
                 </svg>
             </div>
             <CardTitle className="font-grotesk text-2xl font-bold">Rhazes</CardTitle>
