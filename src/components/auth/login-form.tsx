@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -24,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase } from '@/firebase';
 import { sampleUsers } from '@/lib/sample-data';
-import { Eye } from 'lucide-react';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -116,7 +116,25 @@ export function LoginForm() {
     <Card className="w-full max-w-sm bg-white text-foreground shadow-2xl">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
-                <Eye className="h-10 w-10 text-primary" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-10 w-10 text-primary"
+                    >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M8.5 6.5C9.5 5.5 10.75 5 12 5" />
+                    <path d="M15.5 6.5C14.5 5.5 13.25 5 12 5" />
+                    <path d="M5 9.5C6 8 7.5 7 9 7" />
+                    <path d="M19 9.5C18 8 16.5 7 15 7" />
+                </svg>
             </div>
             <CardTitle className="font-grotesk text-2xl font-bold">Rhazes</CardTitle>
             <CardDescription>The AI-powered clinical dashboard</CardDescription>
