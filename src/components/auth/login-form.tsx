@@ -113,7 +113,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm bg-white text-foreground shadow-2xl">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
                 <BrainCircuit className="h-10 w-10 text-primary" />
