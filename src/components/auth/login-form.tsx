@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase } from '@/firebase';
 import { sampleUsers } from '@/lib/sample-data';
-import { BrainCircuit } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -116,9 +116,9 @@ export function LoginForm() {
     <Card className="w-full max-w-sm bg-white text-foreground shadow-2xl">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
-                <BrainCircuit className="h-10 w-10 text-primary" />
+                <Eye className="h-10 w-10 text-primary" />
             </div>
-            <CardTitle className="font-grotesk text-2xl font-bold">MedVerseAI</CardTitle>
+            <CardTitle className="font-grotesk text-2xl font-bold">Rhazes</CardTitle>
             <CardDescription>The AI-powered clinical dashboard</CardDescription>
         </CardHeader>
         <CardContent>

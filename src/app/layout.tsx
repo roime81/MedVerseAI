@@ -17,7 +17,7 @@ const spaceGrotesk = Space_Grotesk({
 
 
 export const metadata: Metadata = {
-  title: 'MedVerseAI - Clinical Dashboard',
+  title: 'Rhazes - Clinical Dashboard',
   description: 'An AI-powered dashboard for medical professionals.',
 };
 
