@@ -18,7 +18,6 @@ export function Logo({ className, ...props }: LogoProps) {
             >
             <rect width="48" height="48" rx="12" fill="url(#gradient)"/>
             <path d="M14 24H18L21 30L27 18L30 24H34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M30 21V27" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <defs>
                 <linearGradient id="gradient" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#F97316"/>
