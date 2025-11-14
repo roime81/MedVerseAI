@@ -9,8 +9,8 @@ export function Logo({ className, ...props }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
         <svg
-            width="48"
-            height="48"
+            width="56"
+            height="56"
             viewBox="0 0 48 48"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
