@@ -113,7 +113,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm bg-white text-foreground shadow-2xl">
+    <Card className="w-full max-w-sm bg-card text-card-foreground shadow-2xl">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
                 <svg
@@ -128,18 +128,18 @@ export function LoginForm() {
                     strokeLinejoin="round"
                     className="h-10 w-10 text-primary"
                     >
-                    <path d="M2 12C3.6 7.3 7.5 4 12 4C16.5 4 20.4 7.3 22 12C20.4 16.7 16.5 20 12 20C7.5 20 3.6 16.7 2 12Z" />
-                    <circle cx="12" cy="12" r="3" />
-                    <line x1="12" y1="4" x2="12" y2="2" />
-                    <line x1="9" y1="5.5" x2="8" y2="4" />
-                    <line x1="15" y1="5.5" x2="16" y2="4" />
-                    <line x1="12" y1="20" x2="12" y2="22" />
-                    <line x1="9" y1="18.5" x2="8" y2="20" />
-                    <line x1="15" y1="18.5" x2="16" y2="20" />
+                    <path d="M12 2a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M12 11a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0v-2a3 3 0 0 0-3-3Z" />
+                    <path d="M5 2a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M5 11a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0v-2a3 3 0 0 0-3-3Z" />
+                    <path d="M19 2a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M19 11a3 3 0 0 0-3 3v2a3 3 0 0 0 6 0v-2a3 3 0 0 0-3-3Z" />
+                    <path d="M2 8h20" />
+                    <path d="M2 16h20" />
                 </svg>
             </div>
-            <CardTitle className="font-grotesk text-2xl font-bold">Rhazes</CardTitle>
-            <CardDescription>The AI-powered clinical dashboard</CardDescription>
+            <CardTitle className="font-grotesk text-2xl font-bold">MedVerseAI</CardTitle>
+            <CardDescription className="text-muted-foreground">The AI-powered clinical dashboard</CardDescription>
         </CardHeader>
         <CardContent>
             <form onSubmit={handleSignIn}>
