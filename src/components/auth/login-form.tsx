@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase } from '@/firebase';
 import { sampleUsers } from '@/lib/sample-data';
+import { Logo } from '@/components/core/logo';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -116,33 +117,9 @@ export function LoginForm() {
     <Card className="w-full max-w-sm bg-white text-foreground border-0 sm:border shadow-2xl">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
-                <svg
-                    width="64"
-                    height="64"
-                    viewBox="0 0 64 64"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <defs>
-                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#F97316"/>
-                            <stop offset="100%" stopColor="#D946EF"/>
-                        </linearGradient>
-                    </defs>
-                    <rect width="64" height="64" rx="14" fill="black"/>
-                    <g stroke="url(#logo-gradient)" strokeWidth="2.5">
-                        <path d="M36.61,19.34a6.2,6.2,0,0,0-4.62-1.57H32c-2.45,0-4.63,1.01-6.19,2.67-1.7,1.8-2.65,4.2-2.65,6.82v0.02c0,3.31,1.52,6.23,3.88,8.12a5.1,5.1,0,0,0,4.27,1.96c0.05,0,0.1,0,0.15,0.02,0.75,0,1.47-.18,2.13-0.5,0.4-.19.78-0.42,1.13-0.69,1.94-1.51,3.1-3.86,3.1-6.49v-0.02c0-3.69-1.66-7.29-4.58-9.75Z" fill="none"/>
-                        <circle cx="32" cy="27" r="3.5" fill="none"/>
-                        <circle cx="43" cy="24.5" r="2.5" fill="url(#logo-gradient)" stroke="none"/>
-                        <path d="M38.5 24.5H41" fill="none"/>
-                        <circle cx="43" cy="33.5" r="2.5" fill="url(#logo-gradient)" stroke="none"/>
-                        <path d="M36 33.5H41" fill="none"/>
-                        <circle cx="43" cy="42.5" r="2.5" fill="url(#logo-gradient)" stroke="none"/>
-                        <path d="M38.5 42.5H41" fill="none"/>
-                    </g>
-                </svg>
+                <Logo className="justify-center" />
             </div>
-            <CardTitle className="font-grotesk text-2xl font-bold">MedVerseAI</CardTitle>
+            <CardTitle className="sr-only">MedVerseAI</CardTitle>
             <CardDescription className="text-muted-foreground">The AI-powered clinical dashboard</CardDescription>
         </CardHeader>
         <CardContent>

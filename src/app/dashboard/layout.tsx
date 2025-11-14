@@ -10,6 +10,7 @@ import { useAuth } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, User, BarChart } from 'lucide-react';
+import { Logo } from '@/components/core/logo';
 
 
 export default function DashboardLayout({
@@ -46,7 +47,7 @@ export default function DashboardLayout({
     <div className="flex h-screen w-full flex-col font-sans">
       <header className="sticky top-0 z-40 flex h-16 flex-shrink-0 items-center justify-between gap-4 border-b bg-card px-6 text-card-foreground">
         <div className="flex items-center gap-6">
-          <h1 className="font-grotesk text-xl font-bold">MedVerseAI</h1>
+          <Logo />
         </div>
         <div className="flex items-center gap-2">
             <Button
