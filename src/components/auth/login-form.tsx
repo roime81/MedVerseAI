@@ -113,7 +113,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm border-0 bg-card text-card-foreground shadow-2xl sm:border">
+    <Card className="w-full max-w-sm bg-white text-foreground border-0 sm:border shadow-2xl">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
                 <svg
@@ -125,13 +125,19 @@ export function LoginForm() {
                 >
                     <defs>
                         <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#FF8A00" />
-                            <stop offset="100%" stopColor="#E52E71" />
+                            <stop offset="0%" stopColor="#F97316"/>
+                            <stop offset="100%" stopColor="#D946EF"/>
                         </linearGradient>
                     </defs>
-                    <rect width="64" height="64" rx="12" fill="url(#logo-gradient)"/>
-                    <path d="M16 33H24L28 21L33 43L37 33H48" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M33 26V40" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <rect width="64" height="64" rx="14" fill="black"/>
+                    <path 
+                        d="M36.62,19.34c-1.3-1.03-2.88-1.57-4.62-1.57h-0.03c-2.45,0-4.63,1.01-6.19,2.67c-1.7,1.8-2.65,4.2-2.65,6.82v0.02c0,3.31,1.52,6.23,3.88,8.12c1.23,0.99,2.69,1.68,4.27,1.96c0.05,0.01,0.1,0.02,0.15,0.02c0.75,0,1.47-0.18,2.13-0.5c0.4-0.19,0.78-0.42,1.13-0.69c1.94-1.51,3.1-3.86,3.1-6.49v-0.02C41.2,25.43,39.54,21.83,36.62,19.34z M27.81,25.4c0-2.4,1.43-4.43,3.58-4.43h0.03c1.07,0,2.05,0.44,2.77,1.2c0.82,0.87,1.29,2.07,1.29,3.3v0.02c0,2.4-1.43,4.43-3.58,4.43h-0.03c-1.07,0-2.05-0.44-2.77-1.2C28.27,28.84,27.81,27.18,27.81,25.4z M39.5,31.75h-5.25v4.5c0,0.83-0.67,1.5-1.5,1.5s-1.5-0.67-1.5-1.5v-4.5h-4.5c-0.83,0-1.5-0.67-1.5-1.5s0.67-1.5,1.5-1.5h4.5v-4.5c0-0.83,0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5v4.5h5.25c0.83,0,1.5,0.67,1.5,1.5S40.33,31.75,39.5,31.75z" 
+                        fill="white"
+                    />
+                    <path
+                        d="M43 24.5H50V21.5H43V24.5ZM43 33.5H50V30.5H43V33.5ZM43 42.5H50V39.5H43V42.5Z"
+                        fill="white"
+                    />
                 </svg>
             </div>
             <CardTitle className="font-grotesk text-2xl font-bold">MedVerseAI</CardTitle>
@@ -149,6 +155,7 @@ export function LoginForm() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="bg-white"
                     />
                 </div>
                 <div className="grid gap-2">
@@ -160,6 +167,7 @@ export function LoginForm() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="bg-white"
                     />
                 </div>
                 {error && <p className="text-sm text-destructive">{error}</p>}
