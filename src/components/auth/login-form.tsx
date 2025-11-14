@@ -113,37 +113,25 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm bg-card text-card-foreground shadow-2xl">
+    <Card className="w-full max-w-sm border-0 bg-card text-card-foreground shadow-2xl sm:border">
         <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
                 <svg
-                    width="48"
-                    height="48"
-                    viewBox="0 0 48 48"
+                    width="64"
+                    height="64"
+                    viewBox="0 0 64 64"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                 >
                     <defs>
-                        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style={{stopColor: '#FF8A00', stopOpacity: 1}} />
-                            <stop offset="100%" style={{stopColor: '#E52E71', stopOpacity: 1}} />
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#FF8A00" />
+                            <stop offset="100%" stopColor="#E52E71" />
                         </linearGradient>
                     </defs>
-                    <g stroke="url(#logo-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11,1H5.6A4.6,4.6,0,0,0,1,5.6V11" transform="translate(18 18)"/>
-                        <path d="M1,23h5.4A4.6,4.6,0,0,0,11,18.4V13" transform="translate(18 18)"/>
-                        <path d="M23,13v5.4A4.6,4.6,0,0,1,18.4,23H13" transform="translate(18 18)"/>
-                        <path d="M13,1h5.4A4.6,4.6,0,0,1,23,5.6V11" transform="translate(18 18)"/>
-                        
-                        <path d="M13,8.5v-2a3,3,0,0,0-3-3H7.5a4.5,4.5,0,1,0,0,9H10a3,3,0,0,1,3,3v2" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <path d="M8,12a4,4,0,1,0-4-4" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <path d="M13,15.5H22" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <path d="M13,12.5H22" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <path d="M13,9.5H22" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <circle cx="22" cy="9.5" r="1.5" fill="url(#logo-gradient)" stroke="none" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <circle cx="22" cy="12.5" r="1.5" fill="url(#logo-gradient)" stroke="none" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                        <circle cx="22" cy="15.5" r="1.5" fill="url(#logo-gradient)" stroke="none" transform="translate(-1 -1) scale(1.5) translate(4 4)" />
-                    </g>
+                    <rect width="64" height="64" rx="12" fill="url(#logo-gradient)"/>
+                    <path d="M16 33H24L28 21L33 43L37 33H48" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M33 26V40" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             </div>
             <CardTitle className="font-grotesk text-2xl font-bold">MedVerseAI</CardTitle>
