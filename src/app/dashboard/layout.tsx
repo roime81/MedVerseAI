@@ -18,7 +18,6 @@ import type { User as AppUser } from '@/lib/schemas';
 const getNavItems = (role: string) => {
     const physicianNav = [
         { href: "/dashboard/physician", label: "Clinician Workbench", icon: LayoutDashboard },
-        { href: "/dashboard/patient-360", label: "Patient 360", icon: Users },
         { href: "/dashboard/directory", label: "Command Center", icon: BarChart },
     ];
     
@@ -30,7 +29,7 @@ const getNavItems = (role: string) => {
         case 'physician':
             return physicianNav;
         case 'admin':
-             return [...physicianNav.slice(1), ...adminNav]; // Admins get Patient360, Command Center, and Admin Directory
+             return [...physicianNav.slice(1), ...adminNav]; // Admins get Command Center, and Admin Directory
         default:
             return []; // Other roles like nurse, billing etc. have no special nav links for now
     }
