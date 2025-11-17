@@ -8,17 +8,17 @@ import { Progress } from '@/components/ui/progress';
 import { Users, UserPlus, UserMinus, AlertTriangle, Clock, CalendarOff, FileText, CheckCircle, Shield, ExternalLink } from 'lucide-react';
 import { WeeklyLoginsChart } from '@/components/dashboard/medical-affairs/weekly-logins-chart';
 
-const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600' }) => (
-  <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600', isAlert = false }) => (
+  <Card className={cn("bg-white shadow-sm hover:shadow-md transition-shadow", isAlert && "border-red-200")}>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-      <div className={`p-1.5 rounded-md ${iconBgColor}`}>
-        <Icon className={`h-4 w-4 ${iconColor}`} />
+      <div className={cn('p-1.5 rounded-md', iconBgColor)}>
+        <Icon className={cn('h-4 w-4', iconColor)} />
       </div>
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold text-foreground">{value}</div>
-      <p className="text-xs text-muted-foreground">{description}</p>
+      <p className={cn("text-xs", isAlert ? "text-red-500" : "text-muted-foreground")}>{description}</p>
       {footer && <div className="text-xs text-primary mt-1">{footer}</div>}
     </CardContent>
   </Card>
@@ -47,23 +47,23 @@ const QuickAction = ({ icon: Icon, title }) => (
 
 export default function MedicalAffairsDashboardPage() {
   return (
-    <div className="flex flex-col h-full bg-slate-50 text-foreground">
-        <div className="p-6 border-b bg-white">
-            <h1 className="text-2xl font-bold text-foreground">Access Management Overview</h1>
-            <p className="text-muted-foreground">Medical Affairs / Clinical Gov - Identity & access monitoring and control</p>
+    <div className="flex flex-col h-full bg-slate-100 text-foreground">
+        <div className="p-6">
+            <h1 className="text-xl font-bold text-foreground">Access Management Overview</h1>
+            <p className="text-muted-foreground text-sm">Medical Affairs / Clinical Gov - Identity & access monitoring and control</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-6">
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-                <StatCard icon={Users} title="Total Active Users" value="1,247" description="" footer={<span className="flex items-center cursor-pointer">Drill Down Users <ExternalLink className="ml-1 h-3 w-3" /></span>} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
-                <StatCard icon={UserPlus} title="New Joiners" value="12" description="Last 7 Days" iconBgColor="bg-green-100" iconColor="text-green-600" />
-                <StatCard icon={UserMinus} title="Offboarded" value="2" description="Last 7 Days" iconBgColor="bg-gray-100" iconColor="text-gray-600"/>
-                <StatCard icon={Clock} title="Pending Requests" value="15" description="2 SLAs breached" iconBgColor="bg-yellow-100" iconColor="text-yellow-600"/>
-                <StatCard icon={CalendarOff} title="Expiring Soon" value="22" description="Onboarded < 90 days" iconBgColor="bg-yellow-100" iconColor="text-yellow-600"/>
-                <StatCard icon={AlertTriangle} title="High-Risk Alerts" value="2" description="Requires immediate action" iconBgColor="bg-red-100" iconColor="text-red-600"/>
+                <StatCard icon={Users} title="Total Active Users" value="1,247" description="" footer={<span className="flex items-center cursor-pointer hover:underline">Click to view directory <ExternalLink className="ml-1 h-3 w-3" /></span>} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
+                <StatCard icon={UserPlus} title="New Joiners" value="12" description="Last 7 days" iconBgColor="bg-green-100" iconColor="text-green-600" />
+                <StatCard icon={UserMinus} title="Offboarded" value="8" description="Last 7 days" iconBgColor="bg-gray-200" iconColor="text-gray-600"/>
+                <StatCard icon={Clock} title="Pending Requests" value="15" description="2 SLA breached" iconBgColor="bg-yellow-100" iconColor="text-yellow-800" isAlert={true}/>
+                <StatCard icon={CalendarOff} title="Expiring Soon" value="23" description="Credentials (30 days)" iconBgColor="bg-orange-100" iconColor="text-orange-800"/>
+                <StatCard icon={AlertTriangle} title="High-Risk Alerts" value="3" description="Requires immediate action" iconBgColor="bg-red-100" iconColor="text-red-600" isAlert={true}/>
             </div>
 
-            <Card className="bg-red-50 border-red-200 shadow-none">
+            <Card className="bg-red-50/50 border-red-200 shadow-none">
                 <CardHeader>
                     <CardTitle className="flex items-center text-sm font-semibold text-red-800">
                         <AlertTriangle className="mr-2 h-4 w-4" />
@@ -79,12 +79,12 @@ export default function MedicalAffairsDashboardPage() {
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline">Acknowledge</Button>
-                        <Button variant="default">Investigate</Button>
+                        <Button>Investigate</Button>
                     </div>
                 </CardContent>
             </Card>
             
-            <Card className="bg-yellow-50 border-yellow-200 shadow-none">
+            <Card className="bg-yellow-50/50 border-yellow-200 shadow-none">
                  <CardHeader>
                     <CardTitle className="flex items-center text-sm font-semibold text-yellow-800">
                          <AlertTriangle className="mr-2 h-4 w-4" />
@@ -168,5 +168,3 @@ export default function MedicalAffairsDashboardPage() {
     </div>
   );
 }
-
-    

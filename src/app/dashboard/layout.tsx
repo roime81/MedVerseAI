@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase';
@@ -9,24 +8,37 @@ import { Button } from '@/components/ui/button';
 import { useAuth, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, User as UserIcon, BarChart, Users, Shield, LogOut, Hospital, Briefcase, Stethoscope, FlaskConical, Scan, Pill, CreditCard } from 'lucide-react';
+import { 
+    LayoutDashboard, 
+    Users, 
+    FileText,
+    BarChart, 
+    Shield, 
+    LogOut, 
+    Briefcase, 
+    Stethoscope, 
+    FlaskConical, 
+    Scan, 
+    Pill, 
+    CreditCard,
+    Home,
+    FolderClock,
+    ShieldAlert,
+    Bell,
+    Settings,
+    Search
+} from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
 import type { User as AppUser } from '@/lib/schemas';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 
 const getNavItems = (role: string, department?: string) => {
     const baseNav = [
-        { href: "/dashboard/directory", label: "Doctor Directory", icon: Users },
+        { href: "/dashboard/directory", label: "User Directory", icon: Users },
         { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
     ];
     
@@ -34,10 +46,17 @@ const getNavItems = (role: string, department?: string) => {
         case 'physician':
             return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, ...baseNav];
         case 'nurse':
-            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: HeartPulse }, ...baseNav];
+            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
             if (department === 'Medical Affairs/Clinical Gov') {
-                 return [{ href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Access Management", icon: LayoutDashboard }, ...baseNav]
+                 return [
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Home / Overview", icon: Home },
+                    { href: "/dashboard/directory", label: "User Directory", icon: Users },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart },
+                 ]
             }
              if (department === 'IT/IAM') {
                  return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: LayoutDashboard }, ...baseNav]
@@ -126,65 +145,60 @@ export default function DashboardLayout({
 
 
   return (
-    <div className="flex h-screen w-full font-sans bg-slate-50">
-      <aside className="w-64 flex flex-col border-r bg-white">
-        <div className="p-4 border-b">
-            <Logo />
+    <div className="flex h-screen w-full font-sans bg-slate-100">
+      <aside className="w-64 flex flex-col border-r bg-white text-foreground">
+        <div className="p-4 border-b h-[65px] flex items-center">
+            <Logo variant="dark" />
         </div>
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-1">
             {navItems.map((item) => {
                 const Icon = item.icon;
+                const isActive = pathname.startsWith(item.href);
                 return (
                     <Button
                         key={item.href}
-                        variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
-                        className="w-full justify-start"
+                        variant={isActive ? 'secondary' : 'ghost'}
+                        className={cn("w-full justify-start text-sm", isActive && "font-semibold")}
                         asChild
                     >
                         <Link href={item.href}>
-                            <Icon className="mr-3 h-5 w-5" />
+                            <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary": "text-muted-foreground")} />
                             {item.label}
                         </Link>
                     </Button>
                 )
             })}
         </nav>
-        <div className="p-4 border-t">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                    <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
-                            {getInitials(appUser?.displayName || '')}
-                            </AvatarFallback>
-                        </Avatar>
-                        <span className="truncate max-w-[120px] text-sm font-medium">{appUser?.displayName}</span>
-                    </div>
-                    <LogOut className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{appUser?.displayName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {appUser?.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
       </aside>
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto bg-slate-50">
+        <header className="flex h-[65px] items-center justify-between border-b bg-white px-6">
+            <div className="flex-1">
+                <div className="relative w-full max-w-md">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input placeholder="Search people, roles, emails, MRN, staff ID..." className="pl-10 bg-slate-100 border-slate-200" />
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <div className="text-right">
+                    <p className="text-sm font-semibold">{appUser.displayName}</p>
+                    <p className="text-xs text-muted-foreground">{appUser.email}</p>
+                </div>
+                {appUser.department && <Badge variant="outline">{appUser.department}</Badge>}
+                <Button variant="ghost" size="icon">
+                    <Bell className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon">
+                    <Settings className="h-5 w-5" />
+                </Button>
+                <Button variant="outline" onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                </Button>
+            </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto">
             {children}
         </main>
       </div>
