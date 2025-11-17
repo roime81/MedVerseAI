@@ -3,14 +3,38 @@
 
 import { useUser } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
-import { signOut } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { signOut, User as FirebaseUser } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, User, BarChart, Users, Shield } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
+import { doc, getDoc } from 'firebase/firestore';
+import type { User as AppUser } from '@/lib/schemas';
+
+
+const getNavItems = (role: string) => {
+    const physicianNav = [
+        { href: "/dashboard/physician", label: "Clinician Workbench", icon: LayoutDashboard },
+        { href: "/dashboard/patient-360", label: "Patient 360", icon: Users },
+        { href: "/dashboard/directory", label: "Command Center", icon: BarChart },
+    ];
+    
+    const adminNav = [
+        { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
+    ];
+
+    switch(role) {
+        case 'physician':
+            return physicianNav;
+        case 'admin':
+             return [...physicianNav.slice(1), ...adminNav]; // Admins get Patient360, Command Center, and Admin Directory
+        default:
+            return []; // Other roles like nurse, billing etc. have no special nav links for now
+    }
+}
 
 
 export default function DashboardLayout({
@@ -22,6 +46,9 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const auth = useAuth();
+  const firestore = useFirestore();
+  const [appUser, setAppUser] = useState<AppUser | null>(null);
+
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -29,13 +56,31 @@ export default function DashboardLayout({
     }
   }, [user, isUserLoading, router]);
 
+  useEffect(() => {
+    const fetchUserRole = async (firebaseUser: FirebaseUser) => {
+        if (!firestore) return;
+        const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+            setAppUser(userDoc.data() as AppUser);
+        }
+    };
+
+    if(user) {
+        fetchUserRole(user);
+    }
+  }, [user, firestore]);
+
+
   const handleSignOut = () => {
     signOut(auth).then(() => {
       router.push('/login');
     });
   };
 
-  if (isUserLoading || !user) {
+  const navItems = appUser ? getNavItems(appUser.role) : [];
+
+  if (isUserLoading || !user || !appUser) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <p>Loading...</p>
@@ -50,61 +95,26 @@ export default function DashboardLayout({
           <Logo />
         </div>
         <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant={pathname === '/dashboard/physician' ? 'secondary' : 'ghost'}
-              className={cn(pathname === '/dashboard/physician' && 'bg-primary/10 text-primary', pathname !== '/dashboard/physician' && 'text-muted-foreground hover:text-card-foreground')}
-              asChild
-            >
-                <Link href="/dashboard/physician">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Clinician Workbench
-                </Link>
-            </Button>
-            <Button 
-                size="sm" 
-                variant={pathname.startsWith('/dashboard/patient-portal') ? 'secondary' : 'ghost'}
-                className={cn(pathname.startsWith('/dashboard/patient-portal') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
-                asChild
-            >
-               <Link href="/dashboard/patient-portal">
-                <User className="mr-2 h-4 w-4" />
-                Patient Portal
-               </Link>
-            </Button>
-            <Button 
-                size="sm" 
-                variant={pathname.startsWith('/dashboard/patient-360') ? 'secondary' : 'ghost'}
-                className={cn(pathname.startsWith('/dashboard/patient-360') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
-                asChild
-            >
-               <Link href="/dashboard/patient-360">
-                <Users className="mr-2 h-4 w-4" />
-                Patient 360
-               </Link>
-            </Button>
-            <Button 
-              size="sm" 
-              variant={pathname.startsWith('/dashboard/directory') ? 'secondary' : 'ghost'}
-              className={cn(pathname.startsWith('/dashboard/directory') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
-              asChild
-            >
-               <Link href="/dashboard/directory">
-                <BarChart className="mr-2 h-4 w-4" />
-                Command Center
-               </Link>
-            </Button>
-            <Button 
-              size="sm" 
-              variant={pathname.startsWith('/dashboard/admin-directory') ? 'secondary' : 'ghost'}
-              className={cn(pathname.startsWith('/dashboard/admin-directory') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
-              asChild
-            >
-               <Link href="/dashboard/admin-directory">
-                <Shield className="mr-2 h-4 w-4" />
-                Admin Directory
-               </Link>
-            </Button>
+            {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                    <Button
+                        key={item.href}
+                        size="sm"
+                        variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
+                        className={cn(
+                            pathname.startsWith(item.href) && 'bg-primary/10 text-primary',
+                            !pathname.startsWith(item.href) && 'text-muted-foreground hover:text-card-foreground'
+                        )}
+                        asChild
+                    >
+                        <Link href={item.href}>
+                            <Icon className="mr-2 h-4 w-4" />
+                            {item.label}
+                        </Link>
+                    </Button>
+                )
+            })}
           </div>
       </header>
       
