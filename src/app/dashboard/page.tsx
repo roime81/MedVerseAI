@@ -30,6 +30,12 @@ export default function DashboardRedirect() {
         const role = userData.role;
         const department = userData.department;
 
+        // Specific override for medical.affairs@medverse.com
+        if (userData.email === 'medical.affairs@medverse.com') {
+            router.push('/dashboard/admin/medical-affairs-clinical-gov');
+            return;
+        }
+
         if (role === 'admin' && department) {
             const departmentPath = department.toLowerCase().replace(/[\s/]+/g, '-');
             router.push(`/dashboard/admin/${departmentPath}`);
