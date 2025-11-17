@@ -222,68 +222,43 @@ const generateConditions = (patients: any[], encounters: any[]) => {
     const conditions: any[] = [];
     const icd10Codes = [
         { code: 'I10', desc: 'Hypertension' }, { code: 'E11.9', desc: 'Type 2 Diabetes' }, { code: 'J45.909', desc: 'Asthma' },
-        { code: 'F33.1', desc: 'Depression' }, { code: 'M10.00', desc: 'Gout' }, { code: 'I25.10', desc: 'Coronary Artery Disease' }
+        { code: 'F33.1', desc: 'Depression' }, { code: 'M10.00', desc: 'Gout' }, { code: 'I25.10', desc: 'Coronary Artery Disease' },
+        { code: 'E03.9', desc: 'Hypothyroidism' }, { code: 'D50.9', desc: 'Iron Deficiency Anemia' }
     ];
 
-    // Add specific conditions for Leila Richardson
-    const leila = patients.find(p => p.personId === 'leila_richardson_123');
-    const leilaEncounters = encounters.filter(e => e.personId === leila?.personId);
-    if(leila && leilaEncounters.length > 0) {
-        conditions.push({
-            diagnosisId: faker.string.uuid(),
-            personId: leila.personId,
-            encounterId: leilaEncounters[0].encounterId,
-            icd10Code: 'E03.9',
-            diagnosisType: 'Principal',
-            onsetDate: '2022-05-10',
-            status: 'Active',
-            certainty: 'Confirmed',
-        });
-        conditions.push({
-            diagnosisId: faker.string.uuid(),
-            personId: leila.personId,
-            encounterId: leilaEncounters[0].encounterId,
-            icd10Code: 'D50.9',
-            diagnosisType: 'Secondary',
-            onsetDate: '2023-01-15',
-            status: 'Active',
-            certainty: 'Confirmed',
-        });
-    }
-
-
-    patients.filter(p => !hardcodedPatients.find(hp => hp.personId === p.personId)).forEach(patient => {
-        const numConditions = faker.number.int({ min: 1, max: 4 });
+    patients.forEach(patient => {
         const patientEncounters = encounters.filter(e => e.personId === patient.personId);
         if (patientEncounters.length === 0) return;
 
-        for (let i = 0; i < numConditions; i++) {
-            const icd10 = getRandomItem(icd10Codes);
-            const encounter = getRandomItem(patientEncounters);
-            conditions.push({
-                diagnosisId: faker.string.uuid(),
-                personId: patient.personId,
-                encounterId: encounter.encounterId,
-                icd10Code: icd10.code,
-                diagnosisType: 'Principal',
-                onsetDate: faker.date.past({ years: 5 }).toISOString().split('T')[0],
-                status: 'Active',
-                certainty: 'Confirmed',
+        // If the patient is hardcoded and has an activeProblemList, create conditions for them
+        if (patient.activeProblemList && patient.activeProblemList.length > 0) {
+            const problems = patient.activeProblemList.split(', ');
+            problems.forEach(problemDesc => {
+                const icd10 = icd10Codes.find(c => c.desc === problemDesc);
+                if (icd10) {
+                    conditions.push({
+                        diagnosisId: faker.string.uuid(),
+                        personId: patient.personId,
+                        encounterId: getRandomItem(patientEncounters).encounterId,
+                        icd10Code: icd10.code, // Use the matched code
+                        diagnosisType: 'Principal',
+                        onsetDate: faker.date.past({ years: 5 }).toISOString().split('T')[0],
+                        status: 'Active',
+                        certainty: 'Confirmed',
+                    });
+                }
             });
-        }
-    });
-     // Add conditions for other hardcoded patients
-     patients.filter(p => p.personId !== 'leila_richardson_123' && hardcodedPatients.find(hp => hp.personId === p.personId)).forEach(patient => {
-        const patientEncounters = encounters.filter(e => e.personId === patient.personId);
-        if (patientEncounters.length === 0) return;
-        const problems = patient.activeProblemList.split(', ');
-        problems.forEach(problemDesc => {
-            const icd10 = icd10Codes.find(c => c.desc === problemDesc);
-            if(icd10){
+        } 
+        // Otherwise, if it's a faker-generated patient, create random conditions
+        else if (!hardcodedPatients.find(hp => hp.personId === patient.personId)) {
+            const numConditions = faker.number.int({ min: 1, max: 4 });
+            for (let i = 0; i < numConditions; i++) {
+                const icd10 = getRandomItem(icd10Codes);
+                const encounter = getRandomItem(patientEncounters);
                 conditions.push({
                     diagnosisId: faker.string.uuid(),
                     personId: patient.personId,
-                    encounterId: getRandomItem(patientEncounters).encounterId,
+                    encounterId: encounter.encounterId,
                     icd10Code: icd10.code,
                     diagnosisType: 'Principal',
                     onsetDate: faker.date.past({ years: 5 }).toISOString().split('T')[0],
@@ -291,11 +266,12 @@ const generateConditions = (patients: any[], encounters: any[]) => {
                     certainty: 'Confirmed',
                 });
             }
-        })
+        }
     });
 
     return conditions;
 };
+
 
 const generateProcedures = (patients: any[], encounters: any[], drCarterTodaysAppointments: number) => {
   const procedures = [];
@@ -498,7 +474,7 @@ const generateAllData = ({
     // Add active problem list to patients
     samplePatients.forEach(p => {
         // Skip for hardcoded patients, as it's set statically
-        if (hardcodedPatients.some(hp => hp.personId === p.personId)) return;
+        if (hardcodedPatients.some(hp => hp.personId === p.personId && hp.activeProblemList)) return;
 
         p.activeProblemList = sampleConditions
             .filter(c => c.personId === p.personId && c.status === 'Active')
