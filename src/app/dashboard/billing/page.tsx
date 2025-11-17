@@ -14,7 +14,7 @@ export default function BillingDashboardPage() {
                 <CardHeader>
                 <CardTitle className="flex items-center">
                     <CreditCard className="mr-2 h-5 w-5" />
-                    Billing & Claims
+                    Claims & Patient Accounts
                 </CardTitle>
                 </CardHeader>
                 <CardContent>
