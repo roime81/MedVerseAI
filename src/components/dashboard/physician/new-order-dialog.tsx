@@ -62,14 +62,14 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
 
   const handleToggleOrder = (order: CommonOrder) => {
     setSelectedOrders(prev => 
-      prev.find(o => o.id === order.id)
-        ? prev.filter(o => o.id !== order.id)
+      prev.find(o => o.orderId === order.orderId)
+        ? prev.filter(o => o.orderId !== order.orderId)
         : [...prev, order]
     );
   };
   
   const isOrderSelected = (order: CommonOrder) => {
-    return selectedOrders.some(o => o.id === order.id);
+    return selectedOrders.some(o => o.orderId === order.orderId);
   }
 
   React.useEffect(() => {
@@ -90,7 +90,7 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                 </p>
             </DialogHeader>
         </div>
-        <div className="p-6 flex-1 flex flex-col gap-6 bg-slate-50 overflow-y-auto pb-32">
+        <div className="p-6 flex-1 flex flex-col gap-6 bg-slate-50 overflow-y-auto pb-48">
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input placeholder="Search for labs, imaging, medications, procedures..." className="pl-10 h-12 text-base bg-white" />
@@ -173,32 +173,30 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
         </div>
         
         {selectedOrders.length > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg-top">
-                <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">Selected Orders ({selectedOrders.length})</h3>
-                    <Button variant="ghost" size="icon" onClick={() => setSelectedOrders([])}>
-                        <X className="h-4 w-4" />
-                    </Button>
+             <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg-top">
+                <div className="mb-4">
+                    <h3 className="font-semibold mb-2">Selected Orders ({selectedOrders.length})</h3>
+                    <div className="max-h-28 overflow-y-auto space-y-2">
+                        {selectedOrders.map(order => (
+                            <div key={order.orderId} className="flex justify-between items-center p-2 rounded-md bg-green-50 border border-green-200">
+                                <span className="font-medium text-green-800">{order.name}</span>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-green-600 hover:bg-green-100" onClick={() => handleToggleOrder(order)}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                 <div className="max-h-24 overflow-y-auto mb-4 border rounded-lg p-2 bg-slate-50/50">
-                    {selectedOrders.map(order => (
-                        <div key={order.id} className="flex justify-between items-center p-1">
-                            <span>{order.name}</span>
-                        </div>
-                    ))}
-                </div>
-                <DialogFooter className="sm:justify-between">
-                    <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Submit Orders ({selectedOrders.length})
-                    </Button>
+                <DialogFooter className="border-t pt-4 flex justify-between">
+                     <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                     <Button className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
+                         <CheckCircle className="mr-2 h-4 w-4" />
+                         Submit Orders ({selectedOrders.length})
+                     </Button>
                 </DialogFooter>
-            </div>
+             </div>
         )}
       </DialogContent>
     </Dialog>
   );
 }
-
-    
