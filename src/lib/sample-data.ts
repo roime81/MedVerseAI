@@ -51,7 +51,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'Medical Affairs / Clinical Gov.',
-        department: 'Medical Affairs/Clinical Gov.',
+        department: 'Medical Affairs/Clinical Gov',
         id: 'medical_affairs_clinical_gov'
     },
     {
