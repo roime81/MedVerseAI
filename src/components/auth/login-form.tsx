@@ -24,7 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase } from '@/firebase';
-import { sampleUsers } from '@/lib/sample-data';
+import { generatedData } from '@/lib/sample-data';
 import { Logo } from '@/components/core/logo';
 
 export function LoginForm() {
@@ -36,6 +36,7 @@ export function LoginForm() {
   const { firebaseApp } = useFirebase();
   const auth = getAuth(firebaseApp);
   const firestore = getFirestore(firebaseApp);
+  const { sampleUsers } = generatedData;
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
