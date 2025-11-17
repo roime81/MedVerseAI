@@ -18,9 +18,9 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useUser, useFirestore, useMemoFirebase, useAuth } from '@/firebase';
-import type { Patient, DrugExposure, Condition } from '@/lib/types';
+import type { Patient, DrugExposure, Condition, PendingTask } from '@/lib/types';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { format, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -101,6 +101,7 @@ export default function PhysicianDashboard() {
   const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
   const [isNewOrderDialogOpen, setIsNewOrderDialogOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [filterMode, setFilterMode] = React.useState<'all' | 'new-assigned'>('all');
 
 
   const patientsQuery = useMemoFirebase(() => {
@@ -110,12 +111,34 @@ export default function PhysicianDashboard() {
 
   const { data: patients, isLoading: isLoadingPatients } = useCollection<Patient>(patientsQuery);
   
+  const pendingTasksQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'users', user.uid, 'tasks'), where('status', '==', 'Pending'));
+    }, [firestore, user]);
+
+  const { data: pendingTasks, isLoading: isLoadingTasks } = useCollection<PendingTask>(pendingTasksQuery);
+  
+  const newAssignedPatientIds = React.useMemo(() => {
+      if (!pendingTasks) return new Set<string>();
+      return new Set(pendingTasks.map(task => task.patientId).filter(Boolean) as string[]);
+  }, [pendingTasks]);
+
+
   const filteredPatients = React.useMemo(() => {
     if (!patients) return [];
-    return patients.filter(patient => 
-      patient.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [patients, searchTerm]);
+    let list = patients;
+
+    if (filterMode === 'new-assigned') {
+        list = list.filter(patient => newAssignedPatientIds.has(patient.personId));
+    }
+    
+    if (searchTerm) {
+        list = list.filter(patient => 
+          patient.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
+    return list;
+  }, [patients, searchTerm, filterMode, newAssignedPatientIds]);
 
   React.useEffect(() => {
     if (filteredPatients && filteredPatients.length > 0) {
@@ -202,8 +225,25 @@ export default function PhysicianDashboard() {
                     <Button variant="ghost" size="icon"><Filter className="h-4 w-4 text-muted-foreground" /></Button>
                 </div>
                 <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="flex-grow">All Patients</Button>
-                    <Button size="sm" variant="outline" className="flex-grow">New Assigned <Badge className="ml-2 bg-destructive text-destructive-foreground">2</Badge></Button>
+                    <Button 
+                        size="sm" 
+                        variant={filterMode === 'all' ? 'secondary' : 'outline'} 
+                        className="flex-grow"
+                        onClick={() => setFilterMode('all')}
+                    >
+                        All Patients
+                    </Button>
+                    <Button 
+                        size="sm" 
+                        variant={filterMode === 'new-assigned' ? 'secondary' : 'outline'} 
+                        className="flex-grow"
+                        onClick={() => setFilterMode('new-assigned')}
+                    >
+                        New Assigned 
+                        <Badge className="ml-2 bg-destructive text-destructive-foreground">
+                            {isLoadingTasks ? <Loader2 className="h-3 w-3 animate-spin"/> : newAssignedPatientIds.size}
+                        </Badge>
+                    </Button>
                 </div>
             </div>
 
@@ -215,7 +255,8 @@ export default function PhysicianDashboard() {
                 ) : !filteredPatients || filteredPatients.length === 0 ? (
                     <div className="text-center text-muted-foreground py-10 px-4">
                         <p>No patients found{searchTerm && ` for "${searchTerm}"`}.</p>
-                        {!searchTerm && <p className="text-xs mt-2">Run the seed script to populate sample data.</p>}
+                        {!searchTerm && filterMode === 'all' && <p className="text-xs mt-2">Run the seed script to populate sample data.</p>}
+                        {filterMode === 'new-assigned' && <p className="text-xs mt-2">No new patient assignments.</p>}
                     </div>
                 ) : (
                     <div>
@@ -235,7 +276,7 @@ export default function PhysicianDashboard() {
                     <div className="grid grid-cols-3 divide-x divide-border">
                         <div><span className="font-bold text-lg text-foreground">{filteredPatients?.length || 0}</span><p className="text-muted-foreground text-xs">Active</p></div>
                         <div><span className="font-bold text-lg text-destructive">{filteredPatients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground text-xs">Alerts</p></div>
-                        <div><span className="font-bold text-lg text-foreground">12</span><p className="text-muted-foreground text-xs">Total</p></div>
+                        <div><span className="font-bold text-lg text-foreground">{patients?.length || 0}</span><p className="text-muted-foreground text-xs">Total</p></div>
                     </div>
                 </CardContent>
              </Card>
@@ -380,5 +421,3 @@ export default function PhysicianDashboard() {
     </>
   );
 }
-
-    
