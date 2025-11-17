@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, User, BarChart } from 'lucide-react';
+import { LayoutDashboard, User, BarChart, Users } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 
 
@@ -63,13 +63,24 @@ export default function DashboardLayout({
             </Button>
             <Button 
                 size="sm" 
-                variant={pathname.startsWith('/dashboard/patient') ? 'secondary' : 'ghost'}
-                className={cn(pathname.startsWith('/dashboard/patient') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
+                variant={pathname.startsWith('/dashboard/patient-portal') ? 'secondary' : 'ghost'}
+                className={cn(pathname.startsWith('/dashboard/patient-portal') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
                 asChild
             >
                <Link href="/dashboard/patient-portal">
                 <User className="mr-2 h-4 w-4" />
                 Patient Portal
+               </Link>
+            </Button>
+            <Button 
+                size="sm" 
+                variant={pathname.startsWith('/dashboard/patient-360') ? 'secondary' : 'ghost'}
+                className={cn(pathname.startsWith('/dashboard/patient-360') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
+                asChild
+            >
+               <Link href="/dashboard/patient-360">
+                <Users className="mr-2 h-4 w-4" />
+                Patient 360
                </Link>
             </Button>
             <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-card-foreground">
