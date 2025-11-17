@@ -26,6 +26,7 @@ import { Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { NewOrderDialog } from '@/components/dashboard/physician/new-order-dialog';
 
 
 const PatientListItem = ({ patient, isActive, onClick }) => {
@@ -97,6 +98,7 @@ export default function PhysicianDashboard() {
   const auth = useAuth();
   const router = useRouter();
   const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
+  const [isNewOrderDialogOpen, setIsNewOrderDialogOpen] = React.useState(false);
 
   const patientsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -138,6 +140,7 @@ export default function PhysicianDashboard() {
 
 
   return (
+    <>
     <div className="flex h-full flex-col bg-slate-50 text-foreground">
        <div className="flex-shrink-0 border-b bg-white p-4">
         <div className="flex items-center justify-between">
@@ -238,7 +241,7 @@ export default function PhysicianDashboard() {
                                 {selectedPatient.gender.charAt(0)}{calculateAge(selectedPatient.dateOfBirth)} • MRN-{selectedPatient.nationalId?.slice(-6)} • {selectedPatient.activeProblemList?.split(',')[0] || 'No active problems'} • ED - Bay 3
                             </p>
                         </div>
-                        <Button>+ New Order</Button>
+                        <Button onClick={() => setIsNewOrderDialogOpen(true)}>+ New Order</Button>
                     </div>
 
                     {/* Alerts */}
@@ -344,5 +347,13 @@ export default function PhysicianDashboard() {
         </div>
       </div>
     </div>
+    {selectedPatient && (
+      <NewOrderDialog 
+        open={isNewOrderDialogOpen} 
+        onOpenChange={setIsNewOrderDialogOpen}
+        patient={selectedPatient}
+        />
+    )}
+    </>
   );
 }
