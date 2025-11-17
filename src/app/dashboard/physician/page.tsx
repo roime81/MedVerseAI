@@ -15,7 +15,8 @@ import {
   Search,
   Bell,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  PlusCircle
 } from 'lucide-react';
 import { useUser, useFirestore, useMemoFirebase, useAuth } from '@/firebase';
 import type { Patient, DrugExposure, Condition, PendingTask } from '@/lib/types';
@@ -28,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { NewOrderDialog } from '@/components/dashboard/physician/new-order-dialog';
+import { NewPatientForm } from '@/components/dashboard/physician/new-patient-form';
 
 
 const PatientListItem = ({ patient, isActive, onClick }) => {
@@ -100,6 +102,7 @@ export default function PhysicianDashboard() {
   const router = useRouter();
   const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
   const [isNewOrderDialogOpen, setIsNewOrderDialogOpen] = React.useState(false);
+  const [isNewPatientFormOpen, setIsNewPatientFormOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [filterMode, setFilterMode] = React.useState<'all' | 'new-assigned'>('all');
 
@@ -220,9 +223,11 @@ export default function PhysicianDashboard() {
         {/* Left column: Patient List */}
         <div className="w-1/4 max-w-sm flex-shrink-0 border-r overflow-y-auto flex flex-col bg-white">
             <div className="p-4 border-b">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                     <h2 className="text-lg font-semibold text-foreground">My Patients</h2>
-                    <Button variant="ghost" size="icon"><Filter className="h-4 w-4 text-muted-foreground" /></Button>
+                     <Button variant="ghost" size="sm" onClick={() => setIsNewPatientFormOpen(true)}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> New Patient
+                    </Button>
                 </div>
                 <div className="flex gap-2">
                     <Button 
@@ -418,6 +423,10 @@ export default function PhysicianDashboard() {
         patient={selectedPatient}
         />
     )}
+    <NewPatientForm 
+      open={isNewPatientFormOpen}
+      onOpenChange={setIsNewPatientFormOpen}
+    />
     </>
   );
 }
