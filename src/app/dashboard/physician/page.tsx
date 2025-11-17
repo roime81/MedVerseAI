@@ -30,6 +30,7 @@ import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { NewOrderDialog } from '@/components/dashboard/physician/new-order-dialog';
 import { NewPatientForm } from '@/components/dashboard/physician/new-patient-form';
+import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 
 const PatientListItem = ({ patient, isActive, onClick }) => {
@@ -173,33 +174,16 @@ export default function PhysicianDashboard() {
 
   const { data: conditions, isLoading: isLoadingConditions } = useCollection<Condition>(conditionsQuery);
 
-  const handleSignOut = () => {
-    signOut(auth).then(() => {
-      router.push('/login');
-    });
-  };
-
 
   return (
     <>
     <div className="flex h-full flex-col bg-slate-50 text-foreground">
-       <div className="flex-shrink-0 border-b bg-white p-4">
-        <div className="flex items-center justify-between">
+        <DashboardHeader
+            title={user?.displayName || 'Clinician'}
+            description="Emergency Department"
+            showShiftTime={true}
+        >
             <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <UserIcon className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                    <h2 className="font-semibold text-foreground">{user?.displayName || 'Clinician'}</h2>
-                    <p className="text-sm text-muted-foreground">Emergency Department</p>
-                </div>
-                <div className="h-8 border-l border-border"></div>
-                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>Shift: 08:00 - 16:00</span>
-                </div>
-            </div>
-             <div className="flex items-center gap-4">
               <div className="relative w-full max-w-xs">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -212,13 +196,9 @@ export default function PhysicianDashboard() {
               <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
                 <Bell className="h-5 w-5" />
               </Button>
-               <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
             </div>
-        </div>
-      </div>
+        </DashboardHeader>
+
       <div className="flex flex-1 overflow-hidden">
         {/* Left column: Patient List */}
         <div className="w-1/4 max-w-sm flex-shrink-0 border-r overflow-y-auto flex flex-col bg-white">
