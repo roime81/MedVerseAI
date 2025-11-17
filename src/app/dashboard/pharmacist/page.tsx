@@ -13,10 +13,12 @@ import {
   Archive,
   BarChart,
   User,
-  MoreHorizontal
+  MoreHorizontal,
+  CheckCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { WeeklyPrescriptionVolumeChart } from '@/components/dashboard/pharmacist/weekly-prescription-volume-chart';
 
 const StatCard = ({ icon: Icon, title, value, description, footer, iconColor }) => (
   <Card className="bg-white">
@@ -50,6 +52,13 @@ const inventoryAlerts = [
     { name: 'Amoxicillin 500mg', stock: 88, reorder: 100, level: 'low' },
     { name: 'Amlodipine 5mg', stock: 142, reorder: 150, level: 'low' },
     { name: 'Levothyroxine 50mcg', stock: 8, reorder: 25, level: 'critical' },
+];
+
+const recentlyFilled = [
+    { name: 'Nancy Young', drug: 'Omeprazole 20mg', quantity: '30 tabs', time: '5 min ago' },
+    { name: 'Kenneth King', drug: 'Metoprolol 50mg', quantity: '60 tabs', time: '12 min ago' },
+    { name: 'Karen Wright', drug: 'Gabapentin 300mg', quantity: '90 caps', time: '18 min ago' },
+    { name: 'Steven Lopez', drug: 'Prednisone 10mg', quantity: '21 tabs', time: '25 min ago' },
 ];
 
 
@@ -166,6 +175,39 @@ export default function PharmacistDashboardPage() {
                                         <Button size="sm" variant={item.level === 'critical' ? 'destructive' : 'default'}>Order Now</Button>
                                     </div>
                                 </div>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <Card className="bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-base">Weekly Prescription Volume</CardTitle>
+                        <p className="text-sm text-muted-foreground">Prescriptions filled per day</p>
+                    </CardHeader>
+                    <CardContent>
+                        <WeeklyPrescriptionVolumeChart />
+                    </CardContent>
+                </Card>
+                 <Card className="bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-base">Recently Filled</CardTitle>
+                        <p className="text-sm text-muted-foreground">Latest completed prescriptions</p>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {recentlyFilled.map(item => (
+                             <div key={item.name} className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-1 bg-white rounded-full border border-green-200"><CheckCircle className="h-4 w-4 text-green-600"/></div>
+                                    <div>
+                                        <p className="font-semibold text-foreground">{item.name}</p>
+                                        <p className="text-sm text-muted-foreground">{item.drug} • {item.quantity}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{item.time}</p>
+                                    </div>
+                                </div>
+                                <Button variant="outline" size="sm">Print Label</Button>
                             </div>
                         ))}
                     </CardContent>
