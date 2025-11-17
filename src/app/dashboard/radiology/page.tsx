@@ -7,7 +7,7 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 export default function RadiologyDashboardPage() {
   return (
-    <div className="flex flex-col h-full bg-background text-foreground">
+    <div className="flex flex-col h-full bg-slate-50 text-foreground">
         <DashboardHeader title="Radiology Dashboard" description="Manage and interpret imaging studies." />
         <div className="flex-1 overflow-y-auto p-8">
             <Card className="bg-white">

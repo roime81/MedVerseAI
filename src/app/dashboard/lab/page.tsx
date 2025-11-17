@@ -7,7 +7,7 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 export default function LabDashboardPage() {
   return (
-    <div className="flex flex-col h-full bg-background text-foreground">
+    <div className="flex flex-col h-full bg-slate-50 text-foreground">
         <DashboardHeader title="Laboratory Dashboard" description="Manage and view laboratory test results." />
         <div className="flex-1 overflow-y-auto p-8">
             <Card className="bg-white">

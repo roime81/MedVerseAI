@@ -7,7 +7,7 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 export default function CybersecurityDashboardPage() {
   return (
-    <div className="flex flex-col h-full bg-background text-foreground">
+    <div className="flex flex-col h-full bg-slate-50 text-foreground">
         <DashboardHeader title="Cybersecurity Operations" description="Monitor and enforce system security policies." />
         <div className="flex-1 overflow-y-auto p-8">
             <Card className="bg-white">

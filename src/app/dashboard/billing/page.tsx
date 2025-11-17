@@ -41,7 +41,7 @@ export default function BillingDashboardPage() {
 
 
   return (
-    <div className="flex flex-col h-full bg-background text-foreground">
+    <div className="flex flex-col h-full bg-slate-50 text-foreground">
         <DashboardHeader title="Billing Dashboard" description="Manage patient accounts and financial claims." />
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
