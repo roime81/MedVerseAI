@@ -142,6 +142,23 @@ const hardcodedPatients = [
         insuranceNumber: 'INS-M5N6O7P8',
         allergyFlag: 'Sulfa',
         activeProblemList: 'Gout, Coronary Artery Disease',
+    },
+    {
+        personId: 'michael_jackson_102',
+        nationalId: '999-00-5555',
+        fullName: 'Michael Jackson',
+        dateOfBirth: '1958-08-29',
+        gender: 'Male',
+        race: 'Black',
+        ethnicity: 'Not Hispanic',
+        maritalStatus: 'Single',
+        contactInfo: 'michael.jackson@example.com',
+        address: '100 Neverland, Los Olivos, CA 93441',
+        emergencyContact: 'Katherine Jackson, Mother, 555-123-9876',
+        primaryProviderId: drBenStoneId,
+        insuranceNumber: 'INS-Q9R8S7T6',
+        allergyFlag: 'Demerol, Propofol',
+        activeProblemList: 'Lupus, Vitiligo',
     }
 ];
 
@@ -223,7 +240,7 @@ const generateConditions = (patients: any[], encounters: any[]) => {
     const icd10Codes = [
         { code: 'I10', desc: 'Hypertension' }, { code: 'E11.9', desc: 'Type 2 Diabetes' }, { code: 'J45.909', desc: 'Asthma' },
         { code: 'F33.1', desc: 'Depression' }, { code: 'M10.00', desc: 'Gout' }, { code: 'I25.10', desc: 'Coronary Artery Disease' },
-        { code: 'E03.9', desc: 'Hypothyroidism' }, { code: 'D50.9', desc: 'Iron Deficiency Anemia' }
+        { code: 'E03.9', desc: 'Hypothyroidism' }, { code: 'D50.9', desc: 'Iron Deficiency Anemia' }, { code: 'L93.0', desc: 'Lupus' }, { code: 'L81.5', desc: 'Vitiligo' }
     ];
 
     patients.forEach(patient => {
@@ -340,6 +357,8 @@ const generateDrugExposures = (patients: any[], encounters: any[]) => {
     { name: 'Levothyroxine 75 mcg', code: 'RxNorm:866922'},
     { name: 'Ferrous Sulfate 325 MG', code: 'RxNorm:105261' },
     { name: 'Amoxicillin 500 MG', code: 'RxNorm:834042' },
+    { name: 'Demerol 50mg', code: 'RxNorm:310192' },
+    { name: 'Propofol 10mg/mL', code: 'RxNorm:8489' },
   ];
    patients.forEach(patient => {
         const numDrugs = faker.number.int({ min: 1, max: 3 });
