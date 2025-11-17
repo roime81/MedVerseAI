@@ -1,11 +1,8 @@
 
 'use client';
 
-import { useUser, useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { User as UserIcon, Clock, LogOut } from 'lucide-react';
+import { useUser } from '@/firebase';
+import { User as UserIcon, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import React from 'react';
 
@@ -19,14 +16,6 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ title, description, showShiftTime = false, children, className }: DashboardHeaderProps) {
   const { user } = useUser();
-  const auth = useAuth();
-  const router = useRouter();
-
-  const handleSignOut = () => {
-    signOut(auth).then(() => {
-      router.push('/login');
-    });
-  };
 
   return (
     <div className={cn("flex-shrink-0 border-b bg-white p-4", className)}>
@@ -51,10 +40,6 @@ export function DashboardHeader({ title, description, showShiftTime = false, chi
             </div>
              <div className="flex items-center gap-4">
               {children}
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
             </div>
         </div>
     </div>
