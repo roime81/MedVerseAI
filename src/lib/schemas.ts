@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const UserSchema = z.object({
@@ -5,6 +6,7 @@ export const UserSchema = z.object({
   email: z.string().email().describe("User's email address."),
   role: z.enum(["physician", "nurse", "radiology", "lab", "billing", "admin", "pharmacist"]).describe("The role of the user, which determines their permissions and dashboard."),
   displayName: z.string().optional().describe("User's display name."),
+  associatedCareSites: z.array(z.string()).optional().describe("An array of care site IDs the user is associated with."),
 });
 export type User = z.infer<typeof UserSchema>;
 
@@ -90,3 +92,9 @@ export const PendingTaskSchema = z.object({
   patientId: z.string().optional().describe("Optional patient ID related to the task."),
 });
 export type PendingTask = z.infer<typeof PendingTaskSchema>;
+
+export const CareSiteSchema = z.object({
+  careSiteId: z.string().describe("Unique identifier for the CareSite entity (hospital code)."),
+  careSiteName: z.string().describe("The official name of the hospital or care site."),
+});
+export type CareSite = z.infer<typeof CareSiteSchema>;

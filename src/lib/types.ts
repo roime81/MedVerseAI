@@ -1,3 +1,4 @@
+
 // Type definitions for your data models
 import type { Patient as PatientSchema, Encounter, Condition as ConditionSchema, PendingTask as PendingTaskSchema, DrugExposure as DrugExposureSchema, LabResult as LabResultSchema } from "@/lib/schemas";
 
@@ -52,4 +53,10 @@ export interface CommonOrder {
     id: string;
     orderId: string;
     name: string;
+}
+
+export interface CareSite {
+    id: string;
+    careSiteId: string;
+    careSiteName: string;
 }

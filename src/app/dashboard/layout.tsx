@@ -83,9 +83,16 @@ export default function DashboardLayout({
                 Patient 360
                </Link>
             </Button>
-            <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-card-foreground">
-               <BarChart className="mr-2 h-4 w-4" />
-              Command Center
+            <Button 
+              size="sm" 
+              variant={pathname.startsWith('/dashboard/directory') ? 'secondary' : 'ghost'}
+              className={cn(pathname.startsWith('/dashboard/directory') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
+              asChild
+            >
+               <Link href="/dashboard/directory">
+                <BarChart className="mr-2 h-4 w-4" />
+                Command Center
+               </Link>
             </Button>
           </div>
       </header>
