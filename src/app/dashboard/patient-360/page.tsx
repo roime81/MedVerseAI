@@ -102,7 +102,7 @@ export default function Patient360Page() {
   };
   
   const JourneyContent = (
-    <Card>
+    <Card className="bg-white">
         <CardHeader>
             <CardTitle className="flex items-center text-base font-semibold">
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
@@ -395,7 +395,7 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
         <div className="absolute left-3 top-1 h-6 w-6 bg-primary rounded-full flex items-center justify-center -translate-x-1/2">
             <Icon className="h-4 w-4 text-primary-foreground" />
         </div>
-        <div className="mb-8 hover:bg-gray-50/50 p-2 rounded-md cursor-pointer" onClick={onViewNote}>
+        <div className="mb-8 hover:bg-slate-50 p-2 rounded-md cursor-pointer" onClick={onViewNote}>
             <p className="font-semibold">{title}</p>
             <p className="text-sm text-muted-foreground mb-1">{format(new Date(date), "MMMM dd, yyyy")}</p>
             <p className="text-sm mb-2">{description}</p>
@@ -417,3 +417,5 @@ const TimelineItem = ({ icon: Icon, title, date, description, clinician, onViewN
         </div>
     </div>
 );
+
+    

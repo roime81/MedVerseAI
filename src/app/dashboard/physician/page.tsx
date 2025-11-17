@@ -82,7 +82,7 @@ const VitalSignMetric = ({ label, value }: { label: string, value: string }) => 
 
 const calculateAge = (dob: string) => {
     if (!dob) return '';
-    const birthDate = new Date(dob);
+    const birthDate = new date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
@@ -118,8 +118,13 @@ export default function PhysicianDashboard() {
   }, [patients, searchTerm]);
 
   React.useEffect(() => {
-    if (!selectedPatientId && filteredPatients && filteredPatients.length > 0) {
-      setSelectedPatientId(filteredPatients[0].personId);
+    if (filteredPatients && filteredPatients.length > 0) {
+      const isSelectedPatientInList = filteredPatients.some(p => p.personId === selectedPatientId);
+      if (!isSelectedPatientInList) {
+        setSelectedPatientId(filteredPatients[0].personId);
+      }
+    } else if (filteredPatients && filteredPatients.length === 0) {
+        setSelectedPatientId(null);
     }
   }, [filteredPatients, selectedPatientId]);
 
@@ -239,9 +244,15 @@ export default function PhysicianDashboard() {
         {/* Right column: Patient Details */}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50 text-foreground">
             {!selectedPatient ? (
-                <div className="flex h-full items-center justify-center">
-                     <Loader2 className="mr-2 h-6 w-6 animate-spin text-muted-foreground" />
-                    <p className="text-muted-foreground">Loading patient details...</p>
+                 <div className="flex h-full items-center justify-center">
+                    {isLoadingPatients ? (
+                        <>
+                            <Loader2 className="mr-2 h-6 w-6 animate-spin text-muted-foreground" />
+                            <p className="text-muted-foreground">Loading patient details...</p>
+                        </>
+                    ) : (
+                        <p className="text-muted-foreground">Select a patient to view details.</p>
+                    )}
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -369,3 +380,5 @@ export default function PhysicianDashboard() {
     </>
   );
 }
+
+    
