@@ -51,6 +51,7 @@ const careSites = [
 
 const physicians = baseUsers.filter(u => u.role === 'physician');
 const drCarterId = 'dr_emily_carter';
+const drBenStoneId = 'dr_ben_stone';
 const drCarterHospitalIds = ['HOS-001', 'HOS-002']; // General Hospital & City Medical Center
 
 const sampleOrderSets = [
@@ -73,13 +74,10 @@ const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)
 
 // --- DYNAMIC DATA GENERATION ---
 
-const generatePatients = (count: number, drCarterPatientCount: number) => {
-    const patients = [];
-
-    // Add specific patient: Leila Richardson
-    patients.push({
+const hardcodedPatients = [
+    {
         personId: 'leila_richardson_123',
-        nationalId: faker.string.nanoid(10),
+        nationalId: '999-00-1111',
         fullName: 'Leila Richardson',
         dateOfBirth: '1982-08-22',
         gender: 'Female',
@@ -87,21 +85,77 @@ const generatePatients = (count: number, drCarterPatientCount: number) => {
         ethnicity: 'Not Hispanic',
         maritalStatus: 'Married',
         contactInfo: 'leila.richardson@example.com',
-        address: faker.location.streetAddress(true),
-        emergencyContact: `${faker.person.fullName()}, Spouse, ${faker.phone.number()}`,
+        address: '123 Wellness Way, Healington, MD 21201',
+        emergencyContact: 'Mark Richardson, Spouse, 555-111-2222',
         primaryProviderId: drCarterId,
-        insuranceNumber: `INS-${faker.string.alphanumeric(8).toUpperCase()}`,
+        insuranceNumber: 'INS-A9B8C7D6',
         allergyFlag: 'None',
         activeProblemList: 'Hypothyroidism, Iron Deficiency Anemia',
-    });
+    },
+    {
+        personId: 'david_chen_456',
+        nationalId: '999-00-2222',
+        fullName: 'David Chen',
+        dateOfBirth: '1975-04-12',
+        gender: 'Male',
+        race: 'Asian',
+        ethnicity: 'Not Hispanic',
+        maritalStatus: 'Married',
+        contactInfo: 'david.chen@example.com',
+        address: '456 Remedy Road, Vitality, VA 22030',
+        emergencyContact: 'Susan Chen, Spouse, 555-333-4444',
+        primaryProviderId: drCarterId,
+        insuranceNumber: 'INS-E5F6G7H8',
+        allergyFlag: 'Penicillin',
+        activeProblemList: 'Hypertension, Type 2 Diabetes',
+    },
+    {
+        personId: 'maria_garcia_789',
+        nationalId: '999-00-3333',
+        fullName: 'Maria Garcia',
+        dateOfBirth: '1990-11-30',
+        gender: 'Female',
+        race: 'Hispanic',
+        ethnicity: 'Hispanic',
+        maritalStatus: 'Single',
+        contactInfo: 'maria.garcia@example.com',
+        address: '789 Cure Circle, Recovery, TX 75001',
+        emergencyContact: 'Carlos Garcia, Brother, 555-555-6666',
+        primaryProviderId: drBenStoneId,
+        insuranceNumber: 'INS-I1J2K3L4',
+        allergyFlag: 'None',
+        activeProblemList: 'Asthma',
+    },
+    {
+        personId: 'john_smith_101',
+        nationalId: '999-00-4444',
+        fullName: 'John Smith',
+        dateOfBirth: '1968-01-15',
+        gender: 'Male',
+        race: 'White',
+        ethnicity: 'Not Hispanic',
+        maritalStatus: 'Divorced',
+        contactInfo: 'john.smith@example.com',
+        address: '101 Health Ave, Caretown, FL 33101',
+        emergencyContact: 'Laura Smith, Daughter, 555-777-8888',
+        primaryProviderId: drBenStoneId,
+        insuranceNumber: 'INS-M5N6O7P8',
+        allergyFlag: 'Sulfa',
+        activeProblemList: 'Gout, Coronary Artery Disease',
+    }
+];
 
+const generatePatients = (count: number, drCarterPatientCount: number) => {
+    const patients = [...hardcodedPatients];
+    const existingPatientCount = patients.length;
 
-    for (let i = 0; i < count - 1; i++) { // Generate `count - 1` to make room for Leila
+    for (let i = 0; i < count - existingPatientCount; i++) { 
         const gender = faker.person.sexType();
         const fullName = faker.person.fullName({ sex: gender });
 
-        // Assign first X patients to Dr. Carter, rest are random
-        const primaryProviderId = i < drCarterPatientCount -1 ? drCarterId : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
+        const primaryProviderId = i < drCarterPatientCount - hardcodedPatients.filter(p => p.primaryProviderId === drCarterId).length 
+            ? drCarterId 
+            : getRandomItem(physicians.filter(p => p.id !== drCarterId)).id;
 
         patients.push({
             personId: faker.string.uuid(),
@@ -198,7 +252,7 @@ const generateConditions = (patients: any[], encounters: any[]) => {
     }
 
 
-    patients.filter(p => p.personId !== 'leila_richardson_123').forEach(patient => {
+    patients.filter(p => !hardcodedPatients.find(hp => hp.personId === p.personId)).forEach(patient => {
         const numConditions = faker.number.int({ min: 1, max: 4 });
         const patientEncounters = encounters.filter(e => e.personId === patient.personId);
         if (patientEncounters.length === 0) return;
@@ -218,6 +272,28 @@ const generateConditions = (patients: any[], encounters: any[]) => {
             });
         }
     });
+     // Add conditions for other hardcoded patients
+     patients.filter(p => p.personId !== 'leila_richardson_123' && hardcodedPatients.find(hp => hp.personId === p.personId)).forEach(patient => {
+        const patientEncounters = encounters.filter(e => e.personId === patient.personId);
+        if (patientEncounters.length === 0) return;
+        const problems = patient.activeProblemList.split(', ');
+        problems.forEach(problemDesc => {
+            const icd10 = icd10Codes.find(c => c.desc === problemDesc);
+            if(icd10){
+                conditions.push({
+                    diagnosisId: faker.string.uuid(),
+                    personId: patient.personId,
+                    encounterId: getRandomItem(patientEncounters).encounterId,
+                    icd10Code: icd10.code,
+                    diagnosisType: 'Principal',
+                    onsetDate: faker.date.past({ years: 5 }).toISOString().split('T')[0],
+                    status: 'Active',
+                    certainty: 'Confirmed',
+                });
+            }
+        })
+    });
+
     return conditions;
 };
 
@@ -284,7 +360,10 @@ const generateDrugExposures = (patients: any[], encounters: any[]) => {
     { name: 'Lisinopril 10 MG', code: 'RxNorm:856335'},
     { name: 'Metformin 500 MG', code: 'RxNorm:860975'},
     { name: 'Atorvastatin 20 MG', code: 'RxNorm:628365'},
-    { name: 'Albuterol Inhaler', code: 'RxNorm:318134'}
+    { name: 'Albuterol Inhaler', code: 'RxNorm:318134'},
+    { name: 'Levothyroxine 75 mcg', code: 'RxNorm:866922'},
+    { name: 'Ferrous Sulfate 325 MG', code: 'RxNorm:105261' },
+    { name: 'Amoxicillin 500 MG', code: 'RxNorm:834042' },
   ];
    patients.forEach(patient => {
         const numDrugs = faker.number.int({ min: 1, max: 3 });
@@ -418,12 +497,12 @@ const generateAllData = ({
 
     // Add active problem list to patients
     samplePatients.forEach(p => {
-        // Skip for Leila, as it's set statically
-        if (p.personId === 'leila_richardson_123') return;
+        // Skip for hardcoded patients, as it's set statically
+        if (hardcodedPatients.some(hp => hp.personId === p.personId)) return;
 
         p.activeProblemList = sampleConditions
             .filter(c => c.personId === p.personId && c.status === 'Active')
-            .map(c => c.icd10Code)
+            .map(c => c.icd10Code) // Using code now, can be mapped to description later
             .join(', ');
     });
 
