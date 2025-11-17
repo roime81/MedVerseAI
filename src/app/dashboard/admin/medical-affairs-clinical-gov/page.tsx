@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Users, UserPlus, UserMinus, AlertTriangle, Clock, CalendarOff, FileText, CheckCircle, Shield, ExternalLink } from 'lucide-react';
 import { WeeklyLoginsChart } from '@/components/dashboard/medical-affairs/weekly-logins-chart';
+import { cn } from '@/lib/utils';
 
 const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600', isAlert = false }) => (
   <Card className={cn("bg-white shadow-sm hover:shadow-md transition-shadow", isAlert && "border-red-200")}>
