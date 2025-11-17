@@ -12,6 +12,10 @@
           "enum": ["physician", "nurse", "radiology", "lab", "billing", "admin", "pharmacist"],
           "description": "The role of the user, which determines their permissions and dashboard."
         },
+        "department": {
+          "type": "string",
+          "description": "The specific department for admins, e.g., 'HR/Credentialing', 'IT/IAM'."
+        },
         "displayName": { "type": "string", "description": "User's display name." },
         "associatedCareSites": {
           "type": "array",

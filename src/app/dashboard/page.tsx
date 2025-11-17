@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
+import type { User as AppUser } from '@/lib/schemas';
 
 export default function DashboardRedirect() {
   const { user, isUserLoading } = useUser();
@@ -25,8 +26,15 @@ export default function DashboardRedirect() {
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
-        const userData = userDoc.data();
+        const userData = userDoc.data() as AppUser;
         const role = userData.role;
+        const department = userData.department;
+
+        if (role === 'admin' && department) {
+            const departmentPath = department.toLowerCase().replace(/[\s/]+/g, '-');
+            router.push(`/dashboard/admin/${departmentPath}`);
+            return;
+        }
 
         switch (role) {
           case 'physician':

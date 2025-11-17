@@ -9,6 +9,7 @@ const baseUsers = [
         password: 'password',
         role: 'physician',
         displayName: 'Dr. Emily Carter',
+        department: 'Cardiology',
         id: 'dr_emily_carter'
     },
     {
@@ -16,6 +17,7 @@ const baseUsers = [
         password: 'password',
         role: 'physician',
         displayName: 'Dr. Ben Stone',
+        department: 'Emergency Medicine',
         id: 'dr_ben_stone'
     },
     // Nurses
@@ -32,6 +34,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'Super Admin',
+        department: 'System',
         id: 'super_admin'
     },
     // New Admin roles
@@ -40,6 +43,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'HR / Medical Credentialing',
+        department: 'HR/Credentialing',
         id: 'hr_medical_credentialing'
     },
     {
@@ -47,6 +51,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'Medical Affairs / Clinical Gov.',
+        department: 'Medical Affairs/Clinical Gov.',
         id: 'medical_affairs_clinical_gov'
     },
     {
@@ -54,6 +59,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'Department Head (HOD)',
+        department: 'Department Head',
         id: 'department_head_hod'
     },
     {
@@ -61,6 +67,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'IT Identity & Access Management',
+        department: 'IT/IAM',
         id: 'it_identity_access_management'
     },
     {
@@ -68,6 +75,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'Cybersecurity',
+        department: 'Cybersecurity',
         id: 'cybersecurity'
     },
     {
@@ -75,6 +83,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'HIS/EMR Application Team',
+        department: 'HIS/EMR',
         id: 'his_emr_application_team'
     },
     {
@@ -82,6 +91,7 @@ const baseUsers = [
         password: 'password',
         role: 'admin',
         displayName: 'Compliance / Internal Audit',
+        department: 'Compliance/Audit',
         id: 'compliance_internal_audit'
     },
     // Other clinical roles

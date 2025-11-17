@@ -85,6 +85,20 @@ async function seedUsers(auth, db) {
         console.warn(
           `Auth user with email ${user.email} already exists. Skipping auth creation.`
         );
+        // If auth user exists, still try to get the UID to map for foreign keys
+        const q = query(collection(db, 'users'), where('email', '==', user.email));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            const existingUserDoc = querySnapshot.docs[0];
+            authUser = { uid: existingUserDoc.id, email: user.email };
+             // Also ensure the doc has the latest data from sample-data
+            await updateDoc(doc(db, 'users', authUser.uid), { displayName: user.displayName, role: user.role, department: user.department });
+            console.log(`Updated existing Firestore doc for ${user.email}`);
+
+            if (user.role === 'physician') {
+                physicianUserIds.set(user.id, authUser.uid);
+            }
+        }
       } else {
         console.error(
           `Error creating user ${user.email}:`,

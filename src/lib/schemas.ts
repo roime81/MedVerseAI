@@ -5,6 +5,7 @@ export const UserSchema = z.object({
   uid: z.string().describe("Unique user ID from Firebase Auth."),
   email: z.string().email().describe("User's email address."),
   role: z.enum(["physician", "nurse", "radiology", "lab", "billing", "admin", "pharmacist"]).describe("The role of the user, which determines their permissions and dashboard."),
+  department: z.string().optional().describe("The specific department for admins, e.g., 'HR/Credentialing', 'IT/IAM'."),
   displayName: z.string().optional().describe("User's display name."),
   associatedCareSites: z.array(z.string()).optional().describe("An array of care site IDs the user is associated with."),
 });
