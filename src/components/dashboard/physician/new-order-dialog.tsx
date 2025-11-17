@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,15 +7,17 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Patient, OrderSet, CommonOrder, LabResult } from '@/lib/types';
-import { Search, Package, Star, Clock, Beaker, Loader2 } from 'lucide-react';
+import { Search, Package, Star, Clock, Beaker, Loader2, CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFirestore, useMemoFirebase } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query, limit, orderBy } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 
 interface NewOrderDialogProps {
@@ -37,6 +40,7 @@ const calculateAge = (dob: string) => {
 
 export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogProps) {
   const firestore = useFirestore();
+  const [selectedOrders, setSelectedOrders] = React.useState<CommonOrder[]>([]);
 
   const orderSetsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -56,6 +60,24 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
   }, [firestore, patient]);
   const { data: recentLabs, isLoading: isLoadingRecentLabs } = useCollection<LabResult>(recentLabsQuery);
 
+  const handleToggleOrder = (order: CommonOrder) => {
+    setSelectedOrders(prev => 
+      prev.find(o => o.id === order.id)
+        ? prev.filter(o => o.id !== order.id)
+        : [...prev, order]
+    );
+  };
+  
+  const isOrderSelected = (order: CommonOrder) => {
+    return selectedOrders.some(o => o.id === order.id);
+  }
+
+  React.useEffect(() => {
+    if (!open) {
+      setSelectedOrders([]);
+    }
+  }, [open]);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,10 +90,10 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                 </p>
             </DialogHeader>
         </div>
-        <div className="p-6 flex-1 flex flex-col gap-6 bg-slate-50 overflow-y-auto">
+        <div className="p-6 flex-1 flex flex-col gap-6 bg-slate-50 overflow-y-auto pb-32">
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Search for labs, imaging, medications, procedures..." className="pl-10 h-12 text-base" />
+                <Input placeholder="Search for labs, imaging, medications, procedures..." className="pl-10 h-12 text-base bg-white" />
             </div>
 
             <section>
@@ -82,13 +104,13 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {isLoadingOrderSets ? (
                         <Loader2 className="h-5 w-5 animate-spin"/>
-                    ) : orderSets?.map((orderSet, index) => (
-                         <Card key={orderSet.id} className={`p-4 flex items-start gap-4 bg-white cursor-pointer hover:border-primary border-2 ${index === 0 ? 'border-primary/50' : 'border-transparent'} transition-colors`}>
+                    ) : orderSets?.map((orderSet) => (
+                         <Card key={orderSet.id} className="p-4 flex items-start gap-4 bg-white cursor-pointer hover:border-primary border-2 border-transparent transition-colors">
                             <div className="p-2 bg-blue-100 rounded-md">
                                 <Beaker className="h-5 w-5 text-blue-600"/>
                             </div>
                             <div>
-                                <p className={`font-semibold ${index === 0 ? 'text-primary': 'text-foreground'}`}>{orderSet.name}</p>
+                                <p className="font-semibold text-foreground">{orderSet.name}</p>
                                 <span className="text-sm text-muted-foreground">{orderSet.orderCount} orders</span>
                             </div>
                         </Card>
@@ -106,8 +128,17 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                  ) : (
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                         {commonOrders?.map(order => (
-                            <Button key={order.id} variant="outline" className="justify-start bg-white hover:bg-slate-100 h-12 text-base font-normal">
-                            {order.name}
+                            <Button
+                                key={order.id}
+                                variant="outline"
+                                className={cn(
+                                    "justify-between bg-white hover:bg-slate-100 h-12 text-base font-normal",
+                                    isOrderSelected(order) && "border-green-500 ring-2 ring-green-500/20 text-green-700 font-semibold"
+                                )}
+                                onClick={() => handleToggleOrder(order)}
+                            >
+                                <span>{order.name}</span>
+                                {isOrderSelected(order) && <CheckCircle className="h-5 w-5 text-green-500" />}
                             </Button>
                         ))}
                     </div>
@@ -126,7 +157,10 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                         recentLabs.map(lab => (
                             <div key={lab.id} className="flex justify-between items-center text-base">
                                 <p className="text-muted-foreground">{lab.testCode}</p>
-                                <p className={`font-semibold ${lab.resultFlag === 'High' ? 'text-destructive' : 'text-foreground'}`}>
+                                <p className={cn(
+                                    "font-semibold",
+                                     lab.resultFlag === 'High' ? 'text-destructive' : 'text-foreground'
+                                 )}>
                                     {lab.resultValue}
                                 </p>
                             </div>
@@ -137,7 +171,34 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                  </div>
             </section>
         </div>
+        
+        {selectedOrders.length > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg-top">
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Selected Orders ({selectedOrders.length})</h3>
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedOrders([])}>
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+                 <div className="max-h-24 overflow-y-auto mb-4 border rounded-lg p-2 bg-slate-50/50">
+                    {selectedOrders.map(order => (
+                        <div key={order.id} className="flex justify-between items-center p-1">
+                            <span>{order.name}</span>
+                        </div>
+                    ))}
+                </div>
+                <DialogFooter className="sm:justify-between">
+                    <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Submit Orders ({selectedOrders.length})
+                    </Button>
+                </DialogFooter>
+            </div>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
+
+    
