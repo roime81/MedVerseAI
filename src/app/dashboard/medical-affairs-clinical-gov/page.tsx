@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Users, UserPlus, UserMinus, AlertTriangle, Clock, CalendarOff, FileText, CheckCircle, Shield, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { Users, UserPlus, UserMinus, AlertTriangle, Clock, CalendarOff, FileText, CheckCircle, Shield, ExternalLink } from 'lucide-react';
 import { WeeklyLoginsChart } from '@/components/dashboard/medical-affairs/weekly-logins-chart';
 
 const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600' }) => (
@@ -168,3 +168,5 @@ export default function MedicalAffairsDashboardPage() {
     </div>
   );
 }
+
+    

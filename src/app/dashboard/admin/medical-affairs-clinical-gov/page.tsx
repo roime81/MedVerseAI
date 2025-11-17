@@ -3,170 +3,164 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, BarChart2, AlertTriangle, Wifi, CheckCircle, Clock, Database, Archive, User, Cog, FileText, Server, UserCheck, UserX, Activity } from 'lucide-react';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Users, UserPlus, UserMinus, AlertTriangle, Clock, CalendarOff, FileText, CheckCircle, Shield, ExternalLink } from 'lucide-react';
 import { WeeklyLoginsChart } from '@/components/dashboard/medical-affairs/weekly-logins-chart';
-import { UsersByRoleChart } from '@/components/dashboard/medical-affairs/users-by-role-chart';
 
-const StatCard = ({ icon: Icon, title, value, change, changeType, description }) => (
-  <Card className="bg-white">
+const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600' }) => (
+  <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      <Icon className="h-4 w-4 text-muted-foreground" />
+      <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+      <div className={`p-1.5 rounded-md ${iconBgColor}`}>
+        <Icon className={`h-4 w-4 ${iconColor}`} />
+      </div>
     </CardHeader>
     <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-2xl font-bold text-foreground">{value}</div>
       <p className="text-xs text-muted-foreground">{description}</p>
+      {footer && <div className="text-xs text-primary mt-1">{footer}</div>}
     </CardContent>
   </Card>
 );
 
-const recentActivities = [
-    { user: 'Dr. Emily Carter', action: 'Accessed patient records', time: '2 min ago', icon: UserCheck, color: 'text-blue-500' },
-    { user: 'System Admin', action: 'Updated user permissions', time: '15 min ago', icon: Cog, color: 'text-blue-500' },
-    { user: 'IT Admin', action: 'Failed login attempt detected', time: '23 min ago', icon: UserX, color: 'text-orange-500' },
-    { user: 'HR Admin', action: 'Added new staff member', time: '1 hour ago', icon: User, color: 'text-blue-500' },
-    { user: 'Compliance Officer', action: 'Generated audit report', time: '2 hours ago', icon: FileText, color: 'text-blue-500' },
-]
+const RoleSnapshot = ({ role, active, pending, suspended, progress }) => (
+    <div className="flex items-center gap-4 py-2">
+        <div className="w-28 text-sm font-medium text-foreground">{role}</div>
+        <div className="flex-1">
+            <Progress value={progress} className="h-2"/>
+        </div>
+        <div className="flex gap-2 w-48 justify-end">
+            <Badge variant="outline" className="w-16 justify-center">{active} active</Badge>
+            <Badge variant="secondary" className="w-16 justify-center">{pending} pending</Badge>
+            <Badge variant="destructive" className="w-16 justify-center">{suspended} suspended</Badge>
+        </div>
+    </div>
+);
+
+const QuickAction = ({ icon: Icon, title }) => (
+    <Button variant="outline" className="flex-1 flex-col h-20 bg-white">
+        <Icon className="h-5 w-5 mb-1 text-muted-foreground" />
+        <span className="text-sm font-normal text-muted-foreground">{title}</span>
+    </Button>
+);
 
 export default function MedicalAffairsDashboardPage() {
   return (
-    <div className="flex flex-col h-full bg-background text-foreground">
-        <DashboardHeader title="Medical Affairs" description="Clinical governance and quality management" />
-        <div className="flex-1 overflow-y-auto p-8 space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard 
-                    icon={Users}
-                    title="Total Users"
-                    value="1,247"
-                    description="+12 this week"
-                />
-                <StatCard 
-                    icon={BarChart2}
-                    title="System Health"
-                    value="99.98%"
-                    description="Uptime"
-                />
-                 <StatCard 
-                    icon={AlertTriangle}
-                    title="Security Alerts"
-                    value="2"
-                    description="Requires attention"
-                />
-                 <StatCard 
-                    icon={Wifi}
-                    title="Active Sessions"
-                    value="847"
-                    description="Currently online"
-                />
+    <div className="flex flex-col h-full bg-slate-50 text-foreground">
+        <div className="p-6 border-b bg-white">
+            <h1 className="text-2xl font-bold text-foreground">Access Management Overview</h1>
+            <p className="text-muted-foreground">Medical Affairs / Clinical Gov - Identity & access monitoring and control</p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+                <StatCard icon={Users} title="Total Active Users" value="1,247" description="" footer={<span className="flex items-center cursor-pointer">Drill Down Users <ExternalLink className="ml-1 h-3 w-3" /></span>} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
+                <StatCard icon={UserPlus} title="New Joiners" value="12" description="Last 7 Days" iconBgColor="bg-green-100" iconColor="text-green-600" />
+                <StatCard icon={UserMinus} title="Offboarded" value="2" description="Last 7 Days" iconBgColor="bg-gray-100" iconColor="text-gray-600"/>
+                <StatCard icon={Clock} title="Pending Requests" value="15" description="2 SLAs breached" iconBgColor="bg-yellow-100" iconColor="text-yellow-600"/>
+                <StatCard icon={CalendarOff} title="Expiring Soon" value="22" description="Onboarded < 90 days" iconBgColor="bg-yellow-100" iconColor="text-yellow-600"/>
+                <StatCard icon={AlertTriangle} title="High-Risk Alerts" value="2" description="Requires immediate action" iconBgColor="bg-red-100" iconColor="text-red-600"/>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-1 bg-white">
-                    <CardHeader>
-                        <CardTitle>System Metrics</CardTitle>
-                        <p className="text-sm text-muted-foreground">Current system performance indicators</p>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <CheckCircle className="h-5 w-5 text-green-500" />
-                                <div>
-                                    <p className="font-medium">System Uptime</p>
-                                    <p className="text-sm text-muted-foreground">99.98%</p>
-                                </div>
-                            </div>
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                        </div>
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Clock className="h-5 w-5 text-muted-foreground" />
-                                <div>
-                                    <p className="font-medium">Active Users</p>
-                                    <p className="text-sm text-muted-foreground">1,247</p>
-                                </div>
-                            </div>
-                             <CheckCircle className="h-5 w-5 text-green-500" />
-                        </div>
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Database className="h-5 w-5 text-muted-foreground" />
-                                <div>
-                                    <p className="font-medium">Database Performance</p>
-                                    <p className="text-sm text-muted-foreground">95%</p>
-                                </div>
-                            </div>
-                             <CheckCircle className="h-5 w-5 text-green-500" />
-                        </div>
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Archive className="h-5 w-5 text-muted-foreground" />
-                                <div>
-                                    <p className="font-medium">Backup Status</p>
-                                    <p className="text-sm text-muted-foreground">Complete</p>
-                                </div>
-                            </div>
-                             <CheckCircle className="h-5 w-5 text-green-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                 <Card className="lg:col-span-2 bg-white">
-                    <CardHeader>
-                        <CardTitle>Recent Activities</CardTitle>
-                        <p className="text-sm text-muted-foreground">Latest system events and user actions</p>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {recentActivities.map((activity, index) => {
-                            const Icon = activity.icon;
-                            return (
-                                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border">
-                                    <div className={`mt-1 h-2 w-2 rounded-full ${activity.color.replace('text-','bg-')}`}></div>
-                                    <div className="flex-grow">
-                                        <p className="font-medium text-sm">{activity.user}</p>
-                                        <p className="text-sm text-muted-foreground">{activity.action}</p>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                                        {activity.color.includes('orange') && <AlertTriangle className="h-4 w-4 text-orange-500" />}
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </CardContent>
-                </Card>
-            </div>
+            <Card className="bg-red-50 border-red-200 shadow-none">
+                <CardHeader>
+                    <CardTitle className="flex items-center text-sm font-semibold text-red-800">
+                        <AlertTriangle className="mr-2 h-4 w-4" />
+                        Active Security Alerts (1)
+                        <Button variant="link" className="ml-auto text-red-800">View all alerts</Button>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between p-4 bg-white mx-6 mb-6 rounded-lg border border-red-200">
+                    <div>
+                        <p className="font-semibold text-foreground">Multiple Failed Login Attempts</p>
+                        <p className="text-sm text-muted-foreground">Failed login attempts from IP <span className="font-mono">49.207.181.22</span> targeting multiple physician accounts.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Triggered 2 minutes ago</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline">Acknowledge</Button>
+                        <Button variant="default">Investigate</Button>
+                    </div>
+                </CardContent>
+            </Card>
             
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <Card className="lg:col-span-3 bg-white">
+            <Card className="bg-yellow-50 border-yellow-200 shadow-none">
+                 <CardHeader>
+                    <CardTitle className="flex items-center text-sm font-semibold text-yellow-800">
+                         <AlertTriangle className="mr-2 h-4 w-4" />
+                        Open Escalations (2)
+                         <Button variant="link" className="ml-auto text-yellow-800">View all escalations</Button>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="p-4 bg-white rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="font-semibold text-foreground">ESC-2023-001 - Dr. John Doe</p>
+                                <p className="text-sm text-muted-foreground">License verification failed with state medical board API. Manual verification required.</p>
+                                <p className="text-xs text-muted-foreground mt-2">Opened 12 days ago • Assigned to hr.credentialing@medverse.com • <span className="text-primary cursor-pointer hover:underline">Related Ticket #12345</span></p>
+                            </div>
+                             <div className="flex items-center gap-2">
+                                <Badge variant="destructive">High</Badge>
+                                <Button size="sm">Investigating</Button>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="mt-3">View Details</Button>
+                    </div>
+                     <div className="p-4 bg-white rounded-lg border border-yellow-200">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="font-semibold text-foreground">PRV-2024-0076 - Dr. Emily Carter</p>
+                                <p className="text-sm text-muted-foreground">Medical license expires in 7 days. Plan to use Locum Tenens, but clinical access in HIS/EMR not granted.</p>
+                                <p className="text-xs text-muted-foreground mt-2">Opened 2 days ago • Assigned to it.iam@medverse.com • <span className="text-primary cursor-pointer hover:underline">Due Date 11/30/2025</span></p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-yellow-200 text-yellow-800">Low</Badge>
+                                <Button size="sm" variant="secondary">Open</Button>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="mt-3">View Details</Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-white">
                     <CardHeader>
-                        <CardTitle>Weekly Login Activity</CardTitle>
-                        <p className="text-sm text-muted-foreground">User logins per day</p>
+                        <CardTitle className="text-base">Role & Department Snapshot</CardTitle>
+                        <p className="text-sm text-muted-foreground">User distribution by role</p>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <RoleSnapshot role="Physicians" active={200} pending={12} suspended={4} progress={(200/216)*100} />
+                        <RoleSnapshot role="Nurses" active={800} pending={25} suspended={8} progress={(800/833)*100} />
+                        <RoleSnapshot role="Radiology" active={30} pending={2} suspended={0} progress={(30/32)*100} />
+                        <RoleSnapshot role="Lab" active={50} pending={5} suspended={1} progress={(50/56)*100} />
+                        <RoleSnapshot role="Pharmacists" active={25} pending={1} suspended={0} progress={(25/26)*100} />
+                        <RoleSnapshot role="Admin Staff" active={42} pending={3} suspended={1} progress={(42/46)*100} />
+                        <RoleSnapshot role="Billing" active={15} pending={0} suspended={0} progress={100} />
+                    </CardContent>
+                </Card>
+                 <Card className="bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-base">Access Changes Trend</CardTitle>
+                        <p className="text-sm text-muted-foreground">Daily access modifications (last 7 days)</p>
                     </CardHeader>
                     <CardContent>
                         <WeeklyLoginsChart />
                     </CardContent>
                 </Card>
-                <Card className="lg:col-span-2 bg-white">
-                    <CardHeader>
-                        <CardTitle>Users by Role</CardTitle>
-                        <p className="text-sm text-muted-foreground">Distribution of active users</p>
-                    </CardHeader>
-                    <CardContent>
-                        <UsersByRoleChart />
-                    </CardContent>
-                </Card>
             </div>
             
-             <Card className="bg-white">
-                <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
+             <Card className="bg-transparent shadow-none border-none">
+                <CardHeader className="px-0">
+                    <CardTitle className="text-base">Quick Actions</CardTitle>
+                    <p className="text-sm text-muted-foreground">Common tasks and shortcuts</p>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Button variant="outline" className="flex-col h-20"><User className="mb-2"/>Manage Users</Button>
-                    <Button variant="outline" className="flex-col h-20"><Cog className="mb-2"/>Security Settings</Button>
-                    <Button variant="outline" className="flex-col h-20"><FileText className="mb-2"/>Generate Report</Button>
-                    <Button variant="outline" className="flex-col h-20"><Server className="mb-2"/>System Backup</Button>
+                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 p-0">
+                   <QuickAction icon={Users} title="User Summary" />
+                   <QuickAction icon={CheckCircle} title="My Approvals" />
+                   <QuickAction icon={FileText} title="Expiring Credentials" />
+                   <QuickAction icon={Shield} title="Reports" />
                 </CardContent>
              </Card>
 
@@ -174,3 +168,5 @@ export default function MedicalAffairsDashboardPage() {
     </div>
   );
 }
+
+    
