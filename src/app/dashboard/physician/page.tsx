@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -99,6 +100,8 @@ export default function PhysicianDashboard() {
   const router = useRouter();
   const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
   const [isNewOrderDialogOpen, setIsNewOrderDialogOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+
 
   const patientsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -107,11 +110,18 @@ export default function PhysicianDashboard() {
 
   const { data: patients, isLoading: isLoadingPatients } = useCollection<Patient>(patientsQuery);
   
+  const filteredPatients = React.useMemo(() => {
+    if (!patients) return [];
+    return patients.filter(patient => 
+      patient.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [patients, searchTerm]);
+
   React.useEffect(() => {
-    if (!selectedPatientId && patients && patients.length > 0) {
-      setSelectedPatientId(patients[0].personId);
+    if (!selectedPatientId && filteredPatients && filteredPatients.length > 0) {
+      setSelectedPatientId(filteredPatients[0].personId);
     }
-  }, [patients, selectedPatientId]);
+  }, [filteredPatients, selectedPatientId]);
 
   const selectedPatient = React.useMemo(() => {
     return patients?.find(p => p.personId === selectedPatientId) || null;
@@ -164,6 +174,8 @@ export default function PhysicianDashboard() {
                 <Input
                   placeholder="Search patients..."
                   className="w-full rounded-md bg-background pl-10 border-border placeholder:text-muted-foreground text-foreground"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
@@ -195,14 +207,14 @@ export default function PhysicianDashboard() {
                      <div className="flex justify-center items-center h-full">
                         <Loader2 className="mr-2 h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
-                ) : !patients || patients.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-10">
-                        <p>No patients found.</p>
-                        <p className="text-xs mt-2">Run the seed script to populate sample data.</p>
+                ) : !filteredPatients || filteredPatients.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-10 px-4">
+                        <p>No patients found{searchTerm && ` for "${searchTerm}"`}.</p>
+                        {!searchTerm && <p className="text-xs mt-2">Run the seed script to populate sample data.</p>}
                     </div>
                 ) : (
                     <div>
-                    {patients.slice(0, 10).map((patient) => (
+                    {filteredPatients.slice(0, 10).map((patient) => (
                         <PatientListItem
                             key={patient.personId}
                             patient={patient}
@@ -216,8 +228,8 @@ export default function PhysicianDashboard() {
              <Card className="m-4 text-center text-sm rounded-lg bg-white shadow-none border">
                 <CardContent className="p-3">
                     <div className="grid grid-cols-3 divide-x divide-border">
-                        <div><span className="font-bold text-lg text-foreground">{patients?.length || 0}</span><p className="text-muted-foreground text-xs">Active</p></div>
-                        <div><span className="font-bold text-lg text-destructive">{patients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground text-xs">Alerts</p></div>
+                        <div><span className="font-bold text-lg text-foreground">{filteredPatients?.length || 0}</span><p className="text-muted-foreground text-xs">Active</p></div>
+                        <div><span className="font-bold text-lg text-destructive">{filteredPatients?.filter(p => p.allergyFlag !== 'None').length || 0}</span><p className="text-muted-foreground text-xs">Alerts</p></div>
                         <div><span className="font-bold text-lg text-foreground">12</span><p className="text-muted-foreground text-xs">Total</p></div>
                     </div>
                 </CardContent>
