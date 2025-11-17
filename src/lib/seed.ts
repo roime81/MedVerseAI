@@ -22,6 +22,9 @@ const {
   sampleProcedures,
   sampleCareSites,
   samplePendingTasks,
+  sampleOrderSets,
+  sampleCommonOrders,
+  sampleLabResults,
 } = generatedData;
 
 
@@ -159,6 +162,13 @@ async function seedCollections(db, physicianUserIds) {
     batch.set(ref, drug);
   });
 
+  // Seed Lab Results
+  console.log(`Seeding ${sampleLabResults.length} lab results...`);
+  sampleLabResults.forEach((lab) => {
+      const ref = doc(db, 'patients', lab.personId, 'labResults', lab.labOrderId);
+      batch.set(ref, lab);
+  });
+
   // Seed Clinical Notes
   console.log(`Seeding ${sampleClinicalNotes.length} clinical notes...`);
   sampleClinicalNotes.forEach((note) => {
@@ -185,6 +195,21 @@ async function seedCollections(db, physicianUserIds) {
     const ref = doc(db, 'careSites', site.careSiteId);
     batch.set(ref, site);
   });
+
+  // Seed Order Sets
+  console.log(`Seeding ${sampleOrderSets.length} order sets...`);
+  sampleOrderSets.forEach((orderSet) => {
+      const ref = doc(db, 'orderSets', orderSet.orderSetId);
+      batch.set(ref, orderSet);
+  });
+
+  // Seed Common Orders
+  console.log(`Seeding ${sampleCommonOrders.length} common orders...`);
+  sampleCommonOrders.forEach((commonOrder) => {
+      const ref = doc(db, 'commonOrders', commonOrder.orderId);
+      batch.set(ref, commonOrder);
+  });
+
 
   // Seed Pending Tasks
   console.log(`Seeding ${samplePendingTasks.length} pending tasks...`);

@@ -68,6 +68,17 @@ export const DrugExposureSchema = z.object({
 });
 export type DrugExposure = z.infer<typeof DrugExposureSchema>;
 
+export const LabResultSchema = z.object({
+    labOrderId: z.string().describe("Unique identifier for the lab order."),
+    personId: z.string().describe("Link to the Patient."),
+    encounterId: z.string().optional().describe("Link to the Encounter."),
+    testCode: z.string().optional().describe("LOINC code for the test."),
+    resultValue: z.string().optional().describe("The resulting value of the test."),
+    resultDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date-time format" }).describe("Date and time the result was available."),
+    resultFlag: z.string().optional().describe("Flag for the result (e.g., High, Low, Normal)."),
+});
+export type LabResult = z.infer<typeof LabResultSchema>;
+
 
 export const PendingTaskSchema = z.object({
   taskId: z.string().describe("Unique identifier for the task."),

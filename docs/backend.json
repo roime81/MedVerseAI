@@ -585,6 +585,28 @@
         "patientId": { "type": "string", "description": "Optional patient ID related to the task." }
       },
       "required": ["taskId", "assignedTo", "description", "priority", "status"]
+    },
+    "OrderSet": {
+      "title": "OrderSet",
+      "type": "object",
+      "description": "A collection of clinical orders grouped for a specific protocol.",
+      "properties": {
+        "orderSetId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "orderCount": { "type": "number" }
+      },
+      "required": ["orderSetId", "name"]
+    },
+    "CommonOrder": {
+      "title": "CommonOrder",
+      "type": "object",
+      "description": "A frequently used clinical order.",
+      "properties": {
+        "orderId": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["orderId", "name"]
     }
   },
   "firestore": {
@@ -683,6 +705,18 @@
         "$ref": "#/entities/Procedure"
       },
       "description": "Top-level collection of all procedures."
+    },
+    "/orderSets/{orderSetId}": {
+      "schema": {
+        "$ref": "#/entities/OrderSet"
+      },
+      "description": "Stores predefined sets of clinical orders."
+    },
+    "/commonOrders/{orderId}": {
+      "schema": {
+        "$ref": "#/entities/CommonOrder"
+      },
+      "description": "Stores a list of common clinical orders."
     }
   },
   "auth": {

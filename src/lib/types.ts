@@ -1,5 +1,5 @@
 // Type definitions for your data models
-import type { Patient as PatientSchema, Encounter, Condition as ConditionSchema, PendingTask as PendingTaskSchema, DrugExposure as DrugExposureSchema } from "@/lib/schemas";
+import type { Patient as PatientSchema, Encounter, Condition as ConditionSchema, PendingTask as PendingTaskSchema, DrugExposure as DrugExposureSchema, LabResult as LabResultSchema } from "@/lib/schemas";
 
 
 export interface Patient extends PatientSchema {
@@ -35,3 +35,21 @@ export interface RecentPatient {
 export interface Condition extends ConditionSchema {}
 
 export interface DrugExposure extends DrugExposureSchema {}
+
+export interface LabResult extends LabResultSchema {
+    id: string;
+}
+
+export interface OrderSet {
+    id: string;
+    orderSetId: string;
+    name: string;
+    description: string;
+    orderCount: number;
+}
+
+export interface CommonOrder {
+    id: string;
+    orderId: string;
+    name: string;
+}

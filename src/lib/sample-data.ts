@@ -53,6 +53,20 @@ const physicians = baseUsers.filter(u => u.role === 'physician');
 const drCarterId = 'dr_emily_carter';
 const drCarterHospitalIds = ['HOS-001', 'HOS-002']; // General Hospital & City Medical Center
 
+const sampleOrderSets = [
+    { orderSetId: 'os-001', name: 'ED Chest Pain Protocol', description: 'Standard protocol for emergency department chest pain workup', orderCount: 8 },
+    { orderSetId: 'os-002', name: 'Sepsis Bundle', description: 'Initial management bundle for patients with suspected sepsis', orderCount: 6 },
+    { orderSetId: 'os-003', name: 'Abdominal Pain Workup', description: 'Standard set of orders for undifferentiated abdominal pain', orderCount: 7 },
+];
+
+const sampleCommonOrders = [
+    { orderId: 'co-001', name: 'CBC' }, { orderId: 'co-002', name: 'CMP' },
+    { orderId: 'co-003', name: 'Chest X-Ray' }, { orderId: 'co-004', name: 'ECG - 12 Lead' },
+    { orderId: 'co-005', name: 'Urinalysis' }, { orderId: 'co-006', name: 'CT Head without contrast' },
+    { orderId: 'co-007', name: 'Troponin I' }, { orderId: 'co-008', name: 'D-Dimer' },
+    { orderId: 'co-009', name: 'Lactate' }, { orderId: 'co-010', name: 'Blood Cultures' }
+];
+
 // Helper function to get a random item from an array
 const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -297,6 +311,36 @@ const generateDrugExposures = (patients: any[], encounters: any[]) => {
   return drugs;
 }
 
+const generateLabResults = (patients: any[], encounters: any[]) => {
+    const results = [];
+    const labTests = [
+        { code: 'Troponin I', unit: 'ng/mL', normalRange: [0, 0.4], highValue: () => faker.number.float({ min: 0.5, max: 10, precision: 0.1 }) },
+        { code: 'BNP', unit: 'pg/mL', normalRange: [0, 100], highValue: () => faker.number.int({ min: 101, max: 1000 }) },
+        { code: 'Creatinine', unit: 'mg/dL', normalRange: [0.6, 1.2], highValue: () => faker.number.float({ min: 1.3, max: 5, precision: 0.1 }) }
+    ];
+    patients.forEach(patient => {
+        const patientEncounters = encounters.filter(e => e.personId === patient.personId);
+        if (patientEncounters.length === 0) return;
+        const encounter = getRandomItem(patientEncounters);
+
+        labTests.forEach(test => {
+            const isHigh = Math.random() > 0.7; // 30% chance of high value
+            const value = isHigh ? test.highValue() : faker.number.float({ min: test.normalRange[0], max: test.normalRange[1], precision: 0.1 });
+            results.push({
+                labOrderId: faker.string.uuid(),
+                personId: patient.personId,
+                encounterId: encounter.encounterId,
+                testCode: test.code,
+                resultValue: `${value} ${test.unit}`,
+                resultDate: encounter.admissionDatetime,
+                resultFlag: isHigh ? 'High' : 'Normal',
+            });
+        });
+    });
+    return results;
+}
+
+
 const generateClinicalNotes = (encounters: any[]) => {
     const notes = [];
     encounters.forEach(encounter => {
@@ -368,6 +412,7 @@ const generateAllData = ({
     const sampleConditions = generateConditions(samplePatients, sampleEncounters);
     const sampleProcedures = generateProcedures(samplePatients, sampleEncounters, drCarterTodaysAppointments);
     const sampleDrugExposures = generateDrugExposures(samplePatients, sampleEncounters);
+    const sampleLabResults = generateLabResults(samplePatients, sampleEncounters);
     const sampleClinicalNotes = generateClinicalNotes(sampleEncounters);
     const samplePendingTasks = generatePendingTasks(baseUsers, samplePatients, drCarterTaskCount);
 
@@ -392,12 +437,14 @@ const generateAllData = ({
         sampleClinicalNotes,
         samplePendingTasks,
         sampleCareSites: careSites,
+        sampleOrderSets,
+        sampleCommonOrders,
+        sampleLabResults,
         // Keep some other static data if needed, or make them dynamic too
         sampleBeds: [],
         sampleCosts: [],
         samplePayerPlanPeriods: [],
         sampleVisitDetails: [],
-        sampleLabResults: [],
         sampleImagingStudies: [],
     };
 };

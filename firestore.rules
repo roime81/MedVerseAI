@@ -116,5 +116,14 @@ service cloud.firestore {
     match /procedures/{procedureId} {
         allow read, write: if isSignedIn();
     }
+    
+    // Order Sets & Common Orders
+    match /orderSets/{orderSetId} {
+        allow read: if isSignedIn();
+    }
+    
+    match /commonOrders/{orderId} {
+        allow read: if isSignedIn();
+    }
   }
 }

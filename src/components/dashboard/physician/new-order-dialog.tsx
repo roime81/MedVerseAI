@@ -9,10 +9,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Patient } from '@/lib/types';
-import { Search, Package, Star, Clock, Beaker } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Patient, OrderSet, CommonOrder, LabResult } from '@/lib/types';
+import { Search, Package, Star, Clock, Beaker, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { collection, query, limit, orderBy } from 'firebase/firestore';
+
 
 interface NewOrderDialogProps {
   open: boolean;
@@ -32,15 +35,27 @@ const calculateAge = (dob: string) => {
     return age;
 };
 
-const commonOrders = [
-    { name: 'CBC' }, { name: 'CMP' },
-    { name: 'Chest X-Ray' }, { name: 'ECG - 12 Lead' },
-    { name: 'Urinalysis' }, { name: 'CT Head without contrast' },
-    { name: 'Troponin I' }, { name: 'D-Dimer' },
-    { name: 'Lactate' }, { name: 'Blood Cultures' }
-];
-
 export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogProps) {
+  const firestore = useFirestore();
+
+  const orderSetsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'orderSets'));
+  }, [firestore]);
+  const { data: orderSets, isLoading: isLoadingOrderSets } = useCollection<OrderSet>(orderSetsQuery);
+
+  const commonOrdersQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'commonOrders'));
+  }, [firestore]);
+  const { data: commonOrders, isLoading: isLoadingCommonOrders } = useCollection<CommonOrder>(commonOrdersQuery);
+  
+  const recentLabsQuery = useMemoFirebase(() => {
+    if (!firestore || !patient) return null;
+    return query(collection(firestore, 'patients', patient.personId, 'labResults'), orderBy('resultDate', 'desc'), limit(3));
+  }, [firestore, patient]);
+  const { data: recentLabs, isLoading: isLoadingRecentLabs } = useCollection<LabResult>(recentLabsQuery);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -65,33 +80,19 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                     Order Sets
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="p-4 flex items-start gap-4 bg-white cursor-pointer hover:border-primary border-2 border-primary/50 transition-colors">
-                        <div className="p-2 bg-blue-100 rounded-md">
-                            <Beaker className="h-5 w-5 text-blue-600"/>
-                        </div>
-                        <div>
-                            <p className="font-semibold text-primary">ED Chest Pain Protocol</p>
-                            <span className="text-sm text-muted-foreground">8 orders</span>
-                        </div>
-                    </Card>
-                     <Card className="p-4 flex items-start gap-4 bg-white cursor-pointer hover:border-primary border-2 border-transparent transition-colors">
-                        <div className="p-2 bg-blue-100 rounded-md">
-                            <Beaker className="h-5 w-5 text-blue-600"/>
-                        </div>
-                        <div>
-                            <p className="font-semibold text-foreground">Sepsis Bundle</p>
-                            <span className="text-sm text-muted-foreground">8 orders</span>
-                        </div>
-                    </Card>
-                     <Card className="p-4 flex items-start gap-4 bg-white cursor-pointer hover:border-primary border-2 border-transparent transition-colors">
-                        <div className="p-2 bg-blue-100 rounded-md">
-                            <Beaker className="h-5 w-5 text-blue-600"/>
-                        </div>
-                        <div>
-                            <p className="font-semibold text-foreground">Abdominal Pain Workup</p>
-                            <span className="text-sm text-muted-foreground">7 orders</span>
-                        </div>
-                    </Card>
+                    {isLoadingOrderSets ? (
+                        <Loader2 className="h-5 w-5 animate-spin"/>
+                    ) : orderSets?.map((orderSet, index) => (
+                         <Card key={orderSet.id} className={`p-4 flex items-start gap-4 bg-white cursor-pointer hover:border-primary border-2 ${index === 0 ? 'border-primary/50' : 'border-transparent'} transition-colors`}>
+                            <div className="p-2 bg-blue-100 rounded-md">
+                                <Beaker className="h-5 w-5 text-blue-600"/>
+                            </div>
+                            <div>
+                                <p className={`font-semibold ${index === 0 ? 'text-primary': 'text-foreground'}`}>{orderSet.name}</p>
+                                <span className="text-sm text-muted-foreground">{orderSet.orderCount} orders</span>
+                            </div>
+                        </Card>
+                    ))}
                 </div>
             </section>
             
@@ -100,13 +101,17 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                     <Star className="mr-2 h-5 w-5 text-muted-foreground" />
                     Common Orders
                 </h2>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    {commonOrders.map(order => (
-                        <Button key={order.name} variant="outline" className="justify-start bg-white hover:bg-slate-100 h-12 text-base font-normal">
-                           {order.name}
-                        </Button>
-                    ))}
-                </div>
+                 {isLoadingCommonOrders ? (
+                    <Loader2 className="h-5 w-5 animate-spin"/>
+                 ) : (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        {commonOrders?.map(order => (
+                            <Button key={order.id} variant="outline" className="justify-start bg-white hover:bg-slate-100 h-12 text-base font-normal">
+                            {order.name}
+                            </Button>
+                        ))}
+                    </div>
+                 )}
             </section>
 
              <section>
@@ -115,18 +120,20 @@ export function NewOrderDialog({ open, onOpenChange, patient }: NewOrderDialogPr
                     Recent Results (for comparison)
                 </h2>
                  <div className="bg-white rounded-lg border p-4 space-y-3">
-                    <div className="flex justify-between items-center text-base">
-                        <p className="text-muted-foreground">Troponin I</p>
-                        <p className="font-semibold text-destructive">2.8 <span className="text-sm text-muted-foreground">ng/mL</span></p>
-                    </div>
-                     <div className="flex justify-between items-center text-base">
-                        <p className="text-muted-foreground">BNP</p>
-                        <p className="font-semibold text-destructive">450 <span className="text-sm text-muted-foreground">pg/mL</span></p>
-                    </div>
-                     <div className="flex justify-between items-center text-base">
-                        <p className="text-muted-foreground">Creatinine</p>
-                        <p className="font-semibold text-destructive">1.8 <span className="text-sm text-muted-foreground">mg/dL</span></p>
-                    </div>
+                    {isLoadingRecentLabs ? (
+                        <Loader2 className="h-5 w-5 animate-spin"/>
+                    ) : recentLabs && recentLabs.length > 0 ? (
+                        recentLabs.map(lab => (
+                            <div key={lab.id} className="flex justify-between items-center text-base">
+                                <p className="text-muted-foreground">{lab.testCode}</p>
+                                <p className={`font-semibold ${lab.resultFlag === 'High' ? 'text-destructive' : 'text-foreground'}`}>
+                                    {lab.resultValue}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">No recent lab results found.</p>
+                    )}
                  </div>
             </section>
         </div>
