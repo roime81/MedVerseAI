@@ -34,6 +34,56 @@ const baseUsers = [
         displayName: 'Super Admin',
         id: 'super_admin'
     },
+    // New Admin roles
+    {
+        email: 'hr.credentialing@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'HR / Medical Credentialing',
+        id: 'hr_medical_credentialing'
+    },
+    {
+        email: 'medical.affairs@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'Medical Affairs / Clinical Gov.',
+        id: 'medical_affairs_clinical_gov'
+    },
+    {
+        email: 'department.head@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'Department Head (HOD)',
+        id: 'department_head_hod'
+    },
+    {
+        email: 'it.iam@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'IT Identity & Access Management',
+        id: 'it_identity_access_management'
+    },
+    {
+        email: 'cybersecurity@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'Cybersecurity',
+        id: 'cybersecurity'
+    },
+    {
+        email: 'his.emr@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'HIS/EMR Application Team',
+        id: 'his_emr_application_team'
+    },
+    {
+        email: 'compliance.audit@medverse.com',
+        password: 'password',
+        role: 'admin',
+        displayName: 'Compliance / Internal Audit',
+        id: 'compliance_internal_audit'
+    }
 ];
 
 const careSites = [
