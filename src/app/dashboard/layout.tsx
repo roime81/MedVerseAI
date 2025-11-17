@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, User, BarChart, Users } from 'lucide-react';
+import { LayoutDashboard, User, BarChart, Users, Shield } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 
 
@@ -92,6 +92,17 @@ export default function DashboardLayout({
                <Link href="/dashboard/directory">
                 <BarChart className="mr-2 h-4 w-4" />
                 Command Center
+               </Link>
+            </Button>
+            <Button 
+              size="sm" 
+              variant={pathname.startsWith('/dashboard/admin-directory') ? 'secondary' : 'ghost'}
+              className={cn(pathname.startsWith('/dashboard/admin-directory') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-card-foreground')}
+              asChild
+            >
+               <Link href="/dashboard/admin-directory">
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Directory
                </Link>
             </Button>
           </div>
