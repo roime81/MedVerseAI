@@ -82,7 +82,7 @@ const VitalSignMetric = ({ label, value }: { label: string, value: string }) => 
 
 const calculateAge = (dob: string) => {
     if (!dob) return '';
-    const birthDate = new date(dob);
+    const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
