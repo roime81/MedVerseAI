@@ -83,6 +83,35 @@ const baseUsers = [
         role: 'admin',
         displayName: 'Compliance / Internal Audit',
         id: 'compliance_internal_audit'
+    },
+    // Other clinical roles
+    {
+        email: 'sam.radiologist@medverse.com',
+        password: 'password',
+        role: 'radiology',
+        displayName: 'Sam Radiologist',
+        id: 'sam_radiologist'
+    },
+    {
+        email: 'larry.labtech@medverse.com',
+        password: 'password',
+        role: 'lab',
+        displayName: 'Larry Labtech',
+        id: 'larry_labtech'
+    },
+    {
+        email: 'bill.billington@medverse.com',
+        password: 'password',
+        role: 'billing',
+        displayName: 'Bill Billington',
+        id: 'bill_billington'
+    },
+    {
+        email: 'penny.pharmacist@medverse.com',
+        password: 'password',
+        role: 'pharmacist',
+        displayName: 'Penny Pharmacist',
+        id: 'penny_pharmacist'
     }
 ];
 
