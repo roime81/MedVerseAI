@@ -32,7 +32,7 @@ export default function AdminDirectoryPage() {
 
     return (
         <div className="bg-slate-50 text-foreground h-full flex flex-col">
-            <DashboardHeader title="Admin Directory" description="Browse all administrative users and their departments." />
+            <DashboardHeader title="All Administrators" description="Browse all administrative users and their departments." />
 
             <div className="flex-1 overflow-y-auto p-8">
                 <Card className="bg-white">
