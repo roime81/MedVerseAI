@@ -59,6 +59,17 @@ const getNavItems = (role: string, department?: string) => {
                     { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart },
                  ]
             }
+            if (department === 'System') {
+                 return [
+                    { href: "/dashboard/admin/system", label: "Home / Overview", icon: Home },
+                    { href: "/dashboard/directory", label: "User Directory", icon: Users },
+                    { href: "/dashboard/admin/system/requests", label: "Requests & Approvals", icon: FileText },
+                    { href: "/dashboard/admin/system/escalations", label: "Escalations", icon: FolderClock },
+                    { href: "/dashboard/admin/system/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert },
+                    { href: "/dashboard/admin/system/reports", label: "Reports", icon: BarChart },
+                    { href: "/dashboard/admin/system/config", label: "Admin & Config", icon: Settings },
+                 ]
+            }
              if (department === 'IT/IAM') {
                  return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: LayoutDashboard }, ...baseNav]
             }
