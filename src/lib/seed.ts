@@ -1,3 +1,4 @@
+
 // A standalone script to seed the database.
 // This is not part of the Next.js app, but a utility to run from the command line.
 // Example: `npx tsx src/lib/seed.ts`
@@ -54,10 +55,16 @@ async function seedUsers(auth, db) {
       // Check if user already exists
       const q = query(collection(db, 'users'), where('email', '==', user.email));
       const querySnapshot = await getDocs(q);
+      const { password, id, ...userData } = user; // Do not store password or static id
 
       if (!querySnapshot.empty) {
         console.warn(`User with email ${user.email} already exists. Skipping creation.`);
-        authUser = { uid: querySnapshot.docs[0].id, email: user.email };
+        const existingUserDoc = querySnapshot.docs[0];
+        authUser = { uid: existingUserDoc.id, email: user.email };
+        // Also ensure the doc has the latest data from sample-data
+        await updateDoc(doc(db, 'users', authUser.uid), { ...userData, uid: authUser.uid });
+        console.log(`Updated existing Firestore doc for ${user.email}`);
+
       } else {
          const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -71,7 +78,6 @@ async function seedUsers(auth, db) {
         console.log(`Successfully updated profile for ${authUser.email}`);
         
         const userRef = doc(db, 'users', authUser.uid);
-        const { password, id, ...userData } = user; // Do not store password or static id
         await writeBatch(db).set(userRef, { ...userData, uid: authUser.uid }).commit();
         console.log(`Successfully created Firestore doc for ${authUser.email}`);
       }
@@ -92,7 +98,8 @@ async function seedUsers(auth, db) {
             const existingUserDoc = querySnapshot.docs[0];
             authUser = { uid: existingUserDoc.id, email: user.email };
              // Also ensure the doc has the latest data from sample-data
-            await updateDoc(doc(db, 'users', authUser.uid), { displayName: user.displayName, role: user.role, department: user.department });
+            const { password, id, ...userData } = user;
+            await updateDoc(doc(db, 'users', authUser.uid), { ...userData, uid: authUser.uid });
             console.log(`Updated existing Firestore doc for ${user.email}`);
 
             if (user.role === 'physician') {

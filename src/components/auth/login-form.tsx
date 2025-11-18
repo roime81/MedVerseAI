@@ -64,6 +64,7 @@ export function LoginForm() {
               email: user.email,
               displayName: sampleUser.displayName,
               role: sampleUser.role,
+              department: sampleUser.department, // Add department on creation
             });
             
             router.push('/dashboard');
@@ -96,12 +97,14 @@ export function LoginForm() {
       if (!userDoc.exists()) {
         const sampleUser = sampleUsers.find(u => u.email.split('@')[0].includes(user.displayName?.split(' ')[0].toLowerCase() || ''))
         const role = sampleUser ? sampleUser.role : 'physician';
+        const department = sampleUser ? sampleUser.department : undefined;
 
         await setDoc(userRef, {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
           role: role,
+          department: department,
         });
       }
 
