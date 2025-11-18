@@ -39,7 +39,7 @@ import { Badge } from '@/components/ui/badge';
 const getNavItems = (role: string, department?: string) => {
     const baseNav = [
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
-        { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
+        { href: "/dashboard/admin-directory", label: "All Administrators", icon: Shield },
     ];
     
     switch(role) {
@@ -62,11 +62,11 @@ const getNavItems = (role: string, department?: string) => {
                  return [
                     { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
                     { href: "/dashboard/directory", label: "User Directory", icon: Users },
-                    { href: "/dashboard/admin/system/requests", label: "Requests & Approvals", icon: FileText },
-                    { href: "/dashboard/admin/system/escalations", label: "Escalations", icon: FolderClock },
-                    { href: "/dashboard/admin/system/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert },
-                    { href: "/dashboard/admin/system/reports", label: "Reports", icon: BarChart },
-                    { href: "/dashboard/admin/system/config", label: "Admin & Config", icon: Settings },
+                    { href: "/dashboard/super-admin/requests", label: "Requests & Approvals", icon: FileText },
+                    { href: "/dashboard/super-admin/escalations", label: "Escalations", icon: FolderClock },
+                    { href: "/dashboard/super-admin/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert },
+                    { href: "/dashboard/super-admin/reports", label: "Reports", icon: BarChart },
+                    { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings },
                  ]
             }
              if (department === 'IT/IAM') {
