@@ -32,7 +32,6 @@ import {
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
 import type { User as AppUser } from '@/lib/schemas';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
@@ -61,7 +60,7 @@ const getNavItems = (role: string, department?: string) => {
             }
             if (department === 'System') {
                  return [
-                    { href: "/dashboard/admin/system", label: "Home / Overview", icon: Home },
+                    { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
                     { href: "/dashboard/directory", label: "User Directory", icon: Users },
                     { href: "/dashboard/admin/system/requests", label: "Requests & Approvals", icon: FileText },
                     { href: "/dashboard/admin/system/escalations", label: "Escalations", icon: FolderClock },

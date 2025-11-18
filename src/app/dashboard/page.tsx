@@ -37,6 +37,10 @@ export default function DashboardRedirect() {
         }
 
         if (role === 'admin' && department) {
+            if (department === 'System') {
+                router.push('/dashboard/super-admin');
+                return;
+            }
             const departmentPath = department.toLowerCase().replace(/[\s/]+/g, '-');
             router.push(`/dashboard/admin/${departmentPath}`);
             return;
