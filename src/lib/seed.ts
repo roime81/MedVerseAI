@@ -4,7 +4,7 @@
 // Example: `npx tsx src/lib/seed.ts`
 
 import { initializeApp, deleteApp } from 'firebase/app';
-import { getFirestore, collection, doc, writeBatch, getDocs, query, where, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, writeBatch, getDocs, query, where, updateDoc, setDoc } from 'firebase/firestore';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -51,26 +51,23 @@ async function seedUsers(auth, db) {
 
   for (const user of sampleUsers) {
     let authUser;
+    const { password, id, ...userData } = user; // Do not store password or static id in Firestore
+
     try {
-      // Check if user already exists
+      // Check if user already exists in Firestore to decide whether to create or update
       const q = query(collection(db, 'users'), where('email', '==', user.email));
       const querySnapshot = await getDocs(q);
-      const { password, id, ...userData } = user; // Do not store password or static id
 
       if (!querySnapshot.empty) {
-        console.warn(`User with email ${user.email} already exists. Skipping creation.`);
         const existingUserDoc = querySnapshot.docs[0];
         authUser = { uid: existingUserDoc.id, email: user.email };
-        // Also ensure the doc has the latest data from sample-data
-        await updateDoc(doc(db, 'users', authUser.uid), { ...userData, uid: authUser.uid });
-        console.log(`Updated existing Firestore doc for ${user.email}`);
-
+        
+        // Update the existing Firestore document with potentially new data from sample-data.ts
+        await setDoc(doc(db, 'users', authUser.uid), { ...userData, uid: authUser.uid }, { merge: true });
+        console.log(`User ${user.email} already exists. Updated Firestore doc.`);
       } else {
-         const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          user.email,
-          user.password
-        );
+        // User doesn't exist in Firestore, so create auth user and Firestore doc
+        const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
         authUser = userCredential.user;
         console.log(`Successfully created auth user: ${authUser.email}`);
 
@@ -78,7 +75,7 @@ async function seedUsers(auth, db) {
         console.log(`Successfully updated profile for ${authUser.email}`);
         
         const userRef = doc(db, 'users', authUser.uid);
-        await writeBatch(db).set(userRef, { ...userData, uid: authUser.uid }).commit();
+        await setDoc(userRef, { ...userData, uid: authUser.uid });
         console.log(`Successfully created Firestore doc for ${authUser.email}`);
       }
 
@@ -88,35 +85,30 @@ async function seedUsers(auth, db) {
 
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
-        console.warn(
-          `Auth user with email ${user.email} already exists. Skipping auth creation.`
-        );
-        // If auth user exists, still try to get the UID to map for foreign keys
+        // This case handles when an auth user exists but maybe the Firestore doc was deleted.
+        // We'll query for the user doc again just to be safe and update it.
+        console.warn(`Auth user with email ${user.email} already exists. Will ensure Firestore doc is up-to-date.`);
         const q = query(collection(db, 'users'), where('email', '==', user.email));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
             const existingUserDoc = querySnapshot.docs[0];
             authUser = { uid: existingUserDoc.id, email: user.email };
-             // Also ensure the doc has the latest data from sample-data
-            const { password, id, ...userData } = user;
-            await updateDoc(doc(db, 'users', authUser.uid), { ...userData, uid: authUser.uid });
-            console.log(`Updated existing Firestore doc for ${user.email}`);
+            await setDoc(doc(db, 'users', authUser.uid), { ...userData, uid: authUser.uid }, { merge: true });
+            console.log(`Force-updated existing Firestore doc for ${user.email}`);
 
             if (user.role === 'physician') {
                 physicianUserIds.set(user.id, authUser.uid);
             }
         }
       } else {
-        console.error(
-          `Error creating user ${user.email}:`,
-          error.message
-        );
+        console.error(`Error processing user ${user.email}:`, error.message);
       }
       continue;
     }
   }
   return physicianUserIds;
 }
+
 
 async function seedCollections(db, physicianUserIds) {
   const batch = writeBatch(db);

@@ -95,7 +95,7 @@ export function LoginForm() {
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        const sampleUser = sampleUsers.find(u => u.email.split('@')[0].includes(user.displayName?.split(' ')[0].toLowerCase() || ''))
+        const sampleUser = sampleUsers.find(u => u.email === user.email || u.email.split('@')[0].includes(user.displayName?.split(' ')[0].toLowerCase() || ''))
         const role = sampleUser ? sampleUser.role : 'physician';
         const department = sampleUser ? sampleUser.department : undefined;
 
