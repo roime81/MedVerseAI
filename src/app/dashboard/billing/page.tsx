@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, TrendingUp, DollarSign, FileText, Ban } from 'lucide-react';
+import { AlertTriangle, TrendingUp, DollarSign, Ban, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
@@ -48,7 +48,7 @@ export default function BillingDashboardPage() {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard 
-                    icon={FileText}
+                    icon={Clock}
                     title="Pending Claims"
                     value="4"
                     footer="$5,240"
