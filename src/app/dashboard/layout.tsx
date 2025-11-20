@@ -22,10 +22,6 @@ import {
     Settings,
     Search,
     Shield,
-    FileText,
-    BarChart,
-    AlertTriangle,
-    FileCheck,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -34,31 +30,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 
-const getNavItems = (role: string, department?: string) => {
+const getNavItems = (role: string) => {
     const baseNav = [
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
     ];
-
-    if (role === 'admin') {
-        let adminNav = [];
-        if (department === 'System') {
-            adminNav = [ 
-                { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
-                { href: "/dashboard/requests-approvals", label: "Requests & Approvals", icon: FileCheck },
-                { href: "/dashboard/escalations", label: "Escalations", icon: AlertTriangle },
-                { href: "/dashboard/monitoring-alerts", label: "Monitoring & Alerts", icon: BarChart },
-                { href: "/dashboard/reports", label: "Reports", icon: FileText },
-                { isSeparator: true, label: "ADMINISTRATION" },
-                { href: "/dashboard/admin-directory", label: "Admins & Config", icon: Shield },
-            ];
-        } else if (department === 'HR/Credentialing') {
-            adminNav = [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }];
-        } else {
-             const departmentPath = department?.toLowerCase().replace(/[\s/]+/g, '-') || 'directory';
-             adminNav = [{ href: `/dashboard/${departmentPath}`, label: "Dashboard", icon: Home }];
-        }
-        return adminNav; 
-    }
     
     switch(role) {
         case 'physician':
@@ -73,6 +48,8 @@ const getNavItems = (role: string, department?: string) => {
              return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, ...baseNav];
         case 'pharmacist':
             return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, ...baseNav];
+        case 'admin':
+            return [ { href: "/dashboard/directory", label: "Directory", icon: Users } ];
         default:
             return baseNav;
     }
@@ -121,7 +98,7 @@ export default function DashboardLayout({
     });
   };
 
-  const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
+  const navItems = appUser ? getNavItems(appUser.role) : [];
   const isSuperAdmin = appUser?.department === 'System';
 
 
@@ -137,13 +114,10 @@ export default function DashboardLayout({
     <div className="flex h-screen w-full font-sans bg-slate-50">
       <aside className={cn("flex flex-col border-r text-foreground", isSuperAdmin ? "w-64 bg-black text-white" : "w-64 bg-white")}>
         <div className="p-4 border-b h-[65px] flex items-center" style={{ borderColor: isSuperAdmin ? 'rgba(255, 255, 255, 0.1)' : '' }}>
-            <Logo variant={isSuperAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} />
+            <Logo variant={isSuperAdmin ? 'dark' : 'light'} />
         </div>
         <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item, index) => {
-                if(item.isSeparator) {
-                    return <p key={index} className="px-2 pt-4 pb-2 text-xs font-semibold uppercase text-slate-400 tracking-wider">{item.label}</p>
-                }
+            {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 return (
