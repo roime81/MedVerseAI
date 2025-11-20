@@ -40,7 +40,7 @@ const getNavItems = (appUser: AppUser | null) => {
     const department = appUser.department;
 
     if (role === 'admin') {
-        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity') {
+        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity' || department === 'HIS/EMR') {
             let homePath = '/dashboard/directory'; // Default for admins
              if (department === 'System') homePath = '/dashboard/admin/system';
              if (department === 'HR/Credentialing') homePath = '/dashboard/hr';
@@ -48,6 +48,7 @@ const getNavItems = (appUser: AppUser | null) => {
              if (department === 'Department Head') homePath = '/dashboard/hod';
              if (department === 'IT/IAM') homePath = '/dashboard/admin/it';
              if (department === 'Cybersecurity') homePath = '/dashboard/admin/cybersecurity';
+             if (department === 'HIS/EMR') homePath = '/dashboard/admin/his-emr';
 
 
             return [
@@ -131,6 +132,8 @@ export default function DashboardLayout({
                     targetPath = '/dashboard/admin/it';
                 } else if (firebaseUser.email === 'cybersecurity@medverse.com') {
                     targetPath = '/dashboard/admin/cybersecurity';
+                } else if (firebaseUser.email === 'his.emr@medverse.com') {
+                    targetPath = '/dashboard/admin/his-emr';
                 } else {
                     // Role-based routing for everyone else
                     switch (userData.role) {
@@ -210,7 +213,8 @@ export default function DashboardLayout({
      appUser?.department === 'Medical Affairs/Clinical Gov' ||
      appUser?.department === 'Department Head' ||
      appUser?.department === 'IT/IAM' ||
-     appUser?.department === 'Cybersecurity');
+     appUser?.department === 'Cybersecurity' ||
+     appUser?.department === 'HIS/EMR');
   
   const isSuperAdmin = appUser?.department === 'System';
 
@@ -315,5 +319,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-
-    

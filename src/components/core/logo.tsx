@@ -29,6 +29,8 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
             return 'IT & Access Management Portal';
         case 'Cybersecurity':
             return 'Cybersecurity Portal';
+        case 'HIS/EMR':
+            return 'HIS/EMR Application Team Portal';
         default:
             return 'Admin Portal';
     }
@@ -68,5 +70,3 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
     </div>
   );
 }
-
-    
