@@ -37,27 +37,22 @@ const getNavItems = (appUser: AppUser | null) => {
     if (!appUser) return [];
 
     const role = appUser.role;
+    const department = appUser.department;
 
-    if (role === 'admin' && appUser.department === 'System') {
-        return [
-            { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home },
-            { href: "/dashboard/directory", label: "User Directory", icon: Users },
-            { href: "#", label: "Requests & Approvals", icon: FileClock },
-            { href: "#", label: "Escalations", icon: FileWarning },
-            { href: "#", label: "Monitoring & Alerts", icon: Bell },
-            { href: "#", label: "Reports", icon: BarChart },
-        ];
-    }
-
-    if (role === 'admin' && appUser.department === 'HR/Credentialing') {
-         return [
-            { href: `/dashboard/hr`, label: "Home / Overview", icon: Home },
-            { href: "/dashboard/directory", label: "User Directory", icon: Users },
-            { href: "#", label: "Requests & Approvals", icon: FileClock },
-            { href: "#", label: "Escalations", icon: FileWarning },
-            { href: "#", label: "Monitoring & Alerts", icon: Bell },
-            { href: "#", label: "Reports", icon: BarChart },
-        ];
+    if (role === 'admin') {
+        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov') {
+            const homePath = department === 'System' ? '/dashboard/admin/system' :
+                             department === 'HR/Credentialing' ? '/dashboard/hr' :
+                             '/dashboard/medical-affairs';
+            return [
+                { href: homePath, label: "Home / Overview", icon: Home },
+                { href: "/dashboard/directory", label: "User Directory", icon: Users },
+                { href: "#", label: "Requests & Approvals", icon: FileClock },
+                { href: "#", label: "Escalations", icon: FileWarning },
+                { href: "#", label: "Monitoring & Alerts", icon: Bell },
+                { href: "#", label: "Reports", icon: BarChart },
+            ];
+        }
     }
     
     switch(role) {
@@ -113,16 +108,20 @@ export default function DashboardLayout({
                 const userData = userDoc.data() as AppUser;
                 setAppUser(userData);
 
-                const role = userData.role;
                 const currentPath = pathname;
                 
                 let targetPath;
+
+                // Explicit email checks for special admins
                 if (firebaseUser.email === 'super.admin@medverse.com') {
                     targetPath = '/dashboard/admin/system';
                 } else if (firebaseUser.email === 'hr.credentialing@medverse.com') {
                     targetPath = '/dashboard/hr';
+                } else if (firebaseUser.email === 'medical.affairs@medverse.com') {
+                    targetPath = '/dashboard/medical-affairs';
                 } else {
-                    switch (role) {
+                    // Role-based routing for everyone else
+                    switch (userData.role) {
                         case 'admin':
                             targetPath = '/dashboard/directory';
                             break;
@@ -192,7 +191,7 @@ export default function DashboardLayout({
   };
 
   const navItems = useMemo(() => getNavItems(appUser), [appUser]);
-  const isSuperAdmin = appUser?.role === 'admin' && (appUser?.department === 'System' || appUser?.department === 'HR/Credentialing');
+  const isSpecialAdmin = appUser?.role === 'admin' && (appUser?.department === 'System' || appUser?.department === 'HR/Credentialing' || appUser?.department === 'Medical Affairs/Clinical Gov');
 
   if (isUserLoading || isAppUserLoading || isRedirecting || !appUser) {
     return (
@@ -206,10 +205,10 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className={cn("flex h-screen w-full font-sans", isSuperAdmin ? "bg-[#F8F9FA]" : "bg-slate-100")}>
-      <aside className={cn("flex flex-col border-r text-foreground w-64", isSuperAdmin ? "bg-gray-800 text-gray-300" : "bg-white")}>
-        <div className={cn("p-4 border-b h-[65px] flex items-center", isSuperAdmin ? "border-gray-700" : "border-border")}>
-            <Logo variant={isSuperAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} />
+    <div className={cn("flex h-screen w-full font-sans", isSpecialAdmin ? "bg-[#F8F9FA]" : "bg-slate-100")}>
+      <aside className={cn("flex flex-col border-r text-foreground w-64", isSpecialAdmin ? "bg-gray-800 text-gray-300" : "bg-white")}>
+        <div className={cn("p-4 border-b h-[65px] flex items-center", isSpecialAdmin ? "border-gray-700" : "border-border")}>
+            <Logo variant={isSpecialAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} appUser={appUser} />
         </div>
         <nav className="flex-1 p-2 space-y-1">
             {navItems.map((item) => {
@@ -220,7 +219,7 @@ export default function DashboardLayout({
                         key={item.label}
                         variant={isActive ? 'secondary' : 'ghost'}
                         className={cn("w-full justify-start text-sm", 
-                           isSuperAdmin 
+                           isSpecialAdmin 
                            ? (isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700 hover:text-white")
                            : (isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground")
                         )}
@@ -228,7 +227,7 @@ export default function DashboardLayout({
                     >
                         <Link href={item.href}>
                             <Icon className={cn("mr-3 h-5 w-5", 
-                               isSuperAdmin
+                               isSpecialAdmin
                                ? (isActive ? "text-white" : "text-gray-400")
                                : (isActive ? "text-primary": "text-muted-foreground")
                             )} />
@@ -237,7 +236,7 @@ export default function DashboardLayout({
                     </Button>
                 )
             })}
-             {isSuperAdmin && (
+             {isSpecialAdmin && (
                 <div className="p-2 mt-auto">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</p>
                     <Button
@@ -258,11 +257,11 @@ export default function DashboardLayout({
       </aside>
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className={cn("flex h-[65px] items-center justify-between border-b px-6", isSuperAdmin ? "bg-white" : "bg-white")}>
+        <header className={cn("flex h-[65px] items-center justify-between border-b px-6", isSpecialAdmin ? "bg-white" : "bg-white")}>
             <div className="flex-1">
                  <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-slate-200", isSuperAdmin ? "bg-slate-100" : "bg-slate-100")}/>
+                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-slate-200", isSpecialAdmin ? "bg-slate-100" : "bg-slate-100")}/>
                 </div>
             </div>
             <div className="flex items-center gap-4">
@@ -270,13 +269,13 @@ export default function DashboardLayout({
                     <p className="text-sm font-semibold text-foreground">{appUser.displayName}</p>
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
-                 <Badge variant={isSuperAdmin ? 'default' : 'outline'} className={cn(isSuperAdmin && 'bg-gray-800 text-white')}>
+                 <Badge variant={isSpecialAdmin ? 'default' : 'outline'} className={cn(isSpecialAdmin && 'bg-gray-800 text-white')}>
                     {appUser.department}
                  </Badge>
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
                 </Button>
-                 {isSuperAdmin &&
+                 {isSpecialAdmin &&
                     <Button variant="ghost" size="icon">
                         <Settings className="h-5 w-5" />
                     </Button>
@@ -295,5 +294,7 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+    
 
     

@@ -1,14 +1,32 @@
 
 import { cn } from '@/lib/utils';
+import type { User } from '@/lib/schemas';
 
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
   variant?: 'light' | 'dark';
   isSuperAdmin?: boolean;
+  appUser?: User | null;
 }
 
-export function Logo({ className, variant = 'light', isSuperAdmin = false, ...props }: LogoProps) {
+export function Logo({ className, variant = 'light', isSuperAdmin = false, appUser, ...props }: LogoProps) {
   const isDark = variant === 'dark';
+
+  const getPortalTitle = () => {
+    if (!appUser || !isSuperAdmin) return null;
+    switch (appUser.department) {
+        case 'System':
+            return 'Super Admin Portal';
+        case 'HR/Credentialing':
+            return 'HR & Credentialing Portal';
+        case 'Medical Affairs/Clinical Gov':
+            return 'Clinical Governance Portal';
+        default:
+            return 'Admin Portal';
+    }
+  };
+
+  const portalTitle = getPortalTitle();
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
@@ -32,7 +50,7 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, ...pr
         {isSuperAdmin ? (
             <div>
                 <span className="font-grotesk text-lg font-bold text-white leading-tight">MedVerse Access Hub</span>
-                <p className="text-xs text-gray-400 leading-tight">Super Admin Portal</p>
+                {portalTitle && <p className="text-xs text-gray-400 leading-tight">{portalTitle}</p>}
             </div>
         ) : (
              <span className={cn("font-grotesk text-xl font-bold", isDark ? "text-white" : "text-foreground")}>MedVerseAI</span>
@@ -40,3 +58,5 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, ...pr
     </div>
   );
 }
+
+    
