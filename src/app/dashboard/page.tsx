@@ -37,8 +37,11 @@ export default function DashboardRedirect() {
           if (role === 'admin') {
             if (department === 'System') {
                 path = '/dashboard/admin/system';
+            } else if (department) {
+                // Future-proofing for other admin dashboards
+                const departmentSlug = department.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                path = `/dashboard/admin/${departmentSlug}`;
             } else {
-                 // All other admins go to the directory for now
                  path = '/dashboard/directory';
             }
           } else {

@@ -33,9 +33,11 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-const getNavItems = (appUser: AppUser) => {
-    const role = appUser?.role;
-    const department = appUser?.department;
+const getNavItems = (appUser: AppUser | null) => {
+    if (!appUser) return [];
+
+    const role = appUser.role;
+    const department = appUser.department;
 
     if (role === 'admin' && department === 'System') {
         return [
@@ -91,7 +93,7 @@ export default function DashboardLayout({
       return;
     }
 
-    const fetchUserRole = async (firebaseUser: FirebaseUser) => {
+    const fetchAppUser = async (firebaseUser: FirebaseUser) => {
         if (!firestore) return;
         setIsAppUserLoading(true);
         try {
@@ -113,12 +115,12 @@ export default function DashboardLayout({
         }
     };
 
-    if (user && (!appUser || appUser.uid !== user.uid)) {
-        fetchUserRole(user);
-    } else if (!user) {
+    if (user) {
+        fetchAppUser(user);
+    } else {
         setIsAppUserLoading(false);
     }
-  }, [user, appUser, isUserLoading, firestore, auth, router]);
+  }, [user, isUserLoading, firestore, auth, router]);
 
 
   const handleSignOut = async () => {
@@ -231,5 +233,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-
-    
