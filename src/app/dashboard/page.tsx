@@ -41,11 +41,11 @@ export default function DashboardRedirect() {
 
           if (role === 'admin') {
             if (department) {
-                const departmentPath = departmentToPath(department);
-                // Special case for HR/Credentialing as per new dashboard location
+                // Special case for HR/Credentialing as per dashboard location
                 if (department === 'HR/Credentialing') {
                     path = `/dashboard/hr-credentialing`;
                 } else {
+                    const departmentPath = departmentToPath(department);
                     path = `/dashboard/admin/${departmentPath}`;
                 }
             } else {
