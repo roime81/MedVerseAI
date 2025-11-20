@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase';
@@ -206,7 +207,7 @@ export default function DashboardLayout({
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
                  <Badge variant={isSuperAdmin ? 'default' : 'outline'} className={cn(isSuperAdmin && 'bg-gray-800 text-white')}>
-                    {isSuperAdmin ? 'HR / Medical Credentialing' : appUser.department}
+                    {isSuperAdmin ? 'Super Admin' : appUser.department}
                  </Badge>
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
@@ -230,3 +231,5 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+    
