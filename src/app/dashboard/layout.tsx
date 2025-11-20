@@ -20,6 +20,7 @@ import {
     Bell,
     Settings,
     Search,
+    Shield,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -28,10 +29,16 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 
-const getNavItems = (role: string) => {
+const getNavItems = (role: string, department?: string) => {
     const baseNav = [
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
     ];
+
+    if (role === 'admin') {
+        if (department === 'System') {
+            return [ { href: "/dashboard/super-admin", label: "Access Management", icon: Shield }, ...baseNav];
+        }
+    }
     
     switch(role) {
         case 'physician':
@@ -94,7 +101,7 @@ export default function DashboardLayout({
     });
   };
 
-  const navItems = appUser ? getNavItems(appUser.role) : [];
+  const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
 
   if (isUserLoading || !user || !appUser) {
     return (

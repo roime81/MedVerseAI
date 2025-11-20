@@ -33,29 +33,31 @@ export default function DashboardRedirect() {
           
           let path = '/dashboard/directory'; // A safe default
 
-          switch (role) {
-            case 'physician':
-              path = '/dashboard/physician';
-              break;
-            case 'nurse':
-              path = '/dashboard/nurse';
-              break;
-            case 'radiology':
-              path = '/dashboard/radiology';
-              break;
-            case 'lab':
-              path = '/dashboard/lab';
-              break;
-            case 'billing':
-              path = '/dashboard/billing';
-              break;
-            case 'pharmacist':
-              path = '/dashboard/pharmacist';
-              break;
-            case 'admin':
-              // All admins now go to the directory page as per the new requirement
-              path = '/dashboard/directory';
-              break;
+          if (role === 'admin') {
+            if (userData.department === 'System') {
+                path = '/dashboard/super-admin';
+            }
+          } else {
+             switch (role) {
+                case 'physician':
+                  path = '/dashboard/physician';
+                  break;
+                case 'nurse':
+                  path = '/dashboard/nurse';
+                  break;
+                case 'radiology':
+                  path = '/dashboard/radiology';
+                  break;
+                case 'lab':
+                  path = '/dashboard/lab';
+                  break;
+                case 'billing':
+                  path = '/dashboard/billing';
+                  break;
+                case 'pharmacist':
+                  path = '/dashboard/pharmacist';
+                  break;
+              }
           }
           
           router.push(path);
