@@ -31,12 +31,7 @@ export function Logo({ className, variant = 'light', ...props }: LogoProps) {
                 </linearGradient>
             </defs>
         </svg>
-        <div className="flex flex-col">
-            <span className={cn("font-grotesk text-base font-bold leading-none", isDark ? "text-foreground" : "text-white")}>MedVerse Access Hub</span>
-            <span className={cn("text-xs leading-none", isDark ? "text-muted-foreground" : "text-white/80")}>
-                Super Admin Portal
-            </span>
-        </div>
+         <span className={cn("font-grotesk text-xl font-bold leading-none", isDark ? "text-foreground" : "text-white")}>MedVerse Access Hub</span>
     </div>
   );
 }

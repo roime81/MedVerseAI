@@ -160,7 +160,7 @@ export default function DashboardLayout({
     <div className="flex h-screen w-full font-sans bg-slate-100">
       <aside className="w-64 flex flex-col border-r bg-black text-white">
         <div className="p-4 border-b border-gray-800 h-[65px] flex items-center">
-            <Logo variant="light" />
+            <Logo variant="dark" />
         </div>
         <nav className="flex-1 p-4 space-y-2">
             {mainNavItems.map((item) => {
