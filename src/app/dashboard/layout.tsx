@@ -55,14 +55,7 @@ const getNavItems = (role: string, department?: string) => {
         case 'admin':
             if (department) {
                 const departmentPath = departmentToPath(department);
-                let specificAdminNav;
-                if (department === 'HR/Credentialing') {
-                    specificAdminNav = { href: `/dashboard/admin/hr-credentialing`, label: "HR & Credentialing", icon: BadgeCheck };
-                } else if (department === 'System') {
-                   specificAdminNav = { href: "/dashboard/admin/system", label: "System Overview", icon: Shield };
-                } else {
-                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: `${department} Dashboard`, icon: Shield };
-                }
+                const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: `${department} Dashboard`, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }
             // Fallback for admin with no department
@@ -124,9 +117,6 @@ export default function DashboardLayout({
   };
 
   const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
-  const mainNavItems = navItems.filter(item => item.section === 'main' || item.section === undefined);
-  const adminNavItems = navItems.filter(item => item.section === 'admin');
-
 
   if (isUserLoading || !user || !appUser) {
     return (
@@ -154,7 +144,7 @@ export default function DashboardLayout({
             <Logo variant="light" isSuperAdmin={isSuperAdmin} />
         </div>
         <nav className="flex-1 p-4 space-y-2">
-            {mainNavItems.map((item) => {
+            {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 return (
@@ -173,33 +163,6 @@ export default function DashboardLayout({
                     </Button>
                 )
             })}
-
-            {adminNavItems.length > 0 && (
-                <div className="pt-4">
-                    <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Administration</p>
-                    <div className="mt-2 space-y-2">
-                        {adminNavItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = pathname.startsWith(item.href);
-                            return (
-                                <Button
-                                    key={item.href}
-                                    variant={isActive ? 'secondary' : 'ghost'}
-                                    className={cn("w-full justify-start text-sm", 
-                                        isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
-                                    )}
-                                    asChild
-                                >
-                                    <Link href={item.href}>
-                                        <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary": "text-muted-foreground")} />
-                                        {item.label}
-                                    </Link>
-                                </Button>
-                            )
-                        })}
-                    </div>
-                </div>
-            )}
         </nav>
       </aside>
       

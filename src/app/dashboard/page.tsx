@@ -27,51 +27,54 @@ export default function DashboardRedirect() {
     }
 
     const fetchUserRoleAndRedirect = async () => {
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
+      try {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data() as AppUser;
-        const role = userData.role;
-        const department = userData.department;
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as AppUser;
+          const role = userData.role;
+          const department = userData.department;
 
-        let path = '';
+          let path = '/dashboard/directory'; // A safe default
 
-        if (role === 'admin' && department) {
+          if (role === 'admin' && department) {
+            // This is the corrected, explicit logic for admin routing
             path = `/dashboard/admin/${departmentToPath(department)}`;
-        } else {
-          switch (role) {
-            case 'physician':
-              path = '/dashboard/physician';
-              break;
-            case 'nurse':
-              path = '/dashboard/nurse';
-              break;
-            case 'radiology':
-              path = '/dashboard/radiology';
-              break;
-            case 'lab':
-              path = '/dashboard/lab';
-              break;
-            case 'billing':
-              path = '/dashboard/billing';
-              break;
-            case 'pharmacist':
-              path = '/dashboard/pharmacist';
-              break;
-            default:
-              path = '/dashboard/directory'; // A safe default
-              break;
+          } else {
+            // Logic for non-admin roles
+            switch (role) {
+              case 'physician':
+                path = '/dashboard/physician';
+                break;
+              case 'nurse':
+                path = '/dashboard/nurse';
+                break;
+              case 'radiology':
+                path = '/dashboard/radiology';
+                break;
+              case 'lab':
+                path = '/dashboard/lab';
+                break;
+              case 'billing':
+                path = '/dashboard/billing';
+                break;
+              case 'pharmacist':
+                path = '/dashboard/pharmacist';
+                break;
+              // default is already set
+            }
           }
-        }
-        
-        if (path) {
+          
           router.push(path);
-        }
 
-      } else {
-        console.error("User document not found in Firestore.");
-        router.push('/login');
+        } else {
+          console.error("User document not found in Firestore. Redirecting to login.");
+          router.push('/login');
+        }
+      } catch (error) {
+          console.error("Error fetching user data:", error);
+          router.push('/login');
       }
     };
 
@@ -79,9 +82,11 @@ export default function DashboardRedirect() {
   }, [user, isUserLoading, firestore, router]);
 
   return (
-    <div className="flex h-full items-center justify-center">
-      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-      <p>Loading your dashboard...</p>
+    <div className="flex h-full w-full items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading your dashboard...</p>
+      </div>
     </div>
   );
 }
