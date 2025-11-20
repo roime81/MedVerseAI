@@ -37,12 +37,15 @@ export default function DashboardRedirect() {
 
         let path = '';
 
-        if (role === 'admin' && department) {
+        if (role === 'admin') {
             if (department === 'System') {
                 path = '/dashboard/super-admin';
-            } else {
-                // Generate path from department name
+            } else if (department) {
+                // Generate path from department name, e.g., "IT/IAM" -> "/dashboard/super-admin/it-iam"
                 path = `/dashboard/super-admin/${departmentToPath(department)}`;
+            } else {
+                // Fallback for an admin with no department
+                path = '/dashboard/super-admin';
             }
         } else {
           switch (role) {

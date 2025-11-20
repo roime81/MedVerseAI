@@ -23,5 +23,5 @@ export default function HisEmrDashboardPage() {
             </Card>
         </div>
     </div>
-  );_emr/page.tsx
+  );
 }
