@@ -31,6 +31,8 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
             return 'Cybersecurity Portal';
         case 'HIS/EMR':
             return 'HIS/EMR Application Team Portal';
+        case 'Compliance/Audit':
+            return 'Compliance & Internal Audit Portal';
         default:
             return 'Admin Portal';
     }

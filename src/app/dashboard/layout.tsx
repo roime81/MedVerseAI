@@ -40,7 +40,7 @@ const getNavItems = (appUser: AppUser | null) => {
     const department = appUser.department;
 
     if (role === 'admin') {
-        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity' || department === 'HIS/EMR') {
+        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity' || department === 'HIS/EMR' || department === 'Compliance/Audit') {
             let homePath = '/dashboard/directory'; // Default for admins
              if (department === 'System') homePath = '/dashboard/admin/system';
              if (department === 'HR/Credentialing') homePath = '/dashboard/hr';
@@ -49,6 +49,7 @@ const getNavItems = (appUser: AppUser | null) => {
              if (department === 'IT/IAM') homePath = '/dashboard/admin/it';
              if (department === 'Cybersecurity') homePath = '/dashboard/admin/cybersecurity';
              if (department === 'HIS/EMR') homePath = '/dashboard/admin/his-emr';
+             if (department === 'Compliance/Audit') homePath = '/dashboard/admin/compliance';
 
 
             return [
@@ -134,6 +135,8 @@ export default function DashboardLayout({
                     targetPath = '/dashboard/admin/cybersecurity';
                 } else if (firebaseUser.email === 'his.emr@medverse.com') {
                     targetPath = '/dashboard/admin/his-emr';
+                } else if (firebaseUser.email === 'compliance.audit@medverse.com') {
+                    targetPath = '/dashboard/admin/compliance';
                 } else {
                     // Role-based routing for everyone else
                     switch (userData.role) {
@@ -214,6 +217,7 @@ export default function DashboardLayout({
      appUser?.department === 'Department Head' ||
      appUser?.department === 'IT/IAM' ||
      appUser?.department === 'Cybersecurity' ||
+     appUser?.department === 'Compliance/Audit' ||
      appUser?.department === 'HIS/EMR');
   
   const isSuperAdmin = appUser?.department === 'System';
