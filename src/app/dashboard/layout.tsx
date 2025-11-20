@@ -21,6 +21,11 @@ import {
     Settings,
     Search,
     Shield,
+    FileText,
+    GitPullRequest,
+    AlertCircle,
+    Monitor,
+    ShieldCheck,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -33,15 +38,25 @@ const formatDepartmentToSlug = (department: string) => {
 }
 
 const getNavItems = (role: string, department?: string) => {
-    const baseNav = [
-        { href: "/dashboard/directory", label: "User Directory", icon: Users },
-    ];
 
     if (role === 'admin') {
+        const departmentSlug = department ? formatDepartmentToSlug(department) : '';
+        // Super admin has a unique sidebar
+        if (departmentSlug === 'system') {
+            return [
+                { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home, section: 'main' },
+                { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
+                { href: "/dashboard/admin/requests", label: "Requests & Approvals", icon: GitPullRequest, section: 'main' },
+                { href: "/dashboard/admin/escalations", label: "Escalations", icon: AlertCircle, section: 'main' },
+                { href: "/dashboard/admin/monitoring", label: "Monitoring & Alerts", icon: Monitor, section: 'main' },
+                { href: "/dashboard/admin/reports", label: "Reports", icon: FileText, section: 'main' },
+                { href: "/dashboard/admin/config", label: "Admins & Config", icon: ShieldCheck, section: 'administration' },
+            ];
+        }
+
+        // Other admins
         if (department) {
-            const departmentSlug = formatDepartmentToSlug(department);
             const departmentNameMap: Record<string, string> = {
-                'system': 'System Overview',
                 'hr-credentialing': 'HR Dashboard',
             };
             const label = departmentNameMap[departmentSlug] || 'Admin Dashboard';
@@ -50,19 +65,24 @@ const getNavItems = (role: string, department?: string) => {
         return []; // No items if admin has no department
     }
     
+    // Non-admin roles
+    const baseNav = [
+        { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
+    ];
+    
     switch(role) {
         case 'physician':
-            return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, ...baseNav];
+            return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope, section: 'main' }, ...baseNav];
         case 'nurse':
-            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
+            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope, section: 'main' }, ...baseNav];
         case 'radiology':
-            return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
+            return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan, section: 'main' }, ...baseNav];
         case 'lab':
-             return [{ href: "/dashboard/lab", label: "Lab Worklist", icon: FlaskConical }, ...baseNav];
+             return [{ href: "/dashboard/lab", label: "Lab Worklist", icon: FlaskConical, section: 'main' }, ...baseNav];
         case 'billing':
-             return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, ...baseNav];
+             return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard, section: 'main' }, ...baseNav];
         case 'pharmacist':
-            return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, ...baseNav];
+            return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill, section: 'main' }, ...baseNav];
         default:
             return baseNav;
     }
@@ -114,6 +134,9 @@ export default function DashboardLayout({
   const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
   const isSuperAdmin = appUser?.department === 'System';
 
+  const mainNavItems = navItems.filter(item => item.section === 'main');
+  const adminNavItems = navItems.filter(item => item.section === 'administration');
+
 
   if (isUserLoading || !user || !appUser) {
     return (
@@ -124,15 +147,15 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen w-full font-sans bg-slate-50">
-      <aside className={cn("flex flex-col border-r text-foreground", isSuperAdmin ? "w-64 bg-black text-white" : "w-64 bg-white")}>
+    <div className="flex h-screen w-full font-sans bg-slate-100">
+      <aside className={cn("flex flex-col border-r text-foreground", isSuperAdmin ? "w-64 bg-gray-900 text-white" : "w-64 bg-white")}>
         <div className="p-4 border-b h-[65px] flex items-center" style={{ borderColor: isSuperAdmin ? 'rgba(255, 255, 255, 0.1)' : '' }}>
-            <Logo variant={isSuperAdmin ? 'dark' : 'light'} />
+            <Logo variant={isSuperAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} />
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item) => {
+        <nav className="flex-1 p-2 space-y-1">
+            {mainNavItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
+                const isActive = pathname === item.href;
                 return (
                     <Button
                         key={item.href}
@@ -155,29 +178,53 @@ export default function DashboardLayout({
                 )
             })}
         </nav>
+        {isSuperAdmin && adminNavItems.length > 0 && (
+            <div className="p-2">
+                <h3 className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Administration</h3>
+                <nav className="space-y-1">
+                     {adminNavItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname.startsWith(item.href);
+                        return (
+                            <Button
+                                key={item.href}
+                                variant={isActive ? 'secondary' : 'ghost'}
+                                className="w-full justify-start text-sm text-slate-300 hover:bg-slate-800 hover:text-white"
+                                asChild
+                            >
+                                <Link href={item.href}>
+                                    <Icon className="mr-3 h-5 w-5 text-slate-400" />
+                                    {item.label}
+                                </Link>
+                            </Button>
+                        )
+                    })}
+                </nav>
+            </div>
+        )}
       </aside>
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className={cn("flex h-[65px] items-center justify-between border-b px-6", isSuperAdmin ? "bg-black" : "bg-white")}>
+        <header className={cn("flex h-[65px] items-center justify-between border-b px-6 bg-white")}>
             <div className="flex-1">
                  <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-border", isSuperAdmin ? "bg-slate-800 border-slate-700 text-white" : "bg-slate-100 border-slate-200" )}/>
+                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-border bg-slate-100 border-slate-200" )}/>
                 </div>
             </div>
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <p className={cn("text-sm font-semibold", isSuperAdmin ? "text-white" : "text-foreground")}>{appUser.displayName}</p>
+                    <p className={cn("text-sm font-semibold", "text-foreground")}>{appUser.displayName}</p>
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
-                {appUser.department && <Badge variant={isSuperAdmin ? "default" : "outline"} className={cn(isSuperAdmin && "bg-primary")}>{appUser.role === 'admin' ? appUser.department : appUser.department}</Badge>}
+                {appUser.department && <Badge variant={"outline"} className={cn(isSuperAdmin && "bg-primary")}>{appUser.role === 'admin' ? appUser.department : appUser.department}</Badge>}
                 <Button variant="ghost" size="icon" className={cn(isSuperAdmin && "text-slate-400 hover:text-white hover:bg-slate-800")}>
                     <Bell className="h-5 w-5" />
                 </Button>
                 <Button variant="ghost" size="icon" className={cn(isSuperAdmin && "text-slate-400 hover:text-white hover:bg-slate-800")}>
                     <Settings className="h-5 w-5" />
                 </Button>
-                <Button variant={isSuperAdmin ? "outline" : "outline"} onClick={handleSignOut} className={cn(isSuperAdmin && "border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white")}>
+                <Button variant={"outline"} onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                 </Button>

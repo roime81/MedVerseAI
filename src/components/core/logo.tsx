@@ -1,13 +1,30 @@
 
 import { cn } from '@/lib/utils';
+import { ShieldCheck } from 'lucide-react';
 
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
   variant?: 'light' | 'dark';
+  isSuperAdmin?: boolean;
 }
 
-export function Logo({ className, variant = 'light', ...props }: LogoProps) {
+export function Logo({ className, variant = 'light', isSuperAdmin = false, ...props }: LogoProps) {
   const isDark = variant === 'dark';
+
+  if (isSuperAdmin) {
+    return (
+        <div className={cn("flex items-center gap-3", className)}>
+            <div className="bg-primary p-2 rounded-lg">
+                <ShieldCheck className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div>
+                <h1 className="font-grotesk text-lg font-bold text-white leading-tight">MedVerse Access Hub</h1>
+                <p className="text-xs text-slate-400">Super Admin Portal</p>
+            </div>
+        </div>
+    );
+  }
+
   return (
     <div className={cn("flex items-center gap-2", className)}>
         <svg

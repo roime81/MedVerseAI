@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { SuperAdminDashboard } from '@/components/dashboard/admin/super-admin-dashboard';
 import { HrCredentialingDashboard } from '@/components/dashboard/admin/hr-credentialing-dashboard';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import SuperAdminDashboard from '@/app/dashboard/admin/system/page';
 
 // A mapping from the department slug in the URL to the corresponding dashboard component.
 const dashboardMap: Record<string, React.ComponentType> = {
