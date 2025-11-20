@@ -48,6 +48,17 @@ const getNavItems = (appUser: AppUser | null) => {
             { href: "#", label: "Reports", icon: BarChart },
         ];
     }
+
+    if (role === 'admin' && appUser.department === 'HR/Credentialing') {
+         return [
+            { href: `/dashboard/hr`, label: "Home / Overview", icon: Home },
+            { href: "/dashboard/directory", label: "User Directory", icon: Users },
+            { href: "#", label: "Requests & Approvals", icon: FileClock },
+            { href: "#", label: "Escalations", icon: FileWarning },
+            { href: "#", label: "Monitoring & Alerts", icon: Bell },
+            { href: "#", label: "Reports", icon: BarChart },
+        ];
+    }
     
     switch(role) {
         case 'physician':
@@ -108,7 +119,10 @@ export default function DashboardLayout({
                 let targetPath;
                 if (firebaseUser.email === 'super.admin@medverse.com' || (userData.role === 'admin' && userData.department === 'System')) {
                     targetPath = '/dashboard/admin/system';
-                } else {
+                } else if (userData.role === 'admin' && userData.department === 'HR/Credentialing') {
+                    targetPath = '/dashboard/hr';
+                }
+                else {
                     switch (role) {
                         case 'admin':
                             targetPath = '/dashboard/directory';
@@ -180,7 +194,7 @@ export default function DashboardLayout({
   };
 
   const navItems = useMemo(() => getNavItems(appUser), [appUser]);
-  const isSuperAdmin = appUser?.role === 'admin' && appUser?.department === 'System';
+  const isSuperAdmin = appUser?.role === 'admin' && (appUser?.department === 'System' || appUser?.department === 'HR/Credentialing');
 
   if (isUserLoading || isAppUserLoading || isRedirecting || !appUser) {
     return (
@@ -259,7 +273,7 @@ export default function DashboardLayout({
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
                  <Badge variant={isSuperAdmin ? 'default' : 'outline'} className={cn(isSuperAdmin && 'bg-gray-800 text-white')}>
-                    {isSuperAdmin ? 'Super Admin' : appUser.department}
+                    {appUser.department}
                  </Badge>
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
