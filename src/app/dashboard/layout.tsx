@@ -22,6 +22,10 @@ import {
     Settings,
     Search,
     Loader2,
+    FileClock,
+    FileWarning,
+    BarChart,
+    Shield,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -29,26 +33,38 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-const getNavItems = (role: string) => {
-    const baseNav = [
-        { href: "/dashboard/directory", label: "User Directory", icon: Users },
-    ];
+const getNavItems = (appUser: AppUser) => {
+    const role = appUser?.role;
+    const department = appUser?.department;
+
+    if (role === 'admin' && department === 'System') {
+        const slug = department.toLowerCase().replace(/\s+/g, '-');
+        return [
+            { href: `/dashboard/admin/${slug}`, label: "Home / Overview", icon: Home },
+            { href: "/dashboard/directory", label: "User Directory", icon: Users },
+            { href: "#", label: "Requests & Approvals", icon: FileClock },
+            { href: "#", label: "Escalations", icon: FileWarning },
+            { href: "#", label: "Monitoring & Alerts", icon: Bell },
+            { href: "#", label: "Reports", icon: BarChart },
+        ];
+    }
     
     switch(role) {
         case 'physician':
-            return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, ...baseNav];
+            return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'nurse':
-            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
+            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'radiology':
-            return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
+            return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'lab':
-             return [{ href: "/dashboard/lab", label: "Lab Worklist", icon: FlaskConical }, ...baseNav];
+             return [{ href: "/dashboard/lab", label: "Lab Worklist", icon: FlaskConical }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'billing':
-             return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, ...baseNav];
+             return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'pharmacist':
-            return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, ...baseNav];
+            return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'admin':
-            return baseNav; // Admins just get the base navigation
+            const slug = department?.toLowerCase().replace(/\s+/g, '-');
+            return [{ href: `/dashboard/admin/${slug}`, label: "Admin Dashboard", icon: Shield }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         default:
             return [{ href: "/dashboard/patient-portal", label: "Patient Portal", icon: Home }];
     }
@@ -70,16 +86,13 @@ export default function DashboardLayout({
 
 
   useEffect(() => {
-    // If Firebase auth is still loading, do nothing.
     if (isUserLoading) return;
     
-    // If Firebase auth has loaded and there's no user, redirect to login.
     if (!user) {
       router.push('/login');
       return;
     }
 
-    // If we have a user but haven't fetched their Firestore profile yet.
     if (user && !appUser) {
         const fetchUserRole = async (firebaseUser: FirebaseUser) => {
             if (!firestore) return;
@@ -91,16 +104,12 @@ export default function DashboardLayout({
                     setAppUser(userDoc.data() as AppUser);
                 } else {
                     console.error("Could not find user document in Firestore for logged in user.");
-                    if (auth) {
-                        await signOut(auth);
-                    }
+                    if (auth) await signOut(auth);
                     router.push('/login');
                 }
             } catch (error) {
                 console.error("Error fetching user document:", error);
-                 if (auth) {
-                    await signOut(auth);
-                }
+                 if (auth) await signOut(auth);
                 router.push('/login');
             } finally {
                 setIsAppUserLoading(false);
@@ -108,8 +117,6 @@ export default function DashboardLayout({
         };
 
         fetchUserRole(user);
-    } else if (appUser) {
-        setIsAppUserLoading(false);
     }
   }, [user, appUser, isUserLoading, firestore, auth, router]);
 
@@ -120,7 +127,6 @@ export default function DashboardLayout({
     router.push('/login');
   };
 
-  // Do not render anything until both Firebase Auth and Firestore Profile are loaded
   if (isUserLoading || isAppUserLoading || !appUser) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -132,14 +138,14 @@ export default function DashboardLayout({
     );
   }
 
-  // Now we are sure appUser is loaded
-  const navItems = getNavItems(appUser.role);
+  const navItems = getNavItems(appUser);
+  const isSuperAdmin = appUser.role === 'admin' && appUser.department === 'System';
 
   return (
-    <div className="flex h-screen w-full font-sans bg-slate-100">
-      <aside className="flex flex-col border-r text-foreground w-64 bg-white">
-        <div className="p-4 border-b h-[65px] flex items-center">
-            <Logo />
+    <div className={cn("flex h-screen w-full font-sans", isSuperAdmin ? "bg-[#F8F9FA]" : "bg-slate-100")}>
+      <aside className={cn("flex flex-col border-r text-foreground w-64", isSuperAdmin ? "bg-gray-800 text-gray-300" : "bg-white")}>
+        <div className={cn("p-4 border-b h-[65px] flex items-center", isSuperAdmin ? "border-gray-700" : "border-border")}>
+            <Logo variant={isSuperAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} />
         </div>
         <nav className="flex-1 p-2 space-y-1">
             {navItems.map((item) => {
@@ -147,31 +153,52 @@ export default function DashboardLayout({
                 const isActive = pathname === item.href;
                 return (
                     <Button
-                        key={item.href}
+                        key={item.label}
                         variant={isActive ? 'secondary' : 'ghost'}
                         className={cn("w-full justify-start text-sm", 
-                            isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
+                           isSuperAdmin 
+                           ? (isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700 hover:text-white")
+                           : (isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground")
                         )}
                         asChild
                     >
                         <Link href={item.href}>
                             <Icon className={cn("mr-3 h-5 w-5", 
-                                isActive ? "text-primary": "text-muted-foreground"
+                               isSuperAdmin
+                               ? (isActive ? "text-white" : "text-gray-400")
+                               : (isActive ? "text-primary": "text-muted-foreground")
                             )} />
                             {item.label}
                         </Link>
                     </Button>
                 )
             })}
+             {isSuperAdmin && (
+                <div className="p-2 mt-auto">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</p>
+                    <Button
+                        variant={pathname.startsWith('/dashboard/admin/config') ? 'secondary' : 'ghost'}
+                        className={cn("w-full justify-start text-sm mt-1", 
+                           pathname.startsWith('/dashboard/admin/config') ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                        )}
+                        asChild
+                    >
+                        <Link href="#">
+                            <Settings className="mr-3 h-5 w-5" />
+                            Admin & Config
+                        </Link>
+                    </Button>
+                </div>
+            )}
         </nav>
       </aside>
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-[65px] items-center justify-between border-b px-6 bg-white">
+        <header className={cn("flex h-[65px] items-center justify-between border-b px-6", isSuperAdmin ? "bg-white" : "bg-white")}>
             <div className="flex-1">
                  <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search people, roles, emails, staff ID..." className="pl-10 bg-slate-100 border-slate-200"/>
+                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-slate-200", isSuperAdmin ? "bg-slate-100" : "bg-slate-100")}/>
                 </div>
             </div>
             <div className="flex items-center gap-4">
@@ -179,13 +206,15 @@ export default function DashboardLayout({
                     <p className="text-sm font-semibold text-foreground">{appUser.displayName}</p>
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
-                {appUser.department && <Badge variant="outline">{appUser.role === 'admin' ? appUser.department : appUser.role}</Badge>}
+                 <Badge variant={isSuperAdmin ? 'default' : 'outline'} className={cn(isSuperAdmin && 'bg-gray-800 text-white')}>{appUser.department}</Badge>
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                </Button>
+                 {isSuperAdmin &&
+                    <Button variant="ghost" size="icon">
+                        <Settings className="h-5 w-5" />
+                    </Button>
+                 }
                 <Button variant="default" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout

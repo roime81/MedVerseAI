@@ -31,36 +31,45 @@ export default function DashboardRedirect() {
         if (userDoc.exists()) {
           const userData = userDoc.data() as AppUser;
           const role = userData.role;
+          const department = userData.department;
           let path = '/dashboard/directory'; // A safe default
 
-          // Handle non-admin roles with specific dashboards
-          switch (role) {
-              case 'physician':
-                  path = '/dashboard/physician';
-                  break;
-              case 'nurse':
-                  path = '/dashboard/nurse';
-                  break;
-              case 'radiology':
-                  path = '/dashboard/radiology';
-                  break;
-              case 'lab':
-                  path = '/dashboard/lab';
-                  break;
-              case 'billing':
-                  path = '/dashboard/billing';
-                  break;
-              case 'pharmacist':
-                  path = '/dashboard/pharmacist';
-                  break;
-              case 'admin':
-                  // All admins now go to the directory
-                  path = '/dashboard/directory';
-                  break;
-              default:
-                  // This will catch patient portal users or any other role
-                  path = '/dashboard/patient-portal';
-                  break;
+          if (role === 'admin') {
+            if (department === 'System') {
+                path = '/dashboard/admin/system';
+            } else if (department) {
+                // For other admins, create a URL-friendly slug from their department
+                const slug = department.toLowerCase().replace(/\s+/g, '-').replace(/[/\\?%*:|"<>]/g, '');
+                path = `/dashboard/admin/${slug}`;
+            } else {
+                 path = '/dashboard/directory'; // Fallback for admins with no department
+            }
+          } else {
+            // Handle non-admin roles with specific dashboards
+            switch (role) {
+                case 'physician':
+                    path = '/dashboard/physician';
+                    break;
+                case 'nurse':
+                    path = '/dashboard/nurse';
+                    break;
+                case 'radiology':
+                    path = '/dashboard/radiology';
+                    break;
+                case 'lab':
+                    path = '/dashboard/lab';
+                    break;
+                case 'billing':
+                    path = '/dashboard/billing';
+                    break;
+                case 'pharmacist':
+                    path = '/dashboard/pharmacist';
+                    break;
+                default:
+                    // This will catch patient portal users or any other role
+                    path = '/dashboard/patient-portal';
+                    break;
+            }
           }
           
           router.replace(path);
