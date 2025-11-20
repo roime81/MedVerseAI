@@ -55,10 +55,10 @@ const getNavItems = (role: string, department?: string) => {
                     return [
                         { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home, section: 'main' },
                         { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
-                        { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText, section: 'main' },
-                        { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
-                        { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
-                        { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart, section: 'main' },
+                        { href: "/dashboard/admin-directory", label: "Requests & Approvals", icon: FileText, section: 'main' },
+                        { href: "/dashboard/super-admin/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
+                        { href: "/dashboard/super-admin/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
+                        { href: "/dashboard/super-admin/reports", label: "Reports", icon: BarChart, section: 'main' },
                         { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings, section: 'admin' },
                     ];
                 case 'HR/Credentialing':
@@ -167,7 +167,7 @@ export default function DashboardLayout({
         <nav className="flex-1 p-4 space-y-2">
             {mainNavItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
+                const isActive = pathname === item.href;
                 return (
                     <Button
                         key={item.href}
@@ -217,7 +217,7 @@ export default function DashboardLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex h-[65px] items-center justify-between border-b bg-white px-6">
             <div className="flex-1">
-                <div className="relative w-full max-w-md">
+                 <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input placeholder="Search people, roles, emails, staff ID..." className="pl-10 bg-slate-100 border-slate-200" />
                 </div>
@@ -227,7 +227,7 @@ export default function DashboardLayout({
                     <p className="text-sm font-semibold">{appUser.displayName}</p>
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
-                {appUser.department && <Badge variant="outline">{appUser.department}</Badge>}
+                {appUser.department && <Badge variant="outline">{appUser.department === 'System' ? 'Super Admin' : appUser.department}</Badge>}
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
                 </Button>

@@ -218,7 +218,7 @@ const hardcodedPatients = [
     {
         personId: 'john_departed_101',
         nationalId: '999-00-4444',
-        fullName: 'Dr. John Departed',
+        fullName: 'John Departed',
         dateOfBirth: '1968-01-15',
         gender: 'Male',
         race: 'White',

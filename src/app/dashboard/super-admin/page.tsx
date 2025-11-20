@@ -11,16 +11,16 @@ import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600', isAlert = false, isHighlighted = false }) => (
-  <Card className={cn("bg-white shadow-sm hover:shadow-md transition-shadow", isAlert && "border-red-200", isHighlighted && "border-yellow-300")}>
+  <Card className={cn("bg-white shadow-sm hover:shadow-md transition-shadow", isAlert && "border-destructive", isHighlighted && "border-yellow-400")}>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       <div className={cn('p-1.5 rounded-md', iconBgColor)}>
-        <Activity className={cn('h-4 w-4', iconColor)} />
+        <Icon className={cn('h-4 w-4', iconColor)} />
       </div>
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold text-foreground">{value}</div>
-      <p className={cn("text-xs", isAlert ? "text-red-500" : "text-muted-foreground")}>{description}</p>
+      <p className={cn("text-xs", isAlert ? "text-destructive" : "text-muted-foreground")}>{description}</p>
       {footer && <div className="text-xs text-primary mt-1">{footer}</div>}
     </CardContent>
   </Card>
@@ -103,9 +103,9 @@ export default function SuperAdminDashboardPage() {
                     <div className="p-4 bg-white rounded-lg border border-yellow-200">
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="font-semibold text-foreground">ESC-2023-045 - Dr. John Departed</p>
+                                <p className="font-semibold text-foreground">ESC-2025-045 - Dr. John Departed</p>
                                 <p className="text-sm text-muted-foreground">User still has active HIS/EMR despite seperation date of Oct 31, 2025. HR confirmed last day worked was Oct 30.</p>
-                                <p className="text-xs text-muted-foreground mt-2">Opened 12 days ago • Assigned to hrandcredentialing@medverse.com • DueLine: 11/15/2025</p>
+                                <p className="text-xs text-muted-foreground mt-2">Opened 12 days ago • Assigned to hrandcredentialing@medverse.com • Deadline: 11/15/2025</p>
                             </div>
                              <div className="flex items-center gap-2">
                                 <Badge variant="secondary" className="bg-red-600 text-white">high</Badge>
