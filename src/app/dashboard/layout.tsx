@@ -62,10 +62,13 @@ const getNavItems = (role: string, department?: string) => {
                  return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: Stethoscope }, ...baseNav]
             }
             if (department === 'Cybersecurity') {
-                 return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: Stethoscope }, ...baseNav]
+                 return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav]
             }
             if (department === 'Compliance/Audit') {
-                 return [{ href: "/dashboard/admin/compliance-audit", label: "Compliance", icon: Stethoscope }, ...baseNav]
+                 return [{ href: "/dashboard/admin/compliance-audit", label: "Compliance", icon: ClipboardCheck }, ...baseNav]
+            }
+            if (department === 'Medical Affairs/Clinical Gov') {
+                return [{ href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav]
             }
             return [{ href: "/dashboard/admin", label: "Admin Overview", icon: Stethoscope }, ...baseNav];
         case 'radiology':
