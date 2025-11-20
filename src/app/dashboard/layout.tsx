@@ -192,6 +192,7 @@ export default function DashboardLayout({
 
   const navItems = useMemo(() => getNavItems(appUser), [appUser]);
   const isSpecialAdmin = appUser?.role === 'admin' && (appUser?.department === 'System' || appUser?.department === 'HR/Credentialing' || appUser?.department === 'Medical Affairs/Clinical Gov');
+  const isSuperAdmin = appUser?.department === 'System';
 
   if (isUserLoading || isAppUserLoading || isRedirecting || !appUser) {
     return (
@@ -208,7 +209,7 @@ export default function DashboardLayout({
     <div className={cn("flex h-screen w-full font-sans", isSpecialAdmin ? "bg-[#F8F9FA]" : "bg-slate-100")}>
       <aside className={cn("flex flex-col border-r text-foreground w-64", isSpecialAdmin ? "bg-gray-800 text-gray-300" : "bg-white")}>
         <div className={cn("p-4 border-b h-[65px] flex items-center", isSpecialAdmin ? "border-gray-700" : "border-border")}>
-            <Logo variant={isSpecialAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} appUser={appUser} />
+            <Logo variant={isSpecialAdmin ? 'dark' : 'light'} isSuperAdmin={isSpecialAdmin} appUser={appUser} />
         </div>
         <nav className="flex-1 p-2 space-y-1">
             {navItems.map((item) => {
@@ -294,7 +295,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-
-    
-
-    
