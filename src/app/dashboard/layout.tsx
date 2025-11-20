@@ -35,6 +35,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 const formatDepartmentToSlug = (department: string) => {
+    if (!department) return '';
+    // Explicitly handle the Super Admin case
     if (department === 'System') return 'system';
     return department.toLowerCase().replace(/[\s/]+/g, '-');
 }
@@ -86,7 +88,7 @@ const getNavItems = (role: string, department?: string) => {
         case 'pharmacist':
             return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill, section: 'main' }, ...baseNav];
         default:
-            return baseNav;
+            return [{ href: "/dashboard/patient-portal", label: "Patient Portal", icon: Home, section: 'main' }];
     }
 }
 
@@ -117,13 +119,19 @@ export default function DashboardLayout({
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
             setAppUser(userDoc.data() as AppUser);
+        } else {
+            console.error("Could not find user document in Firestore for logged in user.");
+            // Optional: sign out and redirect if user doc is missing
+            if (auth) {
+                signOut(auth).then(() => router.push('/login'));
+            }
         }
     };
 
     if(user) {
         fetchUserRole(user);
     }
-  }, [user, firestore]);
+  }, [user, firestore, auth, router]);
 
 
   const handleSignOut = () => {
@@ -134,7 +142,7 @@ export default function DashboardLayout({
   };
 
   const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
-  const isSuperAdmin = appUser?.department === 'System';
+  const isSuperAdmin = appUser?.role === 'admin' && appUser?.department === 'System';
 
   const mainNavItems = navItems.filter(item => item.section === 'main');
   const adminNavItems = navItems.filter(item => item.section === 'administration');
@@ -191,7 +199,9 @@ export default function DashboardLayout({
                             <Button
                                 key={item.href}
                                 variant={isActive ? 'secondary' : 'ghost'}
-                                className="w-full justify-start text-sm text-slate-300 hover:bg-slate-800 hover:text-white"
+                                className={cn("w-full justify-start text-sm", 
+                                    isActive ? "bg-slate-700 text-white font-semibold" : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                )}
                                 asChild
                             >
                                 <Link href={item.href}>
@@ -207,26 +217,26 @@ export default function DashboardLayout({
       </aside>
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className={cn("flex h-[65px] items-center justify-between border-b px-6 bg-white")}>
+        <header className={cn("flex h-[65px] items-center justify-between border-b px-6", isSuperAdmin ? "bg-gray-900 border-gray-800" : "bg-white")}>
             <div className="flex-1">
                  <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-border bg-slate-100 border-slate-200" )}/>
+                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10", isSuperAdmin ? "bg-gray-800 border-gray-700 text-white placeholder:text-gray-400" : "bg-slate-100 border-slate-200")}/>
                 </div>
             </div>
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <p className={cn("text-sm font-semibold", "text-foreground")}>{appUser.displayName}</p>
-                    <p className="text-xs text-muted-foreground">{appUser.email}</p>
+                    <p className={cn("text-sm font-semibold", isSuperAdmin ? "text-white" : "text-foreground")}>{appUser.displayName}</p>
+                    <p className={cn("text-xs", isSuperAdmin ? "text-slate-400" : "text-muted-foreground")}>{appUser.email}</p>
                 </div>
-                {appUser.department && <Badge variant={"outline"} className={cn(isSuperAdmin && "bg-primary")}>{appUser.role === 'admin' ? appUser.department : appUser.department}</Badge>}
+                {appUser.department && <Badge variant={isSuperAdmin ? "default" : "outline"} className={cn(isSuperAdmin && "bg-primary text-primary-foreground")}>{appUser.role === 'admin' ? appUser.department : appUser.role}</Badge>}
                 <Button variant="ghost" size="icon" className={cn(isSuperAdmin && "text-slate-400 hover:text-white hover:bg-slate-800")}>
                     <Bell className="h-5 w-5" />
                 </Button>
                 <Button variant="ghost" size="icon" className={cn(isSuperAdmin && "text-slate-400 hover:text-white hover:bg-slate-800")}>
                     <Settings className="h-5 w-5" />
                 </Button>
-                <Button variant={"outline"} onClick={handleSignOut}>
+                <Button variant={isSuperAdmin ? "outline" : "default"} className={cn(isSuperAdmin && "text-white border-slate-700 hover:bg-slate-800 hover:text-white")} onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                 </Button>

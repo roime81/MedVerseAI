@@ -5,6 +5,7 @@ import * as React from 'react';
 import { HrCredentialingDashboard } from '@/components/dashboard/admin/hr-credentialing-dashboard';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import SuperAdminDashboard from '@/app/dashboard/admin/system/page';
+import { notFound } from 'next/navigation';
 
 // A mapping from the department slug in the URL to the corresponding dashboard component.
 const dashboardMap: Record<string, React.ComponentType> = {
@@ -15,6 +16,7 @@ const dashboardMap: Record<string, React.ComponentType> = {
   // 'cybersecurity': CybersecurityDashboard,
 };
 
+// A mapping for display names
 const departmentNameMap: Record<string, string> = {
     'system': 'System Administration',
     'hr-credentialing': 'HR & Medical Credentialing',
@@ -25,18 +27,13 @@ export default function AdminDepartmentPage({ params }: { params: { department: 
   const { department } = params;
   const DashboardComponent = dashboardMap[department];
 
-  const departmentName = departmentNameMap[department] || 'Admin Dashboard';
-
+  // If the department slug doesn't exist in our map, show a 404 or a generic page.
+  // A 404 is often better to avoid showing pages for invalid URLs.
   if (!DashboardComponent) {
-    return (
-        <div className="flex flex-col h-full bg-slate-50 text-foreground">
-            <DashboardHeader title={departmentName} description={`No specific dashboard found for department: ${department}.`} />
-            <div className="flex-1 overflow-y-auto p-8">
-                <p>This is a placeholder for the {department} dashboard. A specific UI has not been created for this department yet.</p>
-            </div>
-        </div>
-    );
+    notFound();
   }
-
+  
+  // This component will now correctly render the specific dashboard
+  // based on the URL slug, which is derived from the user's department.
   return <DashboardComponent />;
 }
