@@ -10,13 +10,11 @@ import { useAuth, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { 
-    LayoutDashboard, 
     Users, 
     FileText,
     BarChart, 
     Shield, 
     LogOut, 
-    Briefcase, 
     Stethoscope, 
     FlaskConical, 
     Scan, 
@@ -60,25 +58,25 @@ const getNavItems = (role: string, department?: string) => {
             }
             if (department === 'System') {
                  return [
-                    { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
-                    { href: "/dashboard/directory", label: "User Directory", icon: Users },
-                    { href: "/dashboard/super-admin/requests", label: "Requests & Approvals", icon: FileText },
-                    { href: "/dashboard/super-admin/escalations", label: "Escalations", icon: FolderClock },
-                    { href: "/dashboard/super-admin/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert },
-                    { href: "/dashboard/super-admin/reports", label: "Reports", icon: BarChart },
-                    { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings },
+                    { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home, section: 'main' },
+                    { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText, section: 'main' },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
+                    { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart, section: 'main' },
+                    { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings, section: 'admin' },
                  ]
             }
              if (department === 'IT/IAM') {
-                 return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: LayoutDashboard }, ...baseNav]
+                 return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: Stethoscope }, ...baseNav]
             }
             if (department === 'Cybersecurity') {
-                 return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: LayoutDashboard }, ...baseNav]
+                 return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: Stethoscope }, ...baseNav]
             }
             if (department === 'Compliance/Audit') {
-                 return [{ href: "/dashboard/admin/compliance-audit", label: "Compliance", icon: LayoutDashboard }, ...baseNav]
+                 return [{ href: "/dashboard/admin/compliance-audit", label: "Compliance", icon: Stethoscope }, ...baseNav]
             }
-            return [{ href: "/dashboard/admin", label: "Admin Overview", icon: LayoutDashboard }, ...baseNav];
+            return [{ href: "/dashboard/admin", label: "Admin Overview", icon: Stethoscope }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
         case 'lab':
@@ -136,6 +134,9 @@ export default function DashboardLayout({
   };
 
   const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
+  const mainNavItems = navItems.filter(item => item.section === 'main' || item.section === undefined);
+  const adminNavItems = navItems.filter(item => item.section === 'admin');
+
 
   if (isUserLoading || !user || !appUser) {
     return (
@@ -157,28 +158,57 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen w-full font-sans bg-slate-100">
-      <aside className="w-64 flex flex-col border-r bg-white text-foreground">
-        <div className="p-4 border-b h-[65px] flex items-center">
-            <Logo variant="dark" />
+      <aside className="w-64 flex flex-col border-r bg-black text-white">
+        <div className="p-4 border-b border-gray-800 h-[65px] flex items-center">
+            <Logo variant="light" />
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item) => {
+        <nav className="flex-1 p-4 space-y-2">
+            {mainNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname.startsWith(item.href);
                 return (
                     <Button
                         key={item.href}
                         variant={isActive ? 'secondary' : 'ghost'}
-                        className={cn("w-full justify-start text-sm", isActive && "font-semibold")}
+                        className={cn("w-full justify-start text-sm", 
+                            isActive ? "bg-gray-700 text-white font-semibold" : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        )}
                         asChild
                     >
                         <Link href={item.href}>
-                            <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary": "text-muted-foreground")} />
+                            <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-white": "text-gray-400")} />
                             {item.label}
                         </Link>
                     </Button>
                 )
             })}
+
+            {adminNavItems.length > 0 && (
+                <div className="pt-4">
+                    <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</p>
+                    <div className="mt-2 space-y-2">
+                        {adminNavItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname.startsWith(item.href);
+                            return (
+                                <Button
+                                    key={item.href}
+                                    variant={isActive ? 'secondary' : 'ghost'}
+                                    className={cn("w-full justify-start text-sm", 
+                                        isActive ? "bg-gray-700 text-white font-semibold" : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                                    )}
+                                    asChild
+                                >
+                                    <Link href={item.href}>
+                                        <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-white": "text-gray-400")} />
+                                        {item.label}
+                                    </Link>
+                                </Button>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
         </nav>
       </aside>
       

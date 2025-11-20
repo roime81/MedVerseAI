@@ -22,8 +22,8 @@ export function Logo({ className, variant = 'light', ...props }: LogoProps) {
             <path d="M14 28H19.5L24 18L32 38L36.5 28H42" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
             <defs>
                 <linearGradient id="paint0_linear_pulse_logo_light" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#F97316"/>
-                    <stop offset="1" stopColor="#F472B6"/>
+                    <stop stopColor="#4f46e5"/>
+                    <stop offset="1" stopColor="#7c3aed"/>
                 </linearGradient>
                  <linearGradient id="paint0_linear_pulse_logo_dark" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#4f46e5"/>
@@ -32,9 +32,9 @@ export function Logo({ className, variant = 'light', ...props }: LogoProps) {
             </defs>
         </svg>
         <div className="flex flex-col">
-            <span className={cn("font-grotesk text-base font-bold leading-none", isDark && "text-foreground")}>MedVerse Access Hub</span>
+            <span className={cn("font-grotesk text-base font-bold leading-none", isDark ? "text-foreground" : "text-white")}>MedVerse Access Hub</span>
             <span className={cn("text-xs leading-none", isDark ? "text-muted-foreground" : "text-white/80")}>
-                Medical Affairs / Clinical Gov. Portal
+                Super Admin Portal
             </span>
         </div>
     </div>
