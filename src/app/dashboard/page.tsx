@@ -56,8 +56,12 @@ export default function DashboardRedirect() {
               break;
             case 'admin':
               if (userData.department) {
-                const departmentSlug = formatDepartmentToSlug(userData.department);
-                path = `/dashboard/admin/${departmentSlug}`;
+                if (userData.department === 'System') {
+                  path = '/dashboard/admin/super-admin';
+                } else {
+                  const departmentSlug = formatDepartmentToSlug(userData.department);
+                  path = `/dashboard/admin/${departmentSlug}`;
+                }
               } else {
                 path = '/dashboard/directory'; // Fallback for admins without a department
               }

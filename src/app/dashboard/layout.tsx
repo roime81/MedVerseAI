@@ -41,10 +41,11 @@ const getNavItems = (role: string, department?: string) => {
 
     if (role === 'admin') {
         const departmentSlug = department ? formatDepartmentToSlug(department) : '';
+
         // Super admin has a unique sidebar
-        if (departmentSlug === 'system') {
+        if (department === 'System') { // Use the raw department name for checking
             return [
-                { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home, section: 'main' },
+                { href: `/dashboard/admin/super-admin`, label: "Home / Overview", icon: Home, section: 'main' },
                 { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
                 { href: "/dashboard/admin/requests", label: "Requests & Approvals", icon: GitPullRequest, section: 'main' },
                 { href: "/dashboard/admin/escalations", label: "Escalations", icon: AlertCircle, section: 'main' },
