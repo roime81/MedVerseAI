@@ -3,7 +3,7 @@
 
 import { useUser } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { signOut, User as FirebaseUser } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { useAuth, useFirestore } from '@/firebase';
@@ -31,6 +31,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+
 
 const getNavItems = (appUser: AppUser | null) => {
     if (!appUser) return [];
@@ -81,44 +82,96 @@ export default function DashboardLayout({
   const firestore = useFirestore();
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [isAppUserLoading, setIsAppUserLoading] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(true);
 
   useEffect(() => {
-    if (isUserLoading) return;
+    if (isUserLoading || !firestore) return;
     
     if (!user) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
 
-    const fetchAppUser = async (firebaseUser: FirebaseUser) => {
-        if (!firestore) return;
+    const fetchUserAndRedirect = async (firebaseUser: FirebaseUser) => {
         setIsAppUserLoading(true);
         try {
             const userDocRef = doc(firestore, 'users', firebaseUser.uid);
             const userDoc = await getDoc(userDocRef);
+
             if (userDoc.exists()) {
-                setAppUser(userDoc.data() as AppUser);
+                const userData = userDoc.data() as AppUser;
+                setAppUser(userData);
+
+                const role = userData.role;
+                const currentPath = pathname;
+                
+                let targetPath;
+                if (firebaseUser.email === 'super.admin@medverse.com' || (userData.role === 'admin' && userData.department === 'System')) {
+                    targetPath = '/dashboard/admin/system';
+                } else {
+                    switch (role) {
+                        case 'admin':
+                            targetPath = '/dashboard/directory';
+                            break;
+                        case 'physician':
+                            targetPath = '/dashboard/physician';
+                            break;
+                        case 'nurse':
+                            targetPath = '/dashboard/nurse';
+                            break;
+                        case 'radiology':
+                            targetPath = '/dashboard/radiology';
+                            break;
+                        case 'lab':
+                            targetPath = '/dashboard/lab';
+                            break;
+                        case 'billing':
+                            targetPath = '/dashboard/billing';
+                            break;
+                        case 'pharmacist':
+                            targetPath = '/dashboard/pharmacist';
+                            break;
+                        default:
+                            targetPath = '/dashboard/patient-portal';
+                            break;
+                    }
+                }
+                
+                // Only redirect if we are at the base dashboard URL, to avoid loops
+                if (currentPath === '/dashboard' || currentPath === '/dashboard/') {
+                    router.replace(targetPath);
+                } else {
+                    setIsRedirecting(false);
+                }
+
             } else {
-                console.error("Could not find user document in Firestore for logged in user.");
+                console.error("Could not find user document in Firestore.");
                 if (auth) await signOut(auth);
-                router.push('/login');
+                router.replace('/login');
             }
         } catch (error) {
             console.error("Error fetching user document:", error);
             if (auth) await signOut(auth);
-            router.push('/login');
+            router.replace('/login');
         } finally {
             setIsAppUserLoading(false);
         }
     };
 
     if (user) {
-        fetchAppUser(user);
+        fetchUserAndRedirect(user);
     } else {
         setIsAppUserLoading(false);
+        setIsRedirecting(false);
     }
-  }, [user, isUserLoading, firestore, auth, router]);
-
+  }, [user, isUserLoading, firestore, auth, router, pathname]);
+  
+  useEffect(() => {
+    // If the path is not the base dashboard path, we can stop the redirecting state
+    if (pathname !== '/dashboard' && pathname !== '/dashboard/') {
+      setIsRedirecting(false);
+    }
+  }, [pathname]);
 
   const handleSignOut = async () => {
     if (!auth) return;
@@ -126,15 +179,15 @@ export default function DashboardLayout({
     router.push('/login');
   };
 
-  const navItems = getNavItems(appUser);
+  const navItems = useMemo(() => getNavItems(appUser), [appUser]);
   const isSuperAdmin = appUser?.role === 'admin' && appUser?.department === 'System';
 
-  if (isUserLoading || isAppUserLoading || !appUser) {
+  if (isUserLoading || isAppUserLoading || isRedirecting || !appUser) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading dashboard...</p>
+            <p className="text-muted-foreground">Loading your dashboard...</p>
         </div>
       </div>
     );
