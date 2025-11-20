@@ -38,9 +38,8 @@ const getNavItems = (appUser: AppUser) => {
     const department = appUser?.department;
 
     if (role === 'admin' && department === 'System') {
-        const slug = 'system';
         return [
-            { href: `/dashboard/admin/${slug}`, label: "Home / Overview", icon: Home },
+            { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home },
             { href: "/dashboard/directory", label: "User Directory", icon: Users },
             { href: "#", label: "Requests & Approvals", icon: FileClock },
             { href: "#", label: "Escalations", icon: FileWarning },
@@ -63,8 +62,7 @@ const getNavItems = (appUser: AppUser) => {
         case 'pharmacist':
             return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'admin':
-            const slug = department?.toLowerCase().replace(/[\s/]+/g, '-') || 'default';
-            return [{ href: `/dashboard/admin/${slug}`, label: "Admin Dashboard", icon: Shield }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+             return [{ href: "/dashboard/directory", label: "User Directory", icon: Users }];
         default:
             return [{ href: "/dashboard/patient-portal", label: "Patient Portal", icon: Home }];
     }
