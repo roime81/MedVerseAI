@@ -216,15 +216,15 @@ const hardcodedPatients = [
         activeProblemList: 'Asthma',
     },
     {
-        personId: 'john_smith_101',
+        personId: 'john_departed_101',
         nationalId: '999-00-4444',
-        fullName: 'John Smith',
+        fullName: 'Dr. John Departed',
         dateOfBirth: '1968-01-15',
         gender: 'Male',
         race: 'White',
         ethnicity: 'Not Hispanic',
         maritalStatus: 'Divorced',
-        contactInfo: 'john.smith@example.com',
+        contactInfo: 'john.departed@example.com',
         address: '101 Health Ave, Caretown, FL 33101',
         emergencyContact: 'Laura Smith, Daughter, 555-777-8888',
         primaryProviderId: drBenStoneId,
@@ -619,5 +619,3 @@ export const generatedData = generateAllData({
     drCarterTodaysAppointments: 10,
     drCarterTaskCount: 10,
 });
-
-    

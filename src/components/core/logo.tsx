@@ -4,9 +4,10 @@ import { cn } from '@/lib/utils';
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
   variant?: 'light' | 'dark';
+  isSuperAdmin?: boolean;
 }
 
-export function Logo({ className, variant = 'light', ...props }: LogoProps) {
+export function Logo({ className, variant = 'light', isSuperAdmin = false, ...props }: LogoProps) {
   const isDark = variant === 'dark';
   return (
     <div className={cn("flex items-center gap-2", className)}>
@@ -27,9 +28,10 @@ export function Logo({ className, variant = 'light', ...props }: LogoProps) {
                 </linearGradient>
             </defs>
         </svg>
+        <div className="flex flex-col">
          <span className={cn("font-grotesk text-xl font-bold leading-none", isDark ? "text-white" : "text-foreground")}>MedVerse Access Hub</span>
+         {isSuperAdmin && <span className="text-xs text-muted-foreground leading-none mt-1">Super Admin Portal</span>}
+        </div>
     </div>
   );
 }
-
-    

@@ -53,9 +53,8 @@ const getNavItems = (role: string, department?: string) => {
             switch (department) {
                 case 'System':
                     return [
-                        { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
-                        { href: "/dashboard/directory", label: "User Directory", icon: Users },
-                        { href: "/dashboard/admin-directory", label: "All Administrators", icon: Users },
+                        { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home, section: 'main' },
+                        { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
                         { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText, section: 'main' },
                         { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
                         { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
@@ -157,12 +156,13 @@ export default function DashboardLayout({
         .toUpperCase();
   };
 
+  const isSuperAdmin = appUser?.department === 'System';
 
   return (
-    <div className="flex h-screen w-full font-sans bg-slate-100">
-      <aside className="w-64 flex flex-col border-r bg-black text-white">
-        <div className="p-4 border-b border-gray-800 h-[65px] flex items-center">
-            <Logo variant="dark" />
+    <div className="flex h-screen w-full font-sans bg-slate-50">
+      <aside className="w-64 flex flex-col border-r bg-white text-foreground">
+        <div className="p-4 border-b h-[65px] flex items-center">
+            <Logo variant="light" isSuperAdmin={isSuperAdmin} />
         </div>
         <nav className="flex-1 p-4 space-y-2">
             {mainNavItems.map((item) => {
@@ -173,12 +173,12 @@ export default function DashboardLayout({
                         key={item.href}
                         variant={isActive ? 'secondary' : 'ghost'}
                         className={cn("w-full justify-start text-sm", 
-                            isActive ? "bg-gray-700 text-white font-semibold" : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                            isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
                         )}
                         asChild
                     >
                         <Link href={item.href}>
-                            <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-white": "text-gray-400")} />
+                            <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary": "text-muted-foreground")} />
                             {item.label}
                         </Link>
                     </Button>
@@ -187,7 +187,7 @@ export default function DashboardLayout({
 
             {adminNavItems.length > 0 && (
                 <div className="pt-4">
-                    <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</p>
+                    <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Administration</p>
                     <div className="mt-2 space-y-2">
                         {adminNavItems.map((item) => {
                             const Icon = item.icon;
@@ -197,12 +197,12 @@ export default function DashboardLayout({
                                     key={item.href}
                                     variant={isActive ? 'secondary' : 'ghost'}
                                     className={cn("w-full justify-start text-sm", 
-                                        isActive ? "bg-gray-700 text-white font-semibold" : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                                        isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
                                     )}
                                     asChild
                                 >
                                     <Link href={item.href}>
-                                        <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-white": "text-gray-400")} />
+                                        <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary": "text-muted-foreground")} />
                                         {item.label}
                                     </Link>
                                 </Button>
@@ -219,7 +219,7 @@ export default function DashboardLayout({
             <div className="flex-1">
                 <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search people, roles, emails, MRN, staff ID..." className="pl-10 bg-slate-100 border-slate-200" />
+                    <Input placeholder="Search people, roles, emails, staff ID..." className="pl-10 bg-slate-100 border-slate-200" />
                 </div>
             </div>
             <div className="flex items-center gap-4">
