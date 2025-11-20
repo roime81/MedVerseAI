@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -11,11 +12,8 @@ import {
   Settings2,
   HeartPulse,
   PlayCircle,
-  FileCog,
-  Shield,
-  Dna,
-  FlaskConical,
-  Scan,
+  Database,
+  Cog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SystemUsageTrendChart } from '@/components/dashboard/admin/his-emr/system-usage-trend-chart';
@@ -76,11 +74,11 @@ const roleDistribution = [
 ];
 
 const moduleMatrix = [
-    { icon: FileCog, name: 'Clinical Documentation', updated: '2025-11-10'},
-    { icon: Shield, name: 'CPOE', updated: '2025-11-10'},
-    { icon: Dna, name: 'Medication Administration', updated: '2025-11-10'},
-    { icon: FlaskConical, name: 'Lab Result Viewer', updated: '2025-11-10'},
-    { icon: Scan, name: 'Radiology Viewer (PACS)', updated: '2025-11-10'},
+    { name: 'Clinical Documentation', updated: '2025-11-15', users: 245 },
+    { name: 'CPOE', updated: '2025-11-15', users: 187 },
+    { name: 'Medication Administration', updated: '2025-11-10', users: 156 },
+    { name: 'Lab Results Viewer', updated: '2025-11-15', users: 223 },
+    { name: 'Radiology Viewer (PACS)', updated: '2025-11-12', users: 198 },
 ];
 
 
@@ -198,27 +196,31 @@ export default function HisEmrAdminDashboard() {
                 
                 <Card className="bg-white">
                     <CardHeader className="flex-row justify-between items-center">
-                        <CardTitle>EMR Module Access Matrix</CardTitle>
-                        <Button variant="link" size="sm">Manage Modules</Button>
+                        <div>
+                            <CardTitle>EMR Module Access Matrix</CardTitle>
+                            <p className="text-sm text-muted-foreground">User distribution across EMR modules</p>
+                        </div>
+                        <Button variant="outline" size="sm">
+                            <Cog className="mr-2 h-4 w-4" />
+                            Manage Modules
+                        </Button>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        {moduleMatrix.map(item => {
-                            const Icon = item.icon;
-                            return(
+                        {moduleMatrix.map(item => (
                             <div key={item.name} className="flex items-center justify-between p-3 rounded-lg border">
                                 <div className="flex items-center gap-3">
-                                    <Icon className="h-5 w-5 text-muted-foreground" />
+                                    <Database className="h-5 w-5 text-muted-foreground" />
                                     <div>
                                         <p className="font-semibold text-foreground">{item.name}</p>
                                         <p className="text-xs text-muted-foreground">Last updated: {item.updated}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Badge variant="secondary">285 users</Badge>
+                                    <Badge variant="default" className="bg-gray-800 text-white">{item.users} users</Badge>
                                     <Button variant="outline" size="sm">Configure</Button>
                                 </div>
                             </div>
-                        )})}
+                        ))}
                     </CardContent>
                 </Card>
 
