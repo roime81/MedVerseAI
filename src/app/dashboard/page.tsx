@@ -8,16 +8,16 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
-// A simple, hardcoded map for admin department paths. This is more reliable.
-const adminDepartmentPaths: { [key: string]: string } = {
-  'System': '/dashboard/admin/system',
-  'HR/Credentialing': '/dashboard/admin/hr-credentialing',
-  'Medical Affairs/Clinical Gov': '/dashboard/admin/medical-affairs-clinical-gov',
-  'Department Head': '/dashboard/admin/department-head',
-  'IT/IAM': '/dashboard/admin/it-iam',
-  'Cybersecurity': '/dashboard/admin/cybersecurity',
-  'HIS/EMR': '/dashboard/admin/his-emr',
-  'Compliance/Audit': '/dashboard/admin/compliance-audit',
+// This is a hardcoded map for direct, explicit routing. This is the source of truth.
+const adminDepartmentPathMap: { [key: string]: string } = {
+  'System': '/dashboard/super-admin',
+  'HR/Credentialing': '/dashboard/hr-credentialing',
+  'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
+  'Department Head': '/dashboard/department-head',
+  'IT/IAM': '/dashboard/it-iam',
+  'Cybersecurity': '/dashboard/cybersecurity',
+  'HIS/EMR': '/dashboard/his-emr',
+  'Compliance/Audit': '/dashboard/compliance-audit',
 };
 
 
@@ -44,10 +44,10 @@ export default function DashboardRedirect() {
           const role = userData.role;
           const department = userData.department;
 
-          let path = '/dashboard/directory'; // A safe default for non-admins
+          let path = '/dashboard/directory'; // A safe default
 
-          if (role === 'admin' && department && adminDepartmentPaths[department]) {
-              path = adminDepartmentPaths[department];
+          if (role === 'admin' && department && adminDepartmentPathMap[department]) {
+              path = adminDepartmentPathMap[department];
           } else {
             // Logic for non-admin roles
             switch (role) {

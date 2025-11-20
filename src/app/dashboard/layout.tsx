@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils';
 import { 
     Users, 
     FileText,
-    BarChart, 
     Shield, 
     LogOut, 
     Stethoscope, 
@@ -21,13 +20,9 @@ import {
     Pill, 
     CreditCard,
     Home,
-    FolderClock,
-    ShieldAlert,
     Bell,
     Settings,
     Search,
-    ClipboardCheck,
-    BadgeCheck,
     UserCog,
     Database,
 } from 'lucide-react';
@@ -37,17 +32,17 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-// Explicit mapping for admin department paths
-const adminDepartmentPaths: { [key: string]: string } = {
-  'System': '/dashboard/admin/system',
-  'HR/Credentialing': '/dashboard/admin/hr-credentialing',
-  'Medical Affairs/Clinical Gov': '/dashboard/admin/medical-affairs-clinical-gov',
-  'Department Head': '/dashboard/admin/department-head',
-  'IT/IAM': '/dashboard/admin/it-iam',
-  'Cybersecurity': '/dashboard/admin/cybersecurity',
-  'HIS/EMR': '/dashboard/admin/his-emr',
-  'Compliance/Audit': '/dashboard/admin/compliance-audit',
+const adminDepartmentPathMap: { [key: string]: string } = {
+  'System': '/dashboard/super-admin',
+  'HR/Credentialing': '/dashboard/hr-credentialing',
+  'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
+  'Department Head': '/dashboard/department-head',
+  'IT/IAM': '/dashboard/it-iam',
+  'Cybersecurity': '/dashboard/cybersecurity',
+  'HIS/EMR': '/dashboard/his-emr',
+  'Compliance/Audit': '/dashboard/compliance-audit',
 };
+
 
 const getNavItems = (role: string, department?: string) => {
     const baseNav = [
@@ -61,26 +56,23 @@ const getNavItems = (role: string, department?: string) => {
         case 'nurse':
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
-            if (department && adminDepartmentPaths[department]) {
-                const departmentPath = adminDepartmentPaths[department];
-                const departmentLabel = department; // Keep the full name for display
+            if (department && adminDepartmentPathMap[department]) {
+                const departmentPath = adminDepartmentPathMap[department];
+                const departmentLabel = department;
                 
-                // Special case for System Admin's comprehensive nav
                 if (department === 'System') {
                      return [
-                        { href: "/dashboard/admin/system", label: 'Access Management', icon: Home },
-                        { href: "/dashboard/admin/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
+                        { href: "/dashboard/super-admin", label: 'Access Management', icon: Home },
+                        { href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
                         { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
                         { href: "/dashboard/directory", label: "User Directory", icon: Database },
                     ];
                 }
 
-                // Generic case for other admins
-                const specificAdminNav = { href: departmentPath, label: `${departmentLabel} Dashboard`, icon: Shield };
+                const specificAdminNav = { href: departmentPath, label: `${departmentLabel}`, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }
-            // Fallback for admin with no/unknown department
-            return [{ href: "/dashboard/admin/system", label: "Admin Overview", icon: Shield }, ...baseNav];
+            return [{ href: "/dashboard/super-admin", label: "Admin Overview", icon: Shield }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
         case 'lab':
