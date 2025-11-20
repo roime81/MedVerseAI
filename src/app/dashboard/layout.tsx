@@ -54,10 +54,10 @@ const getNavItems = (role: string, department?: string) => {
         } else if (department === 'HR/Credentialing') {
             adminNav = [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }];
         } else {
-             // For any other admin role, provide a default dashboard or link
-            adminNav = [{ href: "/dashboard/directory", label: "Dashboard", icon: Home }];
+             const departmentPath = department?.toLowerCase().replace(/[\s/]+/g, '-') || 'directory';
+             adminNav = [{ href: `/dashboard/${departmentPath}`, label: "Dashboard", icon: Home }];
         }
-        return adminNav; // Return directly, without baseNav
+        return adminNav; 
     }
     
     switch(role) {

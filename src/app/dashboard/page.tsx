@@ -11,8 +11,12 @@ import type { User as AppUser } from '@/lib/schemas';
 const departmentToPathMap: Record<string, string> = {
     'System': '/dashboard/super-admin',
     'HR/Credentialing': '/dashboard/hr-credentialing',
-    // Add other specific admin mappings here if they exist
-    // 'IT/IAM': '/dashboard/it-iam',
+    'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
+    'Department Head': '/dashboard/department-head',
+    'IT/IAM': '/dashboard/it-iam',
+    'Cybersecurity': '/dashboard/cybersecurity',
+    'HIS/EMR': '/dashboard/his-emr',
+    'Compliance/Audit': '/dashboard/compliance-audit',
 };
 
 const getAdminPath = (department: string | undefined): string => {
