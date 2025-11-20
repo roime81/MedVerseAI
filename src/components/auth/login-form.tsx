@@ -59,12 +59,13 @@ export function LoginForm() {
 
             await updateProfile(user, { displayName: sampleUser.displayName });
 
+            // Ensure all relevant fields from sampleUser are included
             await setDoc(doc(firestore, 'users', user.uid), {
               uid: user.uid,
               email: user.email,
               displayName: sampleUser.displayName,
               role: sampleUser.role,
-              department: sampleUser.department, // Add department on creation
+              department: sampleUser.department || null, // Ensure department is always included
             });
             
             router.push('/dashboard');
@@ -96,15 +97,17 @@ export function LoginForm() {
 
       if (!userDoc.exists()) {
         const sampleUser = sampleUsers.find(u => u.email === user.email || u.displayName === user.displayName);
-        const role = sampleUser ? sampleUser.role : 'physician';
-        const department = sampleUser ? sampleUser.department : undefined;
+        
+        // Define role and department, ensuring department is handled correctly
+        const role = sampleUser ? sampleUser.role : 'physician'; 
+        const department = sampleUser ? sampleUser.department : null;
 
         await setDoc(userRef, {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
           role: role,
-          department: department,
+          department: department, // Ensure department is always included
         });
       }
 
@@ -166,5 +169,3 @@ export function LoginForm() {
     </Card>
   );
 }
-
-    

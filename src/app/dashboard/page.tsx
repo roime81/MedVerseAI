@@ -42,7 +42,8 @@ export default function DashboardRedirect() {
                 const slug = department.toLowerCase().replace(/[\s/]+/g, '-').replace(/[\\?%*:|"<>]/g, '');
                 path = `/dashboard/admin/${slug}`;
             } else {
-                 path = '/dashboard/directory'; // Fallback for admins with no department
+                 // Fallback for any admin user missing a department for any reason
+                 path = '/dashboard/directory';
             }
           } else {
             // Handle non-admin roles with specific dashboards
