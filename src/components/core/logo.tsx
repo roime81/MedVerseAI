@@ -1,4 +1,6 @@
 
+'use client';
+
 import { cn } from '@/lib/utils';
 import type { User } from '@/lib/schemas';
 
@@ -47,19 +49,14 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
         <svg
             width="32"
             height="32"
-            viewBox="0 0 56 56"
+            viewBox="0 0 32 32"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             {...props}
-            >
-            <rect width="56" height="56" rx="12" fill={isDark ? "#fff" : "url(#paint0_linear_logo)"}/>
-            <path d="M14 28H19.5L24 18L32 38L36.5 28H42" stroke={isDark ? "#000" : "#fff"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-            <defs>
-                <linearGradient id="paint0_linear_logo" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4f46e5"/>
-                    <stop offset="1" stopColor="#7c3aed"/>
-                </linearGradient>
-            </defs>
+        >
+            <rect width="32" height="32" rx="8" fill={isDark ? "white" : "hsl(var(--primary))"} />
+            <path d="M9 20C9 22.2091 10.7909 24 13 24H23V18C23 15.7909 21.2091 14 19 14H9V20Z" fill={isDark ? "hsl(var(--primary))" : "white"} />
+            <path d="M23 12C23 9.79086 21.2091 8 19 8H9V14C9 12.5858 9.87325 11.341 11.2057 10.6322C12.5381 9.9234 14.1207 10.0333 15.3431 10.9161L23 16.5V12Z" fill={isDark ? "hsl(var(--primary))" : "white"} fillOpacity="0.8"/>
         </svg>
         {isSpecialAdmin ? (
             <div>
