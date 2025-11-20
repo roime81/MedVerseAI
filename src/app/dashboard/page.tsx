@@ -15,7 +15,7 @@ export default function DashboardRedirect() {
 
   useEffect(() => {
     if (isUserLoading || !firestore) {
-      return; // Wait until Firebase is ready
+      return; // Wait until Firebase and user status are ready
     }
 
     if (!user) {
@@ -31,21 +31,17 @@ export default function DashboardRedirect() {
         if (userDoc.exists()) {
           const userData = userDoc.data() as AppUser;
           const role = userData.role;
-          const department = userData.department;
-          let path = '/dashboard/directory'; // A safe default
 
           if (role === 'admin') {
-            if (department === 'System') {
-                path = '/dashboard/admin/system';
-            } else if (department) {
-                // Future-proofing for other admin dashboards
-                const departmentSlug = department.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                path = `/dashboard/admin/${departmentSlug}`;
+            if (userData.department === 'System') {
+              router.replace('/dashboard/admin/system');
             } else {
-                 path = '/dashboard/directory';
+              // Default for all other admins
+              router.replace('/dashboard/directory');
             }
           } else {
             // Handle non-admin roles with specific dashboards
+            let path;
             switch (role) {
                 case 'physician':
                     path = '/dashboard/physician';
@@ -70,10 +66,8 @@ export default function DashboardRedirect() {
                     path = '/dashboard/patient-portal';
                     break;
             }
+            router.replace(path);
           }
-          
-          router.replace(path);
-
         } else {
           console.error("User document not found in Firestore. Redirecting to login.");
           router.push('/login');

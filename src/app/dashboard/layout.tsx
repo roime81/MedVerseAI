@@ -25,7 +25,6 @@ import {
     FileClock,
     FileWarning,
     BarChart,
-    Shield,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -37,9 +36,8 @@ const getNavItems = (appUser: AppUser | null) => {
     if (!appUser) return [];
 
     const role = appUser.role;
-    const department = appUser.department;
 
-    if (role === 'admin' && department === 'System') {
+    if (role === 'admin' && appUser.department === 'System') {
         return [
             { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home },
             { href: "/dashboard/directory", label: "User Directory", icon: Users },
@@ -83,7 +81,6 @@ export default function DashboardLayout({
   const firestore = useFirestore();
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [isAppUserLoading, setIsAppUserLoading] = useState(true);
-
 
   useEffect(() => {
     if (isUserLoading) return;
@@ -129,6 +126,9 @@ export default function DashboardLayout({
     router.push('/login');
   };
 
+  const navItems = getNavItems(appUser);
+  const isSuperAdmin = appUser?.role === 'admin' && appUser?.department === 'System';
+
   if (isUserLoading || isAppUserLoading || !appUser) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -139,9 +139,6 @@ export default function DashboardLayout({
       </div>
     );
   }
-
-  const navItems = getNavItems(appUser);
-  const isSuperAdmin = appUser.role === 'admin' && appUser.department === 'System';
 
   return (
     <div className={cn("flex h-screen w-full font-sans", isSuperAdmin ? "bg-[#F8F9FA]" : "bg-slate-100")}>
