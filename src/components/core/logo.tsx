@@ -25,6 +25,8 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
             return 'Clinical Governance Portal';
         case 'Department Head':
             return 'HOD Portal';
+        case 'IT/IAM':
+            return 'IT & Access Management Portal';
         default:
             return 'Admin Portal';
     }
@@ -64,3 +66,5 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
     </div>
   );
 }
+
+    
