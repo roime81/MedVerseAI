@@ -4,21 +4,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { Shield } from 'lucide-react';
-import { generatedData } from '@/lib/sample-data';
 
-// Helper to convert URL slug back to department name
-const slugToDepartmentName = (slug: string): string => {
-    for (const user of generatedData.sampleUsers) {
-        if (user.department && user.department.toLowerCase().replace(/[\s/&]+/g, '-') === slug) {
-            return user.department;
-        }
-    }
-    return slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-};
-
-
-export default function AdminDepartmentPage({ params }: { params: { department: string } }) {
-    const departmentName = slugToDepartmentName(params.department);
+export default function AdminDepartmentPage() {
+    const departmentName = "System";
     const title = `${departmentName} Dashboard`;
     const description = `Manage and monitor activities for the ${departmentName} department.`;
 

@@ -55,23 +55,13 @@ const getNavItems = (role: string, department?: string) => {
         case 'admin':
             if (department) {
                 const departmentPath = departmentToPath(department);
-                let specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Admin Dashboard", icon: Shield };
-                if (department === 'System') {
+                let specificAdminNav;
+                if (department === 'HR/Credentialing') {
+                    specificAdminNav = { href: `/dashboard/admin/hr-credentialing`, label: "HR & Credentialing", icon: BadgeCheck };
+                } else if (department === 'System') {
                    specificAdminNav = { href: "/dashboard/admin/system", label: "System Overview", icon: Shield };
-                } else if (department === 'HR/Credentialing') {
-                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "HR & Credentialing", icon: BadgeCheck };
-                } else if (department === 'Medical Affairs/Clinical Gov') {
-                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Medical Affairs", icon: Stethoscope };
-                } else if (department === 'Department Head') {
-                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "HOD Dashboard", icon: UserCog };
-                } else if (department === 'IT/IAM') {
-                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "IT/IAM Dashboard", icon: Users };
-                } else if (department === 'Cybersecurity') {
-                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Security Ops", icon: ShieldAlert };
-                } else if (department === 'HIS/EMR') {
-                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "HIS/EMR Admin", icon: Database };
-                } else if (department === 'Compliance/Audit') {
-                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Compliance", icon: ClipboardCheck };
+                } else {
+                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: `${department} Dashboard`, icon: Shield };
                 }
                 return [specificAdminNav, ...baseNav];
             }
