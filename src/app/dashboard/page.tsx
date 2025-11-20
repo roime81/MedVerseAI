@@ -23,6 +23,13 @@ export default function DashboardRedirect() {
       return;
     }
 
+    // This is a hardcoded check for the super admin email.
+    // This is the most reliable way to ensure the super admin is always redirected correctly.
+    if (user.email === 'super.admin@medverse.com') {
+      router.replace('/dashboard/admin/system');
+      return;
+    }
+
     const fetchUserRoleAndRedirect = async () => {
       try {
         const userDocRef = doc(firestore, 'users', user.uid);
@@ -31,43 +38,38 @@ export default function DashboardRedirect() {
         if (userDoc.exists()) {
           const userData = userDoc.data() as AppUser;
           const role = userData.role;
-
-          if (role === 'admin') {
-            if (userData.department === 'System') {
-              router.replace('/dashboard/admin/system');
-            } else {
-              // Default for all other admins
-              router.replace('/dashboard/directory');
-            }
-          } else {
-            // Handle non-admin roles with specific dashboards
-            let path;
-            switch (role) {
-                case 'physician':
-                    path = '/dashboard/physician';
-                    break;
-                case 'nurse':
-                    path = '/dashboard/nurse';
-                    break;
-                case 'radiology':
-                    path = '/dashboard/radiology';
-                    break;
-                case 'lab':
-                    path = '/dashboard/lab';
-                    break;
-                case 'billing':
-                    path = '/dashboard/billing';
-                    break;
-                case 'pharmacist':
-                    path = '/dashboard/pharmacist';
-                    break;
-                default:
-                    // This will catch patient portal users or any other role
-                    path = '/dashboard/patient-portal';
-                    break;
-            }
-            router.replace(path);
+          
+          let path;
+          switch (role) {
+              case 'admin':
+                  // All other admins go to the directory
+                  path = '/dashboard/directory';
+                  break;
+              case 'physician':
+                  path = '/dashboard/physician';
+                  break;
+              case 'nurse':
+                  path = '/dashboard/nurse';
+                  break;
+              case 'radiology':
+                  path = '/dashboard/radiology';
+                  break;
+              case 'lab':
+                  path = '/dashboard/lab';
+                  break;
+              case 'billing':
+                  path = '/dashboard/billing';
+                  break;
+              case 'pharmacist':
+                  path = '/dashboard/pharmacist';
+                  break;
+              default:
+                  // This will catch patient portal users or any other role
+                  path = '/dashboard/patient-portal';
+                  break;
           }
+          router.replace(path);
+
         } else {
           console.error("User document not found in Firestore. Redirecting to login.");
           router.push('/login');
