@@ -46,20 +46,11 @@ const getNavItems = (role: string, department?: string) => {
         case 'nurse':
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
-            if (department === 'Medical Affairs/Clinical Gov') {
-                 return [
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Home / Overview", icon: Home },
-                    { href: "/dashboard/directory", label: "User Directory", icon: Users },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart },
-                 ]
-            }
             if (department === 'System') {
                  return [
                     { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home, section: 'main' },
                     { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
+                    { href: "/dashboard/admin-directory", label: "All Administrators", icon: Users, section: 'main' },
                     { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText, section: 'main' },
                     { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
                     { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
@@ -246,5 +237,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-
-    
