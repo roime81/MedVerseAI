@@ -40,20 +40,24 @@ const getNavItems = (role: string, department?: string) => {
     ];
 
     if (role === 'admin') {
+        let adminNav = [];
         if (department === 'System') {
-            return [ 
+            adminNav = [ 
                 { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
                 { href: "/dashboard/requests-approvals", label: "Requests & Approvals", icon: FileCheck },
                 { href: "/dashboard/escalations", label: "Escalations", icon: AlertTriangle },
                 { href: "/dashboard/monitoring-alerts", label: "Monitoring & Alerts", icon: BarChart },
                 { href: "/dashboard/reports", label: "Reports", icon: FileText },
                 { isSeparator: true, label: "ADMINISTRATION" },
-                { href: "/dashboard/admins-config", label: "Admins & Config", icon: Shield },
+                { href: "/dashboard/admin-directory", label: "Admins & Config", icon: Shield },
             ];
+        } else if (department === 'HR/Credentialing') {
+            adminNav = [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }];
+        } else {
+             // For any other admin role, provide a default dashboard or link
+            adminNav = [{ href: "/dashboard/directory", label: "Dashboard", icon: Home }];
         }
-        if (department === 'HR/Credentialing') {
-             return [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }];
-        }
+        return adminNav; // Return directly, without baseNav
     }
     
     switch(role) {
