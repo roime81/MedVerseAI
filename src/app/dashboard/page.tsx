@@ -8,15 +8,16 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
-const departmentToPathMap = {
+const departmentToPathMap: Record<string, string> = {
     'System': '/dashboard/super-admin',
     'HR/Credentialing': '/dashboard/hr-credentialing',
-    'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
-    'Department Head': '/dashboard/department-head',
-    'IT/IAM': '/dashboard/it-iam',
-    'Cybersecurity': '/dashboard/cybersecurity',
-    'HIS/EMR': '/dashboard/his-emr',
-    'Compliance/Audit': '/dashboard/compliance-audit'
+    // Add other specific admin mappings here if they exist
+    // 'IT/IAM': '/dashboard/it-iam',
+};
+
+const getAdminPath = (department: string | undefined): string => {
+    if (!department) return '/dashboard/directory'; // Default for admins with no department
+    return departmentToPathMap[department] || '/dashboard/directory';
 };
 
 export default function DashboardRedirect() {
@@ -44,7 +45,7 @@ export default function DashboardRedirect() {
           let path = '/dashboard/directory'; // A safe default
 
           if (role === 'admin') {
-              path = departmentToPathMap[userData.department] || '/dashboard/directory';
+              path = getAdminPath(userData.department);
           } else {
              switch (role) {
                 case 'physician':
@@ -72,11 +73,12 @@ export default function DashboardRedirect() {
 
         } else {
           console.error("User document not found in Firestore. Redirecting to login.");
+          // If user doc doesn't exist, we can't determine role, maybe sign out and redirect
           router.push('/login');
         }
       } catch (error) {
           console.error("Error fetching user data:", error);
-          router.push('/login');
+          router.push('/login'); // Redirect to login on error
       }
     };
 

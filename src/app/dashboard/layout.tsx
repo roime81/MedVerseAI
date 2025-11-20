@@ -39,17 +39,22 @@ const getNavItems = (role: string, department?: string) => {
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
     ];
 
-    if (role === 'admin' && department === 'System') {
-        return [ 
-            { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
-            { href: "/dashboard/directory", label: "User Directory", icon: Users },
-            { href: "/dashboard/requests-approvals", label: "Requests & Approvals", icon: FileCheck },
-            { href: "/dashboard/escalations", label: "Escalations", icon: AlertTriangle },
-            { href: "/dashboard/monitoring-alerts", label: "Monitoring & Alerts", icon: BarChart },
-            { href: "/dashboard/reports", label: "Reports", icon: FileText },
-            { isSeparator: true, label: "ADMINISTRATION" },
-            { href: "/dashboard/admins-config", label: "Admins & Config", icon: Shield },
-        ];
+    if (role === 'admin') {
+        if (department === 'System') {
+            return [ 
+                { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
+                { href: "/dashboard/directory", label: "User Directory", icon: Users },
+                { href: "/dashboard/requests-approvals", label: "Requests & Approvals", icon: FileCheck },
+                { href: "/dashboard/escalations", label: "Escalations", icon: AlertTriangle },
+                { href: "/dashboard/monitoring-alerts", label: "Monitoring & Alerts", icon: BarChart },
+                { href: "/dashboard/reports", label: "Reports", icon: FileText },
+                { isSeparator: true, label: "ADMINISTRATION" },
+                { href: "/dashboard/admins-config", label: "Admins & Config", icon: Shield },
+            ];
+        }
+        if (department === 'HR/Credentialing') {
+             return [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }, ...baseNav];
+        }
     }
     
     switch(role) {
