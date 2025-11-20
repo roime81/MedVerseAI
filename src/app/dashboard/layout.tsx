@@ -62,19 +62,19 @@ const getNavItems = (role: string, department?: string) => {
                         { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings, section: 'admin' },
                     ];
                 case 'HR/Credentialing':
-                    return [{ href: "/dashboard/super-admin/hr-credentialing", label: "HR & Credentialing", icon: BadgeCheck }, ...baseNav];
+                    return [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: BadgeCheck }, ...baseNav];
                 case 'Medical Affairs/Clinical Gov':
-                    return [{ href: "/dashboard/super-admin/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav];
+                    return [{ href: "/dashboard/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav];
                 case 'Department Head':
-                    return [{ href: "/dashboard/super-admin/department-head", label: "HOD Dashboard", icon: UserCog }, ...baseNav];
+                    return [{ href: "/dashboard/department-head", label: "HOD Dashboard", icon: UserCog }, ...baseNav];
                 case 'IT/IAM':
-                    return [{ href: "/dashboard/super-admin/it-iam", label: "IT/IAM Dashboard", icon: Users }, ...baseNav];
+                    return [{ href: "/dashboard/it-iam", label: "IT/IAM Dashboard", icon: Users }, ...baseNav];
                 case 'Cybersecurity':
-                    return [{ href: "/dashboard/super-admin/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav];
+                    return [{ href: "/dashboard/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav];
                 case 'HIS/EMR':
-                    return [{ href: "/dashboard/super-admin/his-emr", label: "HIS/EMR Admin", icon: Database }, ...baseNav];
+                    return [{ href: "/dashboard/his-emr", label: "HIS/EMR Admin", icon: Database }, ...baseNav];
                 case 'Compliance/Audit':
-                    return [{ href: "/dashboard/super-admin/compliance-audit", label: "Compliance", icon: ClipboardCheck }, ...baseNav];
+                    return [{ href: "/dashboard/compliance-audit", label: "Compliance", icon: ClipboardCheck }, ...baseNav];
                 default:
                     return [{ href: "/dashboard/super-admin", label: "Admin Overview", icon: Shield }, ...baseNav];
             }
