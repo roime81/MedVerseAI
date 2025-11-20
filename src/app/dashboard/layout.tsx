@@ -49,6 +49,7 @@ const getNavItems = (role: string, department?: string) => {
         if (department === 'System') {
             return [
                 { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home, section: 'main' },
+                { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
                 { href: "/dashboard/admin/requests", label: "Requests & Approvals", icon: GitPullRequest, section: 'main' },
                 { href: "/dashboard/admin/escalations", label: "Escalations", icon: AlertCircle, section: 'main' },
                 { href: "/dashboard/admin/monitoring", label: "Monitoring & Alerts", icon: Monitor, section: 'main' },
