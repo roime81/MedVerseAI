@@ -54,6 +54,7 @@ export default function DashboardRedirect() {
             router.push('/dashboard/nurse');
             break;
           case 'admin':
+             // A fallback for admins without a specific department dashboard
             router.push('/dashboard/admin');
             break;
           case 'radiology':
@@ -70,7 +71,7 @@ export default function DashboardRedirect() {
             break;
           default:
             // Default redirect for unknown roles
-            router.push('/dashboard/physician');
+            router.push('/dashboard/directory');
             break;
         }
       } else {
