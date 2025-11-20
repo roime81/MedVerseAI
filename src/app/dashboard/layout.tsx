@@ -37,9 +37,16 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-const departmentToPath = (department: string): string => {
-  if (!department) return 'system';
-  return department.toLowerCase().replace(/[\s/&]+/g, '-');
+// Explicit mapping for admin department paths
+const adminDepartmentPaths: { [key: string]: string } = {
+  'System': '/dashboard/admin/system',
+  'HR/Credentialing': '/dashboard/admin/hr-credentialing',
+  'Medical Affairs/Clinical Gov': '/dashboard/admin/medical-affairs-clinical-gov',
+  'Department Head': '/dashboard/admin/department-head',
+  'IT/IAM': '/dashboard/admin/it-iam',
+  'Cybersecurity': '/dashboard/admin/cybersecurity',
+  'HIS/EMR': '/dashboard/admin/his-emr',
+  'Compliance/Audit': '/dashboard/admin/compliance-audit',
 };
 
 const getNavItems = (role: string, department?: string) => {
@@ -54,10 +61,11 @@ const getNavItems = (role: string, department?: string) => {
         case 'nurse':
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
-            if (department) {
-                const departmentPath = departmentToPath(department);
-                const departmentLabel = `${department} Dashboard`;
+            if (department && adminDepartmentPaths[department]) {
+                const departmentPath = adminDepartmentPaths[department];
+                const departmentLabel = department; // Keep the full name for display
                 
+                // Special case for System Admin's comprehensive nav
                 if (department === 'System') {
                      return [
                         { href: "/dashboard/admin/system", label: 'Access Management', icon: Home },
@@ -66,18 +74,12 @@ const getNavItems = (role: string, department?: string) => {
                         { href: "/dashboard/directory", label: "User Directory", icon: Database },
                     ];
                 }
-                
-                if (department === 'HR/Credentialing') {
-                    return [
-                        { href: "/dashboard/admin/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
-                        ...baseNav
-                    ];
-                }
-                
-                const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: departmentLabel, icon: Shield };
+
+                // Generic case for other admins
+                const specificAdminNav = { href: departmentPath, label: `${departmentLabel} Dashboard`, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }
-            // Fallback for admin with no department
+            // Fallback for admin with no/unknown department
             return [{ href: "/dashboard/admin/system", label: "Admin Overview", icon: Shield }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];

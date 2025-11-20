@@ -8,11 +8,18 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
-// Helper to convert department name to a URL slug
-const departmentToPath = (department: string): string => {
-  if (!department) return 'system'; // Default to system if department is not defined
-  return department.toLowerCase().replace(/[\s/&]+/g, '-');
+// A simple, hardcoded map for admin department paths. This is more reliable.
+const adminDepartmentPaths: { [key: string]: string } = {
+  'System': '/dashboard/admin/system',
+  'HR/Credentialing': '/dashboard/admin/hr-credentialing',
+  'Medical Affairs/Clinical Gov': '/dashboard/admin/medical-affairs-clinical-gov',
+  'Department Head': '/dashboard/admin/department-head',
+  'IT/IAM': '/dashboard/admin/it-iam',
+  'Cybersecurity': '/dashboard/admin/cybersecurity',
+  'HIS/EMR': '/dashboard/admin/his-emr',
+  'Compliance/Audit': '/dashboard/admin/compliance-audit',
 };
+
 
 export default function DashboardRedirect() {
   const { user, isUserLoading } = useUser();
@@ -37,17 +44,10 @@ export default function DashboardRedirect() {
           const role = userData.role;
           const department = userData.department;
 
-          let path = '/dashboard/directory'; // A safe default
+          let path = '/dashboard/directory'; // A safe default for non-admins
 
-          if (role === 'admin') {
-            const departmentPath = departmentToPath(department || 'system');
-            path = `/dashboard/admin/${departmentPath}`;
-            
-            // The HR dashboard is now also under /admin/
-            if (department === 'HR/Credentialing') {
-              path = '/dashboard/admin/hr-credentialing';
-            }
-
+          if (role === 'admin' && department && adminDepartmentPaths[department]) {
+              path = adminDepartmentPaths[department];
           } else {
             // Logic for non-admin roles
             switch (role) {
