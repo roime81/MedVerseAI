@@ -38,6 +38,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 const departmentToPath = (department: string): string => {
+  if (!department) return 'system';
   return department.toLowerCase().replace(/[\s/&]+/g, '-');
 };
 
@@ -55,7 +56,20 @@ const getNavItems = (role: string, department?: string) => {
         case 'admin':
             if (department) {
                 const departmentPath = departmentToPath(department);
-                const departmentLabel = department === 'System' ? 'System Overview' : `${department} Dashboard`;
+                let departmentLabel = `${department} Dashboard`;
+                if (department === 'System') {
+                    departmentLabel = 'Access Management';
+                     return [
+                        { href: "/dashboard/admin/system", label: departmentLabel, icon: Home },
+                        { href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
+                        { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
+                        { href: "/dashboard/directory", label: "User Directory", icon: Database },
+                    ];
+                }
+                 if (department === 'HR/Credentialing') {
+                    departmentLabel = 'Credentialing Portal';
+                }
+
                 const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: departmentLabel, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }

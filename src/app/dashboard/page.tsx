@@ -10,6 +10,7 @@ import type { User as AppUser } from '@/lib/schemas';
 
 // Helper to convert department name to a URL slug
 const departmentToPath = (department: string): string => {
+  if (!department) return 'system'; // Default to system if department is not defined
   return department.toLowerCase().replace(/[\s/&]+/g, '-');
 };
 
@@ -38,9 +39,18 @@ export default function DashboardRedirect() {
 
           let path = '/dashboard/directory'; // A safe default
 
-          if (role === 'admin' && department) {
-            const departmentPath = departmentToPath(department);
-            path = `/dashboard/admin/${departmentPath}`;
+          if (role === 'admin') {
+            if (department) {
+                const departmentPath = departmentToPath(department);
+                // Special case for HR/Credentialing as per new dashboard location
+                if (department === 'HR/Credentialing') {
+                    path = `/dashboard/hr-credentialing`;
+                } else {
+                    path = `/dashboard/admin/${departmentPath}`;
+                }
+            } else {
+                path = '/dashboard/admin/system'; // Fallback for admin without department
+            }
           } else {
             // Logic for non-admin roles
             switch (role) {
