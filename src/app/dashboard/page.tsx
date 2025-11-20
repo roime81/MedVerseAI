@@ -40,12 +40,14 @@ export default function DashboardRedirect() {
           let path = '/dashboard/directory'; // A safe default
 
           if (role === 'admin') {
-            if (department) {
-                const departmentPath = departmentToPath(department);
-                path = `/dashboard/admin/${departmentPath}`;
-            } else {
-                path = '/dashboard/admin/system'; // Fallback for admin without department
+            const departmentPath = departmentToPath(department || 'system');
+            path = `/dashboard/admin/${departmentPath}`;
+            
+            // The HR dashboard is now also under /admin/
+            if (department === 'HR/Credentialing') {
+              path = '/dashboard/admin/hr-credentialing';
             }
+
           } else {
             // Logic for non-admin roles
             switch (role) {

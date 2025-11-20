@@ -55,7 +55,10 @@ const getNavItems = (role: string, department?: string) => {
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
             if (department) {
-                 if (department === 'System') {
+                const departmentPath = departmentToPath(department);
+                const departmentLabel = `${department} Dashboard`;
+                
+                if (department === 'System') {
                      return [
                         { href: "/dashboard/admin/system", label: 'Access Management', icon: Home },
                         { href: "/dashboard/admin/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
@@ -63,8 +66,14 @@ const getNavItems = (role: string, department?: string) => {
                         { href: "/dashboard/directory", label: "User Directory", icon: Database },
                     ];
                 }
-                const departmentPath = departmentToPath(department);
-                const departmentLabel = `${department} Dashboard`;
+                
+                if (department === 'HR/Credentialing') {
+                    return [
+                        { href: "/dashboard/admin/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
+                        ...baseNav
+                    ];
+                }
+                
                 const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: departmentLabel, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }
