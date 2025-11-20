@@ -40,9 +40,14 @@ const getNavItems = (role: string, department?: string) => {
     if (role === 'admin') {
         if (department) {
             const departmentSlug = formatDepartmentToSlug(department);
-            return [ { href: `/dashboard/admin/${departmentSlug}`, label: "Admin Dashboard", icon: Shield } ];
+            const departmentNameMap: Record<string, string> = {
+                'system': 'System Overview',
+                'hr-credentialing': 'HR Dashboard',
+            };
+            const label = departmentNameMap[departmentSlug] || 'Admin Dashboard';
+            return [ { href: `/dashboard/admin/${departmentSlug}`, label: label, icon: Shield } ];
         }
-        return []; // Admins without a department see nothing for now
+        return []; // No items if admin has no department
     }
     
     switch(role) {
