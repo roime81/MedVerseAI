@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -611,6 +612,22 @@
         "name": { "type": "string" }
       },
       "required": ["orderId", "name"]
+    },
+    "Claim": {
+      "title": "Claim",
+      "type": "object",
+      "description": "Represents a billing claim for services rendered.",
+      "properties": {
+        "claimId": { "type": "string", "description": "Unique identifier for the claim." },
+        "patientId": { "type": "string", "description": "Link to the Patient." },
+        "encounterId": { "type": "string", "description": "Link to the Encounter." },
+        "payer": { "type": "string", "description": "The insurance company or payer." },
+        "serviceDate": { "type": "string", "format": "date", "description": "Date the service was rendered." },
+        "amount": { "type": "number", "description": "Total amount of the claim." },
+        "status": { "type": "string", "enum": ["Pending", "Denied", "Paid", "In-Review"], "description": "The current status of the claim." },
+        "denialReason": { "type": "string", "description": "Reason for denial, if applicable." }
+      },
+      "required": ["claimId", "patientId", "amount", "status"]
     }
   },
   "firestore": {
@@ -655,6 +672,12 @@
         "$ref": "#/entities/Cost"
       },
       "description": "Sub-collection for a patient's billing costs."
+    },
+    "/patients/{patientId}/claims/{claimId}": {
+      "schema": {
+        "$ref": "#/entities/Claim"
+      },
+      "description": "Sub-collection for a patient's billing claims."
     },
     "/patients/{patientId}/payerPlanPeriods/{payerPlanPeriodId}": {
       "schema": {
