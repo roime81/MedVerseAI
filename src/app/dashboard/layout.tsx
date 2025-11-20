@@ -11,20 +11,15 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { 
     Users, 
-    FileText,
-    Shield, 
     LogOut, 
     Stethoscope, 
     FlaskConical, 
     Scan, 
     Pill, 
     CreditCard,
-    Home,
     Bell,
     Settings,
     Search,
-    UserCog,
-    Database,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -32,22 +27,10 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-const adminDepartmentPathMap: { [key: string]: string } = {
-  'System': '/dashboard/super-admin',
-  'HR/Credentialing': '/dashboard/hr-credentialing',
-  'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
-  'Department Head': '/dashboard/department-head',
-  'IT/IAM': '/dashboard/it-iam',
-  'Cybersecurity': '/dashboard/cybersecurity',
-  'HIS/EMR': '/dashboard/his-emr',
-  'Compliance/Audit': '/dashboard/compliance-audit',
-};
 
-
-const getNavItems = (role: string, department?: string) => {
+const getNavItems = (role: string) => {
     const baseNav = [
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
-        { href: "/dashboard/admin-directory", label: "All Administrators", icon: Shield },
     ];
     
     switch(role) {
@@ -55,24 +38,6 @@ const getNavItems = (role: string, department?: string) => {
             return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, ...baseNav];
         case 'nurse':
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
-        case 'admin':
-            if (department && adminDepartmentPathMap[department]) {
-                const departmentPath = adminDepartmentPathMap[department];
-                const departmentLabel = department;
-                
-                if (department === 'System') {
-                     return [
-                        { href: "/dashboard/super-admin", label: 'Access Management', icon: Home },
-                        { href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
-                        { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
-                        { href: "/dashboard/directory", label: "User Directory", icon: Database },
-                    ];
-                }
-
-                const specificAdminNav = { href: departmentPath, label: `${departmentLabel}`, icon: Shield };
-                return [specificAdminNav, ...baseNav];
-            }
-            return [{ href: "/dashboard/super-admin", label: "Admin Overview", icon: Shield }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
         case 'lab':
@@ -129,7 +94,7 @@ export default function DashboardLayout({
     });
   };
 
-  const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
+  const navItems = appUser ? getNavItems(appUser.role) : [];
 
   if (isUserLoading || !user || !appUser) {
     return (
@@ -139,15 +104,6 @@ export default function DashboardLayout({
     );
   }
   
-  const getInitials = (name: string = '') => {
-    return name
-        .split(' ')
-        .slice(0, 2)
-        .map(n => n[0])
-        .join('')
-        .toUpperCase();
-  };
-
   const isSuperAdmin = appUser?.department === 'System';
 
   return (
@@ -192,7 +148,7 @@ export default function DashboardLayout({
                     <p className="text-sm font-semibold">{appUser.displayName}</p>
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
-                {appUser.department && <Badge variant="outline">{appUser.department === 'System' ? 'Super Admin' : appUser.department}</Badge>}
+                {appUser.department && <Badge variant="outline">{appUser.role === 'admin' ? 'Administrator' : appUser.department}</Badge>}
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
                 </Button>

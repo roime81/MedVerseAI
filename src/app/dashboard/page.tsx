@@ -8,18 +8,6 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
-// This is a hardcoded map for direct, explicit routing. This is the source of truth.
-const adminDepartmentPathMap: { [key: string]: string } = {
-  'System': '/dashboard/super-admin',
-  'HR/Credentialing': '/dashboard/hr-credentialing',
-  'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
-  'Department Head': '/dashboard/department-head',
-  'IT/IAM': '/dashboard/it-iam',
-  'Cybersecurity': '/dashboard/cybersecurity',
-  'HIS/EMR': '/dashboard/his-emr',
-  'Compliance/Audit': '/dashboard/compliance-audit',
-};
-
 
 export default function DashboardRedirect() {
   const { user, isUserLoading } = useUser();
@@ -42,34 +30,32 @@ export default function DashboardRedirect() {
         if (userDoc.exists()) {
           const userData = userDoc.data() as AppUser;
           const role = userData.role;
-          const department = userData.department;
-
+          
           let path = '/dashboard/directory'; // A safe default
 
-          if (role === 'admin' && department && adminDepartmentPathMap[department]) {
-              path = adminDepartmentPathMap[department];
-          } else {
-            // Logic for non-admin roles
-            switch (role) {
-              case 'physician':
-                path = '/dashboard/physician';
-                break;
-              case 'nurse':
-                path = '/dashboard/nurse';
-                break;
-              case 'radiology':
-                path = '/dashboard/radiology';
-                break;
-              case 'lab':
-                path = '/dashboard/lab';
-                break;
-              case 'billing':
-                path = '/dashboard/billing';
-                break;
-              case 'pharmacist':
-                path = '/dashboard/pharmacist';
-                break;
-            }
+          switch (role) {
+            case 'physician':
+              path = '/dashboard/physician';
+              break;
+            case 'nurse':
+              path = '/dashboard/nurse';
+              break;
+            case 'radiology':
+              path = '/dashboard/radiology';
+              break;
+            case 'lab':
+              path = '/dashboard/lab';
+              break;
+            case 'billing':
+              path = '/dashboard/billing';
+              break;
+            case 'pharmacist':
+              path = '/dashboard/pharmacist';
+              break;
+            case 'admin':
+              // All admins now go to the directory page as per the new requirement
+              path = '/dashboard/directory';
+              break;
           }
           
           router.push(path);
