@@ -30,52 +30,67 @@ export default function DashboardRedirect() {
         const role = userData.role;
         const department = userData.department;
 
+        let path = '';
+
         if (role === 'admin') {
-          if (department === 'System') {
-            router.push('/dashboard/super-admin');
-            return;
+          switch (department) {
+            case 'System':
+              path = '/dashboard/super-admin';
+              break;
+            case 'Medical Affairs/Clinical Gov':
+              path = '/dashboard/admin/medical-affairs-clinical-gov';
+              break;
+            case 'IT/IAM':
+              path = '/dashboard/admin/it-iam';
+              break;
+            case 'Cybersecurity':
+              path = '/dashboard/admin/cybersecurity';
+              break;
+            case 'Compliance/Audit':
+              path = '/dashboard/admin/compliance-audit';
+              break;
+            // Add other specific admin department routes here
+            default:
+              // Fallback for general admins or unhandled departments
+              path = '/dashboard/admin';
+              break;
           }
-          if (department === 'Medical Affairs/Clinical Gov') {
-            router.push('/dashboard/admin/medical-affairs-clinical-gov');
-            return;
+        } else {
+          switch (role) {
+            case 'physician':
+              path = '/dashboard/physician';
+              break;
+            case 'nurse':
+              path = '/dashboard/nurse';
+              break;
+            case 'radiology':
+              path = '/dashboard/radiology';
+              break;
+            case 'lab':
+              path = '/dashboard/lab';
+              break;
+            case 'billing':
+              path = '/dashboard/billing';
+              break;
+            case 'pharmacist':
+              path = '/dashboard/pharmacist';
+              break;
+            default:
+              // Default redirect for any other roles
+              path = '/dashboard/directory';
+              break;
           }
-          if (department) {
-            const departmentPath = department.toLowerCase().replace(/[\s/]+/g, '-');
-            router.push(`/dashboard/admin/${departmentPath}`);
-            return;
-          }
+        }
+        
+        if (path) {
+          router.push(path);
+        } else {
+          // If no path is determined, go to a safe default
+          router.push('/dashboard/directory');
         }
 
-        switch (role) {
-          case 'physician':
-            router.push('/dashboard/physician');
-            break;
-          case 'nurse':
-            router.push('/dashboard/nurse');
-            break;
-          case 'admin':
-            // A fallback for admins without a specific department dashboard
-            router.push('/dashboard/admin');
-            break;
-          case 'radiology':
-            router.push('/dashboard/radiology');
-            break;
-          case 'lab':
-            router.push('/dashboard/lab');
-            break;
-          case 'billing':
-            router.push('/dashboard/billing');
-            break;
-          case 'pharmacist':
-            router.push('/dashboard/pharmacist');
-            break;
-          default:
-            // Default redirect for unknown roles
-            router.push('/dashboard/directory');
-            break;
-        }
       } else {
-        // Handle case where user document doesn't exist, maybe redirect to an error page or default
+        // Handle case where user document doesn't exist
         console.error("User document not found in Firestore.");
         router.push('/login');
       }

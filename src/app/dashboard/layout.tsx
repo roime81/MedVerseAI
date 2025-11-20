@@ -25,7 +25,8 @@ import {
     ShieldAlert,
     Bell,
     Settings,
-    Search
+    Search,
+    ClipboardCheck, // Added for Compliance
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -59,7 +60,7 @@ const getNavItems = (role: string, department?: string) => {
                  ]
             }
              if (department === 'IT/IAM') {
-                 return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: Stethoscope }, ...baseNav]
+                 return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: Users }, ...baseNav]
             }
             if (department === 'Cybersecurity') {
                  return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav]
@@ -70,7 +71,8 @@ const getNavItems = (role: string, department?: string) => {
             if (department === 'Medical Affairs/Clinical Gov') {
                 return [{ href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav]
             }
-            return [{ href: "/dashboard/admin", label: "Admin Overview", icon: Stethoscope }, ...baseNav];
+            // Fallback for general admin role
+            return [{ href: "/dashboard/admin", label: "Admin Overview", icon: Shield }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
         case 'lab':
