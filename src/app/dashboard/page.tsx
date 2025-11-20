@@ -42,7 +42,7 @@ export default function DashboardRedirect() {
                 path = '/dashboard/super-admin';
             } else {
                 // Generate path from department name
-                path = `/dashboard/admin/${departmentToPath(department)}`;
+                path = `/dashboard/super-admin/${departmentToPath(department)}`;
             }
         } else {
           switch (role) {
@@ -73,11 +73,14 @@ export default function DashboardRedirect() {
         if (path) {
           router.push(path);
         } else {
+          // Fallback for any unhandled cases
           router.push('/dashboard/directory');
         }
 
       } else {
         console.error("User document not found in Firestore.");
+        // If the user is authenticated but has no firestore doc, redirect to login
+        // to prevent being stuck in a loop.
         router.push('/login');
       }
     };
