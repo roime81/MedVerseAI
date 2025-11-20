@@ -37,7 +37,7 @@ export default function DashboardRedirect() {
           if (role === 'admin') {
             if (department === 'System') {
                 path = '/dashboard/admin/system';
-            } else if (department) {
+            } else if (department && typeof department === 'string' && department.trim() !== '') {
                 // For other admins, create a URL-friendly slug from their department
                 const slug = department.toLowerCase().replace(/[\s/]+/g, '-').replace(/[\\?%*:|"<>]/g, '');
                 path = `/dashboard/admin/${slug}`;
