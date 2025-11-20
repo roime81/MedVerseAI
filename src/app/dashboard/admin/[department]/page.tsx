@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -7,7 +8,7 @@ import SuperAdminDashboard from '@/app/dashboard/admin/system/page';
 
 // A mapping from the department slug in the URL to the corresponding dashboard component.
 const dashboardMap: Record<string, React.ComponentType> = {
-  'super-admin': SuperAdminDashboard,
+  'system': SuperAdminDashboard,
   'hr-credentialing': HrCredentialingDashboard,
   // Add other admin dashboards here as they are created
   // 'it-iam': ITDashboard,
@@ -15,7 +16,7 @@ const dashboardMap: Record<string, React.ComponentType> = {
 };
 
 const departmentNameMap: Record<string, string> = {
-    'super-admin': 'System Administration',
+    'system': 'System Administration',
     'hr-credentialing': 'HR & Medical Credentialing',
 }
 

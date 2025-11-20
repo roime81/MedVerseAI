@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase';
@@ -34,18 +35,17 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 const formatDepartmentToSlug = (department: string) => {
+    if (department === 'System') return 'system';
     return department.toLowerCase().replace(/[\s/]+/g, '-');
 }
 
 const getNavItems = (role: string, department?: string) => {
 
     if (role === 'admin') {
-        const departmentSlug = department ? formatDepartmentToSlug(department) : '';
-
         // Super admin has a unique sidebar
-        if (department === 'System') { // Use the raw department name for checking
+        if (department === 'System') {
             return [
-                { href: `/dashboard/admin/super-admin`, label: "Home / Overview", icon: Home, section: 'main' },
+                { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home, section: 'main' },
                 { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
                 { href: "/dashboard/admin/requests", label: "Requests & Approvals", icon: GitPullRequest, section: 'main' },
                 { href: "/dashboard/admin/escalations", label: "Escalations", icon: AlertCircle, section: 'main' },
@@ -57,11 +57,12 @@ const getNavItems = (role: string, department?: string) => {
 
         // Other admins
         if (department) {
+            const departmentSlug = formatDepartmentToSlug(department);
             const departmentNameMap: Record<string, string> = {
                 'hr-credentialing': 'HR Dashboard',
             };
             const label = departmentNameMap[departmentSlug] || 'Admin Dashboard';
-            return [ { href: `/dashboard/admin/${departmentSlug}`, label: label, icon: Shield } ];
+            return [ { href: `/dashboard/admin/${departmentSlug}`, label: label, icon: Shield, section: 'main' } ];
         }
         return []; // No items if admin has no department
     }

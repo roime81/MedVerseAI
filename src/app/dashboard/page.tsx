@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -56,8 +57,9 @@ export default function DashboardRedirect() {
               break;
             case 'admin':
               if (userData.department) {
+                // Explicitly check for Super Admin's department
                 if (userData.department === 'System') {
-                  path = '/dashboard/admin/super-admin';
+                  path = '/dashboard/admin/system';
                 } else {
                   const departmentSlug = formatDepartmentToSlug(userData.department);
                   path = `/dashboard/admin/${departmentSlug}`;
