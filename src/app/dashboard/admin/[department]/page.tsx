@@ -4,11 +4,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { Shield } from 'lucide-react';
-import { sampleUsers } from '@/lib/sample-data';
+import { generatedData } from '@/lib/sample-data';
 
 // Helper to convert URL slug back to department name
 const slugToDepartmentName = (slug: string): string => {
-    for (const user of sampleUsers) {
+    for (const user of generatedData.sampleUsers) {
         if (user.department && user.department.toLowerCase().replace(/[\s/&]+/g, '-') === slug) {
             return user.department;
         }
