@@ -55,7 +55,8 @@ const getNavItems = (role: string, department?: string) => {
         case 'admin':
             if (department) {
                 const departmentPath = departmentToPath(department);
-                const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: `${department} Dashboard`, icon: Shield };
+                const departmentLabel = department === 'System' ? 'System Overview' : `${department} Dashboard`;
+                const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: departmentLabel, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }
             // Fallback for admin with no department

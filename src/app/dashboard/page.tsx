@@ -39,8 +39,8 @@ export default function DashboardRedirect() {
           let path = '/dashboard/directory'; // A safe default
 
           if (role === 'admin' && department) {
-            // This is the corrected, explicit logic for admin routing
-            path = `/dashboard/admin/${departmentToPath(department)}`;
+            const departmentPath = departmentToPath(department);
+            path = `/dashboard/admin/${departmentPath}`;
           } else {
             // Logic for non-admin roles
             switch (role) {
@@ -62,7 +62,6 @@ export default function DashboardRedirect() {
               case 'pharmacist':
                 path = '/dashboard/pharmacist';
                 break;
-              // default is already set
             }
           }
           
