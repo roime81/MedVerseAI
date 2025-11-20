@@ -8,6 +8,16 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
+const departmentToPathMap = {
+    'System': '/dashboard/super-admin',
+    'HR/Credentialing': '/dashboard/hr-credentialing',
+    'Medical Affairs/Clinical Gov': '/dashboard/medical-affairs-clinical-gov',
+    'Department Head': '/dashboard/department-head',
+    'IT/IAM': '/dashboard/it-iam',
+    'Cybersecurity': '/dashboard/cybersecurity',
+    'HIS/EMR': '/dashboard/his-emr',
+    'Compliance/Audit': '/dashboard/compliance-audit'
+};
 
 export default function DashboardRedirect() {
   const { user, isUserLoading } = useUser();
@@ -34,9 +44,7 @@ export default function DashboardRedirect() {
           let path = '/dashboard/directory'; // A safe default
 
           if (role === 'admin') {
-            if (userData.department === 'System') {
-                path = '/dashboard/super-admin';
-            }
+              path = departmentToPathMap[userData.department] || '/dashboard/directory';
           } else {
              switch (role) {
                 case 'physician':

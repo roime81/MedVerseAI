@@ -20,14 +20,21 @@ export function WeeklyLoginsChart() {
         <LineChart
           data={data}
           margin={{
-            top: 5, right: 30, left: 20, bottom: 5,
+            top: 5, right: 30, left: 0, bottom: 5,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="logins" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+          <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+          <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+          <Tooltip 
+            contentStyle={{
+              backgroundColor: 'hsl(var(--background))',
+              borderColor: 'hsl(var(--border))',
+              color: 'hsl(var(--foreground))'
+            }}
+            labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
+          />
+          <Line type="monotone" dataKey="logins" name="Access Changes" stroke="#38bdf8" strokeWidth={2} activeDot={{ r: 8, fill: '#38bdf8' }} dot={{ fill: '#38bdf8', r: 4 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

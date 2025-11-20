@@ -10,6 +10,7 @@ import { useAuth, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { 
+    Home,
     Users, 
     LogOut, 
     Stethoscope, 
@@ -21,6 +22,10 @@ import {
     Settings,
     Search,
     Shield,
+    FileText,
+    BarChart,
+    AlertTriangle,
+    FileCheck,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -34,10 +39,17 @@ const getNavItems = (role: string, department?: string) => {
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
     ];
 
-    if (role === 'admin') {
-        if (department === 'System') {
-            return [ { href: "/dashboard/super-admin", label: "Access Management", icon: Shield }, ...baseNav];
-        }
+    if (role === 'admin' && department === 'System') {
+        return [ 
+            { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
+            { href: "/dashboard/directory", label: "User Directory", icon: Users },
+            { href: "/dashboard/requests-approvals", label: "Requests & Approvals", icon: FileCheck },
+            { href: "/dashboard/escalations", label: "Escalations", icon: AlertTriangle },
+            { href: "/dashboard/monitoring-alerts", label: "Monitoring & Alerts", icon: BarChart },
+            { href: "/dashboard/reports", label: "Reports", icon: FileText },
+            { isSeparator: true, label: "ADMINISTRATION" },
+            { href: "/dashboard/admins-config", label: "Admins & Config", icon: Shield },
+        ];
     }
     
     switch(role) {
@@ -102,6 +114,8 @@ export default function DashboardLayout({
   };
 
   const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
+  const isSuperAdmin = appUser?.department === 'System';
+
 
   if (isUserLoading || !user || !appUser) {
     return (
@@ -110,17 +124,18 @@ export default function DashboardLayout({
       </div>
     );
   }
-  
-  const isSuperAdmin = appUser?.department === 'System';
 
   return (
     <div className="flex h-screen w-full font-sans bg-slate-50">
-      <aside className="w-64 flex flex-col border-r bg-white text-foreground">
-        <div className="p-4 border-b h-[65px] flex items-center">
-            <Logo variant="light" isSuperAdmin={isSuperAdmin} />
+      <aside className={cn("flex flex-col border-r text-foreground", isSuperAdmin ? "w-64 bg-black text-white" : "w-64 bg-white")}>
+        <div className="p-4 border-b h-[65px] flex items-center" style={{ borderColor: isSuperAdmin ? 'rgba(255, 255, 255, 0.1)' : '' }}>
+            <Logo variant={isSuperAdmin ? 'dark' : 'light'} isSuperAdmin={isSuperAdmin} />
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-            {navItems.map((item) => {
+        <nav className="flex-1 p-4 space-y-1">
+            {navItems.map((item, index) => {
+                if(item.isSeparator) {
+                    return <p key={index} className="px-2 pt-4 pb-2 text-xs font-semibold uppercase text-slate-400 tracking-wider">{item.label}</p>
+                }
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 return (
@@ -128,12 +143,17 @@ export default function DashboardLayout({
                         key={item.href}
                         variant={isActive ? 'secondary' : 'ghost'}
                         className={cn("w-full justify-start text-sm", 
-                            isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
+                            isSuperAdmin ? 
+                            (isActive ? "bg-slate-700 text-white font-semibold" : "text-slate-300 hover:bg-slate-800 hover:text-white")
+                            : (isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground")
                         )}
                         asChild
                     >
                         <Link href={item.href}>
-                            <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary": "text-muted-foreground")} />
+                            <Icon className={cn("mr-3 h-5 w-5", 
+                                isSuperAdmin ? (isActive ? "text-white" : "text-slate-400")
+                                : (isActive ? "text-primary": "text-muted-foreground")
+                            )} />
                             {item.label}
                         </Link>
                     </Button>
@@ -143,26 +163,26 @@ export default function DashboardLayout({
       </aside>
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-[65px] items-center justify-between border-b bg-white px-6">
+        <header className={cn("flex h-[65px] items-center justify-between border-b px-6", isSuperAdmin ? "bg-black" : "bg-white")}>
             <div className="flex-1">
                  <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search people, roles, emails, staff ID..." className="pl-10 bg-slate-100 border-slate-200" />
+                    <Input placeholder="Search people, roles, emails, staff ID..." className={cn("pl-10 border-border", isSuperAdmin ? "bg-slate-800 border-slate-700 text-white" : "bg-slate-100 border-slate-200" )}/>
                 </div>
             </div>
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <p className="text-sm font-semibold">{appUser.displayName}</p>
+                    <p className={cn("text-sm font-semibold", isSuperAdmin ? "text-white" : "text-foreground")}>{appUser.displayName}</p>
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
-                {appUser.department && <Badge variant="outline">{appUser.role === 'admin' ? 'Administrator' : appUser.department}</Badge>}
-                <Button variant="ghost" size="icon">
+                {appUser.department && <Badge variant={isSuperAdmin ? "default" : "outline"} className={cn(isSuperAdmin && "bg-primary")}>{appUser.role === 'admin' ? appUser.department : appUser.department}</Badge>}
+                <Button variant="ghost" size="icon" className={cn(isSuperAdmin && "text-slate-400 hover:text-white hover:bg-slate-800")}>
                     <Bell className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className={cn(isSuperAdmin && "text-slate-400 hover:text-white hover:bg-slate-800")}>
                     <Settings className="h-5 w-5" />
                 </Button>
-                <Button variant="outline" onClick={handleSignOut}>
+                <Button variant={isSuperAdmin ? "outline" : "outline"} onClick={handleSignOut} className={cn(isSuperAdmin && "border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white")}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                 </Button>
