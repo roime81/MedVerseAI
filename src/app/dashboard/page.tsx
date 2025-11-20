@@ -40,6 +40,8 @@ export default function DashboardRedirect() {
         if (role === 'admin') {
             if (department === 'System') {
                 path = '/dashboard/super-admin';
+            } else if (department === 'HR/Credentialing') {
+                path = '/dashboard/hr-credentialing';
             } else if (department) {
                 // Generic handler for other admin departments
                 path = `/dashboard/${departmentToPath(department)}`;
@@ -68,22 +70,17 @@ export default function DashboardRedirect() {
               path = '/dashboard/pharmacist';
               break;
             default:
-              path = '/dashboard/directory';
+              path = '/dashboard/directory'; // A safe default
               break;
           }
         }
         
         if (path) {
           router.push(path);
-        } else {
-          // Fallback for any unhandled cases
-          router.push('/dashboard/directory');
         }
 
       } else {
         console.error("User document not found in Firestore.");
-        // If the user is authenticated but has no firestore doc, redirect to login
-        // to prevent being stuck in a loop.
         router.push('/login');
       }
     };
