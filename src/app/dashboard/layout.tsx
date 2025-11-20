@@ -29,8 +29,11 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
+const formatDepartmentToSlug = (department: string) => {
+    return department.toLowerCase().replace(/[\s/]+/g, '-');
+}
 
-const getNavItems = (role: string) => {
+const getNavItems = (role: string, department?: string) => {
     const baseNav = [
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
     ];
@@ -49,6 +52,10 @@ const getNavItems = (role: string) => {
         case 'pharmacist':
             return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, ...baseNav];
         case 'admin':
+            if (department) {
+                 const departmentSlug = formatDepartmentToSlug(department);
+                 return [ { href: `/dashboard/admin/${departmentSlug}`, label: "Admin Dashboard", icon: Shield } ];
+            }
             return [ { href: "/dashboard/directory", label: "Directory", icon: Users } ];
         default:
             return baseNav;
@@ -98,7 +105,7 @@ export default function DashboardLayout({
     });
   };
 
-  const navItems = appUser ? getNavItems(appUser.role) : [];
+  const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
   const isSuperAdmin = appUser?.department === 'System';
 
 
@@ -119,7 +126,7 @@ export default function DashboardLayout({
         <nav className="flex-1 p-4 space-y-1">
             {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href;
+                const isActive = pathname.startsWith(item.href);
                 return (
                     <Button
                         key={item.href}

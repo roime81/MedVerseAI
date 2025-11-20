@@ -8,6 +8,10 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
+const formatDepartmentToSlug = (department: string) => {
+    return department.toLowerCase().replace(/[\s/]+/g, '-');
+}
+
 export default function DashboardRedirect() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -52,8 +56,12 @@ export default function DashboardRedirect() {
               path = '/dashboard/pharmacist';
               break;
             case 'admin':
-              // All admins now go to the directory
-              path = '/dashboard/directory';
+              if (userData.department) {
+                const departmentSlug = formatDepartmentToSlug(userData.department);
+                path = `/dashboard/admin/${departmentSlug}`;
+              } else {
+                path = '/dashboard/directory'; // Fallback for admins without a department
+              }
               break;
           }
           
