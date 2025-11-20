@@ -18,12 +18,11 @@ export function CredentialsByTypeChart() {
         <div key={item.type} className="flex items-center justify-between p-4 rounded-lg border bg-slate-50">
           <div>
             <p className="font-semibold text-foreground">{item.type}</p>
-            <p className="text-sm text-muted-foreground">{item.active} active credentials</p>
+            <p className="text-sm text-muted-foreground">{item.active} active</p>
           </div>
           <div className="flex items-center gap-4">
              <div className="text-right">
-                <p className="font-semibold text-destructive">{item.expiring}</p>
-                <p className="text-xs text-muted-foreground">Expiring soon</p>
+                <p className="font-semibold text-destructive">{item.expiring} expiring</p>
              </div>
              <Button size="sm" variant="destructive">Track</Button>
           </div>

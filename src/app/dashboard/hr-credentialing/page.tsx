@@ -31,9 +31,9 @@ const StatCard = ({ title, value, icon: Icon, iconBgColor = 'bg-gray-100', iconC
 
 
 const expiringCredentials = [
-  { name: 'Dr. Emily Carter', role: 'MD', license: 'Medical License - MD-12345', expires: '2025-11-15' },
-  { name: 'Dr. Michael Ross', role: 'DO', license: 'DEA Registration - R-DEA-987654321', expires: '2025-12-01' },
-  { name: 'Nurse Patricia Lee', role: 'RN', license: 'RN License - RN-012345', expires: '2025-12-31' },
+  { name: 'Dr. Emily Carter', role: 'MD', license: 'Medical License - MD-12345', expires: '2025-08-24', daysLeft: 2 },
+  { name: 'Dr. Michael Ross', role: 'DO', license: 'DEA Registration - R-DEA-987654321', expires: '2025-09-08', daysLeft: 16 },
+  { name: 'Nurse Patricia Lee', role: 'RN', license: 'RN License - RN-012345', expires: '2025-09-29', daysLeft: 28 },
 ];
 
 const onboardingPipeline = [
@@ -61,7 +61,7 @@ export default function HRCredentialingPage() {
             <div className="flex gap-6">
                 <StatCard title="Ongoing Onboarding" value="12" icon={Clock} iconBgColor="bg-orange-100" iconColor="text-orange-600" />
                 <StatCard title="Expiring Credentials" value="28" icon={AlertTriangle} iconBgColor="bg-yellow-100" iconColor="text-yellow-600" isAlert={true} alertCount={3}/>
-                <StatCard title="Completed This Week" value="45" icon={CheckCircle} iconBgColor="bg-green-100" iconColor="text-green-600" />
+                <StatCard title="Completed This Month" value="45" icon={CheckCircle} iconBgColor="bg-green-100" iconColor="text-green-600" />
                 <StatCard title="Credential Verifications" value="8" icon={FileText} iconBgColor="bg-blue-100" iconColor="text-blue-600"/>
             </div>
 
@@ -77,7 +77,9 @@ export default function HRCredentialingPage() {
                     {expiringCredentials.map(item => (
                          <div key={item.name} className="flex items-center justify-between p-4 bg-white rounded-lg border border-yellow-200">
                             <div>
-                                <p className="font-semibold text-foreground flex items-center">{item.name} <Badge variant="destructive" className="ml-2">Expiring</Badge></p>
+                                <p className="font-semibold text-foreground flex items-center">{item.name} 
+                                <Badge variant="destructive" className="ml-2">{item.daysLeft} days left</Badge>
+                                </p>
                                 <p className="text-sm text-muted-foreground">{item.license}</p>
                                 <p className="text-xs text-muted-foreground mt-1">Expires: {item.expires}</p>
                             </div>
@@ -108,6 +110,7 @@ export default function HRCredentialingPage() {
                                         {item.name}
                                         {item.priority === 'high' && <Badge variant="destructive" className="ml-2">High</Badge>}
                                         {item.priority === 'medium' && <Badge variant="secondary" className="ml-2 bg-yellow-200 text-yellow-800">Medium</Badge>}
+                                        {item.priority === 'low' && <Badge variant="secondary" className="ml-2 bg-slate-200 text-slate-800">Low</Badge>}
                                     </p>
                                     <span className="text-sm font-semibold">{item.progress}%</span>
                                 </div>
