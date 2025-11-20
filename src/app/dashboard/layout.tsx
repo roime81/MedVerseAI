@@ -43,7 +43,6 @@ const getNavItems = (role: string, department?: string) => {
         if (department === 'System') {
             return [ 
                 { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
-                { href: "/dashboard/directory", label: "User Directory", icon: Users },
                 { href: "/dashboard/requests-approvals", label: "Requests & Approvals", icon: FileCheck },
                 { href: "/dashboard/escalations", label: "Escalations", icon: AlertTriangle },
                 { href: "/dashboard/monitoring-alerts", label: "Monitoring & Alerts", icon: BarChart },
@@ -53,7 +52,7 @@ const getNavItems = (role: string, department?: string) => {
             ];
         }
         if (department === 'HR/Credentialing') {
-             return [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }, ...baseNav];
+             return [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: Stethoscope }];
         }
     }
     
