@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { HrCredentialingDashboard } from '@/components/dashboard/admin/hr-credentialing-dashboard';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import SuperAdminDashboard from '@/app/dashboard/admin/system/page';
 import { notFound } from 'next/navigation';
 
@@ -15,12 +14,6 @@ const dashboardMap: Record<string, React.ComponentType> = {
   // 'it-iam': ITDashboard,
   // 'cybersecurity': CybersecurityDashboard,
 };
-
-// A mapping for display names
-const departmentNameMap: Record<string, string> = {
-    'system': 'System Administration',
-    'hr-credentialing': 'HR & Medical Credentialing',
-}
 
 
 export default function AdminDepartmentPage({ params }: { params: { department: string } }) {

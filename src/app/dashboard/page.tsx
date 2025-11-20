@@ -77,7 +77,7 @@ export default function DashboardRedirect() {
             }
           }
           
-          router.push(path);
+          router.replace(path);
 
         } else {
           console.error("User document not found in Firestore. Redirecting to login.");
@@ -103,3 +103,4 @@ export default function DashboardRedirect() {
     </div>
   );
 }
+

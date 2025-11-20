@@ -27,6 +27,7 @@ import {
     AlertCircle,
     Monitor,
     ShieldCheck,
+    Loader2,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -48,7 +49,6 @@ const getNavItems = (role: string, department?: string) => {
         if (department === 'System') {
             return [
                 { href: `/dashboard/admin/system`, label: "Home / Overview", icon: Home, section: 'main' },
-                { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
                 { href: "/dashboard/admin/requests", label: "Requests & Approvals", icon: GitPullRequest, section: 'main' },
                 { href: "/dashboard/admin/escalations", label: "Escalations", icon: AlertCircle, section: 'main' },
                 { href: "/dashboard/admin/monitoring", label: "Monitoring & Alerts", icon: Monitor, section: 'main' },
@@ -104,57 +104,77 @@ export default function DashboardLayout({
   const auth = useAuth();
   const firestore = useFirestore();
   const [appUser, setAppUser] = useState<AppUser | null>(null);
+  const [isAppUserLoading, setIsAppUserLoading] = useState(true);
 
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    // If Firebase auth is still loading, do nothing.
+    if (isUserLoading) return;
+    
+    // If Firebase auth has loaded and there's no user, redirect to login.
+    if (!user) {
       router.push('/login');
+      return;
     }
-  }, [user, isUserLoading, router]);
 
-  useEffect(() => {
-    const fetchUserRole = async (firebaseUser: FirebaseUser) => {
-        if (!firestore) return;
-        const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-            setAppUser(userDoc.data() as AppUser);
-        } else {
-            console.error("Could not find user document in Firestore for logged in user.");
-            // Optional: sign out and redirect if user doc is missing
-            if (auth) {
-                signOut(auth).then(() => router.push('/login'));
+    // If we have a user but haven't fetched their Firestore profile yet.
+    if (user && !appUser) {
+        const fetchUserRole = async (firebaseUser: FirebaseUser) => {
+            if (!firestore) return;
+            setIsAppUserLoading(true);
+            const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+            try {
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    setAppUser(userDoc.data() as AppUser);
+                } else {
+                    console.error("Could not find user document in Firestore for logged in user.");
+                    if (auth) {
+                        await signOut(auth);
+                    }
+                    router.push('/login');
+                }
+            } catch (error) {
+                console.error("Error fetching user document:", error);
+                 if (auth) {
+                    await signOut(auth);
+                }
+                router.push('/login');
+            } finally {
+                setIsAppUserLoading(false);
             }
-        }
-    };
+        };
 
-    if(user) {
         fetchUserRole(user);
+    } else if (appUser) {
+        setIsAppUserLoading(false);
     }
-  }, [user, firestore, auth, router]);
+  }, [user, appUser, isUserLoading, firestore, auth, router]);
 
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (!auth) return;
-    signOut(auth).then(() => {
-      router.push('/login');
-    });
+    await signOut(auth);
+    router.push('/login');
   };
 
-  const navItems = appUser ? getNavItems(appUser.role, appUser.department) : [];
-  const isSuperAdmin = appUser?.role === 'admin' && appUser?.department === 'System';
-
-  const mainNavItems = navItems.filter(item => item.section === 'main');
-  const adminNavItems = navItems.filter(item => item.section === 'administration');
-
-
-  if (isUserLoading || !user || !appUser) {
+  // Do not render anything until both Firebase Auth and Firestore Profile are loaded
+  if (isUserLoading || isAppUserLoading || !appUser) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <p>Loading...</p>
+        <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
+
+  // Now we are sure appUser is loaded
+  const navItems = getNavItems(appUser.role, appUser.department);
+  const isSuperAdmin = appUser.role === 'admin' && appUser.department === 'System';
+  const mainNavItems = navItems.filter(item => item.section === 'main');
+  const adminNavItems = navItems.filter(item => item.section === 'administration');
 
   return (
     <div className="flex h-screen w-full font-sans bg-slate-100">
