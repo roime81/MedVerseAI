@@ -117,12 +117,11 @@ export default function DashboardLayout({
                 const currentPath = pathname;
                 
                 let targetPath;
-                if (firebaseUser.email === 'super.admin@medverse.com' || (userData.role === 'admin' && userData.department === 'System')) {
+                if (firebaseUser.email === 'super.admin@medverse.com') {
                     targetPath = '/dashboard/admin/system';
-                } else if (userData.role === 'admin' && userData.department === 'HR/Credentialing') {
+                } else if (firebaseUser.email === 'hr.credentialing@medverse.com') {
                     targetPath = '/dashboard/hr';
-                }
-                else {
+                } else {
                     switch (role) {
                         case 'admin':
                             targetPath = '/dashboard/directory';
@@ -151,7 +150,6 @@ export default function DashboardLayout({
                     }
                 }
                 
-                // Only redirect if we are at the base dashboard URL, to avoid loops
                 if (currentPath === '/dashboard' || currentPath === '/dashboard/') {
                     router.replace(targetPath);
                 } else {
@@ -297,3 +295,5 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+    
