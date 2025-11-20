@@ -95,7 +95,7 @@ export function LoginForm() {
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        const sampleUser = sampleUsers.find(u => u.email === user.email || u.email.split('@')[0].includes(user.displayName?.split(' ')[0].toLowerCase() || ''))
+        const sampleUser = sampleUsers.find(u => u.email === user.email || u.displayName === user.displayName);
         const role = sampleUser ? sampleUser.role : 'physician';
         const department = sampleUser ? sampleUser.department : undefined;
 
@@ -123,7 +123,7 @@ export function LoginForm() {
             <div className="mb-4 flex justify-center">
                 <Logo className="justify-center" />
             </div>
-            <CardTitle className="sr-only">MedVerseAI</CardTitle>
+            <CardTitle className="sr-only">MedVerse Access Hub</CardTitle>
             <CardDescription className="text-muted-foreground">The AI-powered clinical dashboard</CardDescription>
         </CardHeader>
         <CardContent>
@@ -166,3 +166,5 @@ export function LoginForm() {
     </Card>
   );
 }
+
+    

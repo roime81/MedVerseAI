@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Users, UserPlus, UserMinus, AlertTriangle, Clock, CalendarOff, FileText, CheckCircle, Shield, ExternalLink } from 'lucide-react';
 import { WeeklyLoginsChart } from '@/components/dashboard/medical-affairs/weekly-logins-chart';
 import { cn } from '@/lib/utils';
+import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 
 const StatCard = ({ icon: Icon, title, value, description, footer, iconBgColor = 'bg-gray-100', iconColor = 'text-gray-600', isAlert = false }) => (
   <Card className={cn("bg-white shadow-sm hover:shadow-md transition-shadow", isAlert && "border-red-200")}>
@@ -49,10 +50,10 @@ const QuickAction = ({ icon: Icon, title }) => (
 export default function SuperAdminDashboardPage() {
   return (
     <div className="flex flex-col h-full bg-slate-100 text-foreground">
-        <div className="p-6">
-            <h1 className="text-xl font-bold text-foreground">Access Management Overview</h1>
-            <p className="text-muted-foreground text-sm">Super Admin - Identity & access monitoring and control</p>
-        </div>
+        <DashboardHeader
+            title="Access Management Overview"
+            description="Super Admin - Identity & access monitoring and control"
+        />
 
         <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-6">
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -169,3 +170,5 @@ export default function SuperAdminDashboardPage() {
     </div>
   );
 }
+
+    

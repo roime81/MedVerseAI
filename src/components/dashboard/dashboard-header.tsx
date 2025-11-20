@@ -22,7 +22,7 @@ export function DashboardHeader({ title, description, showShiftTime = false, chi
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-foreground">{title || user?.displayName}</h2>
+                    <h1 className="text-xl font-bold text-foreground">{title || user?.displayName}</h1>
                     <p className="text-sm text-muted-foreground">{description}</p>
                 </div>
                 {showShiftTime && (
@@ -42,3 +42,5 @@ export function DashboardHeader({ title, description, showShiftTime = false, chi
     </div>
   );
 }
+
+    

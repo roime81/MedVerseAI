@@ -31,19 +31,19 @@ export default function DashboardRedirect() {
         const department = userData.department;
 
         if (role === 'admin') {
-            if (department === 'System') {
-                router.push('/dashboard/super-admin');
-                return;
-            }
-             if (department === 'Medical Affairs/Clinical Gov') {
-                router.push('/dashboard/admin/medical-affairs-clinical-gov');
-                return;
-            }
-            if (department) {
-                const departmentPath = department.toLowerCase().replace(/[\s/]+/g, '-');
-                router.push(`/dashboard/admin/${departmentPath}`);
-                return;
-            }
+          if (department === 'System') {
+            router.push('/dashboard/super-admin');
+            return;
+          }
+          if (department === 'Medical Affairs/Clinical Gov') {
+            router.push('/dashboard/admin/medical-affairs-clinical-gov');
+            return;
+          }
+          if (department) {
+            const departmentPath = department.toLowerCase().replace(/[\s/]+/g, '-');
+            router.push(`/dashboard/admin/${departmentPath}`);
+            return;
+          }
         }
 
         switch (role) {
@@ -54,7 +54,7 @@ export default function DashboardRedirect() {
             router.push('/dashboard/nurse');
             break;
           case 'admin':
-             // A fallback for admins without a specific department dashboard
+            // A fallback for admins without a specific department dashboard
             router.push('/dashboard/admin');
             break;
           case 'radiology':
@@ -91,3 +91,5 @@ export default function DashboardRedirect() {
     </div>
   );
 }
+
+    
