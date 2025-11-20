@@ -40,13 +40,15 @@ const getNavItems = (appUser: AppUser | null) => {
     const department = appUser.department;
 
     if (role === 'admin') {
-        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM') {
+        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity') {
             let homePath = '/dashboard/directory'; // Default for admins
              if (department === 'System') homePath = '/dashboard/admin/system';
              if (department === 'HR/Credentialing') homePath = '/dashboard/hr';
              if (department === 'Medical Affairs/Clinical Gov') homePath = '/dashboard/medical-affairs';
              if (department === 'Department Head') homePath = '/dashboard/hod';
              if (department === 'IT/IAM') homePath = '/dashboard/admin/it';
+             if (department === 'Cybersecurity') homePath = '/dashboard/admin/cybersecurity';
+
 
             return [
                 { href: homePath, label: "Home / Overview", icon: Home },
@@ -127,6 +129,8 @@ export default function DashboardLayout({
                     targetPath = '/dashboard/hod';
                 } else if (firebaseUser.email === 'it.iam@medverse.com') {
                     targetPath = '/dashboard/admin/it';
+                } else if (firebaseUser.email === 'cybersecurity@medverse.com') {
+                    targetPath = '/dashboard/admin/cybersecurity';
                 } else {
                     // Role-based routing for everyone else
                     switch (userData.role) {
@@ -199,12 +203,15 @@ export default function DashboardLayout({
   };
 
   const navItems = useMemo(() => getNavItems(appUser), [appUser]);
+  
   const isSpecialAdmin = appUser?.role === 'admin' && 
     (appUser?.department === 'System' || 
      appUser?.department === 'HR/Credentialing' || 
      appUser?.department === 'Medical Affairs/Clinical Gov' ||
      appUser?.department === 'Department Head' ||
-     appUser?.department === 'IT/IAM');
+     appUser?.department === 'IT/IAM' ||
+     appUser?.department === 'Cybersecurity');
+  
   const isSuperAdmin = appUser?.department === 'System';
 
   if (isUserLoading || isAppUserLoading || isRedirecting || !appUser) {

@@ -27,6 +27,8 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
             return 'HOD Portal';
         case 'IT/IAM':
             return 'IT & Access Management Portal';
+        case 'Cybersecurity':
+            return 'Cybersecurity Portal';
         default:
             return 'Admin Portal';
     }
