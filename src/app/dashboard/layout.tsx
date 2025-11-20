@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase';
@@ -37,6 +36,14 @@ const getNavItems = (role: string, department?: string) => {
     const baseNav = [
         { href: "/dashboard/directory", label: "User Directory", icon: Users },
     ];
+
+    if (role === 'admin') {
+        if (department) {
+            const departmentSlug = formatDepartmentToSlug(department);
+            return [ { href: `/dashboard/admin/${departmentSlug}`, label: "Admin Dashboard", icon: Shield } ];
+        }
+        return []; // Admins without a department see nothing for now
+    }
     
     switch(role) {
         case 'physician':
@@ -51,12 +58,6 @@ const getNavItems = (role: string, department?: string) => {
              return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, ...baseNav];
         case 'pharmacist':
             return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, ...baseNav];
-        case 'admin':
-            if (department) {
-                 const departmentSlug = formatDepartmentToSlug(department);
-                 return [ { href: `/dashboard/admin/${departmentSlug}`, label: "Admin Dashboard", icon: Shield } ];
-            }
-            return [ { href: "/dashboard/directory", label: "Directory", icon: Users } ];
         default:
             return baseNav;
     }
