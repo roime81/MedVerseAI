@@ -8,7 +8,7 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 export default function ComplianceAuditDashboardPage() {
   return (
     <div className="flex flex-col h-full bg-slate-50 text-foreground">
-        <DashboardHeader title="Compliance & Internal Audit" description="Conduct periodic reviews and ensure regulatory adherence." />
+        <DashboardHeader title="Compliance / Internal Audit Dashboard" description="Conduct periodic reviews and ensure regulatory adherence." />
         <div className="flex-1 overflow-y-auto p-8">
             <Card className="bg-white">
                 <CardHeader>
@@ -18,7 +18,7 @@ export default function ComplianceAuditDashboardPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-lg">Hello Compliance/Audit Admin</p>
+                    <p className="text-lg">Hello, Compliance / Internal Audit Admin</p>
                 </CardContent>
             </Card>
         </div>

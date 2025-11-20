@@ -18,7 +18,7 @@ export default function MedicalAffairsDashboardPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-lg">Hello Medical Affairs/Clinical Gov Admin</p>
+                    <p className="text-lg">Hello, Medical Affairs/Clinical Gov Admin</p>
                 </CardContent>
             </Card>
         </div>

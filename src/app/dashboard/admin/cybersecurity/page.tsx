@@ -18,7 +18,7 @@ export default function CybersecurityDashboardPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-lg">Hello Cybersecurity Admin</p>
+                    <p className="text-lg">Hello, Cybersecurity Admin</p>
                 </CardContent>
             </Card>
         </div>

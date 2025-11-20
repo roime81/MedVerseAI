@@ -8,6 +8,11 @@ import { useUser, useFirestore } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import type { User as AppUser } from '@/lib/schemas';
 
+// Helper to convert department name to a URL slug
+const departmentToPath = (department: string): string => {
+  return department.toLowerCase().replace(/[\s/&]+/g, '-');
+};
+
 export default function DashboardRedirect() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -32,29 +37,13 @@ export default function DashboardRedirect() {
 
         let path = '';
 
-        if (role === 'admin') {
-          switch (department) {
-            case 'System':
-              path = '/dashboard/super-admin';
-              break;
-            case 'Medical Affairs/Clinical Gov':
-              path = '/dashboard/admin/medical-affairs-clinical-gov';
-              break;
-            case 'IT/IAM':
-              path = '/dashboard/admin/it-iam';
-              break;
-            case 'Cybersecurity':
-              path = '/dashboard/admin/cybersecurity';
-              break;
-            case 'Compliance/Audit':
-              path = '/dashboard/admin/compliance-audit';
-              break;
-            // Add other specific admin department routes here
-            default:
-              // Fallback for general admins or unhandled departments
-              path = '/dashboard/admin';
-              break;
-          }
+        if (role === 'admin' && department) {
+            if (department === 'System') {
+                path = '/dashboard/super-admin';
+            } else {
+                // Generate path from department name
+                path = `/dashboard/admin/${departmentToPath(department)}`;
+            }
         } else {
           switch (role) {
             case 'physician':
@@ -76,7 +65,6 @@ export default function DashboardRedirect() {
               path = '/dashboard/pharmacist';
               break;
             default:
-              // Default redirect for any other roles
               path = '/dashboard/directory';
               break;
           }
@@ -85,12 +73,10 @@ export default function DashboardRedirect() {
         if (path) {
           router.push(path);
         } else {
-          // If no path is determined, go to a safe default
           router.push('/dashboard/directory');
         }
 
       } else {
-        // Handle case where user document doesn't exist
         console.error("User document not found in Firestore.");
         router.push('/login');
       }

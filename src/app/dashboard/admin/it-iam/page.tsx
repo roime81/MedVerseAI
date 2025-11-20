@@ -18,7 +18,7 @@ export default function ItIamDashboardPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-lg">Hello IT/IAM Admin</p>
+                    <p className="text-lg">Hello, IT Identity & Access Management Admin</p>
                 </CardContent>
             </Card>
         </div>

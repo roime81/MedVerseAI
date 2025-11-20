@@ -26,7 +26,10 @@ import {
     Bell,
     Settings,
     Search,
-    ClipboardCheck, // Added for Compliance
+    ClipboardCheck,
+    BadgeCheck,
+    UserCog,
+    Database,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -47,32 +50,35 @@ const getNavItems = (role: string, department?: string) => {
         case 'nurse':
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
-            if (department === 'System') {
-                 return [
-                    { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home, section: 'main' },
-                    { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
-                    { href: "/dashboard/admin-directory", label: "All Administrators", icon: Users, section: 'main' },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText, section: 'main' },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
-                    { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart, section: 'main' },
-                    { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings, section: 'admin' },
-                 ]
+            switch (department) {
+                case 'System':
+                    return [
+                        { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home },
+                        { href: "/dashboard/directory", label: "User Directory", icon: Users },
+                        { href: "/dashboard/admin-directory", label: "All Administrators", icon: Users },
+                        { href: "/dashboard/admin/medical-affairs-clinical-gov/requests", label: "Requests & Approvals", icon: FileText, section: 'main' },
+                        { href: "/dashboard/admin/medical-affairs-clinical-gov/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
+                        { href: "/dashboard/admin/medical-affairs-clinical-gov/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
+                        { href: "/dashboard/admin/medical-affairs-clinical-gov/reports", label: "Reports", icon: BarChart, section: 'main' },
+                        { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings, section: 'admin' },
+                    ];
+                case 'HR/Credentialing':
+                    return [{ href: "/dashboard/admin/hr-credentialing", label: "HR & Credentialing", icon: BadgeCheck }, ...baseNav];
+                case 'Medical Affairs/Clinical Gov':
+                    return [{ href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav];
+                case 'Department Head':
+                    return [{ href: "/dashboard/admin/department-head", label: "HOD Dashboard", icon: UserCog }, ...baseNav];
+                case 'IT/IAM':
+                    return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: Users }, ...baseNav];
+                case 'Cybersecurity':
+                    return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav];
+                case 'HIS/EMR':
+                    return [{ href: "/dashboard/admin/his-emr", label: "HIS/EMR Admin", icon: Database }, ...baseNav];
+                case 'Compliance/Audit':
+                    return [{ href: "/dashboard/admin/compliance-audit", label: "Compliance", icon: ClipboardCheck }, ...baseNav];
+                default:
+                    return [{ href: "/dashboard/admin", label: "Admin Overview", icon: Shield }, ...baseNav];
             }
-             if (department === 'IT/IAM') {
-                 return [{ href: "/dashboard/admin/it-iam", label: "IT/IAM Dashboard", icon: Users }, ...baseNav]
-            }
-            if (department === 'Cybersecurity') {
-                 return [{ href: "/dashboard/admin/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav]
-            }
-            if (department === 'Compliance/Audit') {
-                 return [{ href: "/dashboard/admin/compliance-audit", label: "Compliance", icon: ClipboardCheck }, ...baseNav]
-            }
-            if (department === 'Medical Affairs/Clinical Gov') {
-                return [{ href: "/dashboard/admin/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav]
-            }
-            // Fallback for general admin role
-            return [{ href: "/dashboard/admin", label: "Admin Overview", icon: Shield }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
         case 'lab':
