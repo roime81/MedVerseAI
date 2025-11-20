@@ -13,7 +13,9 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
   const isDark = variant === 'dark';
 
   const getPortalTitle = () => {
-    if (!appUser || !isSuperAdmin) return null;
+    if (!appUser) return null;
+    if (appUser.role !== 'admin') return null;
+
     switch (appUser.department) {
         case 'System':
             return 'Super Admin Portal';
@@ -21,12 +23,16 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
             return 'HR & Credentialing Portal';
         case 'Medical Affairs/Clinical Gov':
             return 'Clinical Governance Portal';
+        case 'Department Head':
+            return 'HOD Portal';
         default:
             return 'Admin Portal';
     }
   };
 
   const portalTitle = getPortalTitle();
+  const isSpecialAdmin = !!portalTitle;
+
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
@@ -47,7 +53,7 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
                 </linearGradient>
             </defs>
         </svg>
-        {isSuperAdmin ? (
+        {isSpecialAdmin ? (
             <div>
                 <span className="font-grotesk text-lg font-bold text-white leading-tight">MedVerse Access Hub</span>
                 {portalTitle && <p className="text-xs text-gray-400 leading-tight">{portalTitle}</p>}
@@ -58,5 +64,3 @@ export function Logo({ className, variant = 'light', isSuperAdmin = false, appUs
     </div>
   );
 }
-
-    

@@ -40,10 +40,11 @@ const getNavItems = (appUser: AppUser | null) => {
     const department = appUser.department;
 
     if (role === 'admin') {
-        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov') {
+        if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head') {
             const homePath = department === 'System' ? '/dashboard/admin/system' :
                              department === 'HR/Credentialing' ? '/dashboard/hr' :
-                             '/dashboard/medical-affairs';
+                             department === 'Medical Affairs/Clinical Gov' ? '/dashboard/medical-affairs' :
+                             '/dashboard/hod';
             return [
                 { href: homePath, label: "Home / Overview", icon: Home },
                 { href: "/dashboard/directory", label: "User Directory", icon: Users },
@@ -119,6 +120,8 @@ export default function DashboardLayout({
                     targetPath = '/dashboard/hr';
                 } else if (firebaseUser.email === 'medical.affairs@medverse.com') {
                     targetPath = '/dashboard/medical-affairs';
+                } else if (firebaseUser.email === 'department.head@medverse.com') {
+                    targetPath = '/dashboard/hod';
                 } else {
                     // Role-based routing for everyone else
                     switch (userData.role) {
@@ -191,7 +194,11 @@ export default function DashboardLayout({
   };
 
   const navItems = useMemo(() => getNavItems(appUser), [appUser]);
-  const isSpecialAdmin = appUser?.role === 'admin' && (appUser?.department === 'System' || appUser?.department === 'HR/Credentialing' || appUser?.department === 'Medical Affairs/Clinical Gov');
+  const isSpecialAdmin = appUser?.role === 'admin' && 
+    (appUser?.department === 'System' || 
+     appUser?.department === 'HR/Credentialing' || 
+     appUser?.department === 'Medical Affairs/Clinical Gov' ||
+     appUser?.department === 'Department Head');
   const isSuperAdmin = appUser?.department === 'System';
 
   if (isUserLoading || isAppUserLoading || isRedirecting || !appUser) {
@@ -271,7 +278,7 @@ export default function DashboardLayout({
                     <p className="text-xs text-muted-foreground">{appUser.email}</p>
                 </div>
                  <Badge variant={isSpecialAdmin ? 'default' : 'outline'} className={cn(isSpecialAdmin && 'bg-gray-800 text-white')}>
-                    {appUser.department}
+                    {appUser.department === 'Department Head' ? 'HOD' : appUser.department}
                  </Badge>
                 <Button variant="ghost" size="icon">
                     <Bell className="h-5 w-5" />
