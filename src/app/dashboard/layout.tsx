@@ -38,7 +38,7 @@ const getNavItems = (appUser: AppUser) => {
     const department = appUser?.department;
 
     if (role === 'admin' && department === 'System') {
-        const slug = department.toLowerCase().replace(/\s+/g, '-');
+        const slug = 'system';
         return [
             { href: `/dashboard/admin/${slug}`, label: "Home / Overview", icon: Home },
             { href: "/dashboard/directory", label: "User Directory", icon: Users },
@@ -63,7 +63,7 @@ const getNavItems = (appUser: AppUser) => {
         case 'pharmacist':
             return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         case 'admin':
-            const slug = department?.toLowerCase().replace(/\s+/g, '-');
+            const slug = department?.toLowerCase().replace(/[\s/]+/g, '-') || 'default';
             return [{ href: `/dashboard/admin/${slug}`, label: "Admin Dashboard", icon: Shield }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
         default:
             return [{ href: "/dashboard/patient-portal", label: "Patient Portal", icon: Home }];
@@ -93,30 +93,32 @@ export default function DashboardLayout({
       return;
     }
 
-    if (user && !appUser) {
-        const fetchUserRole = async (firebaseUser: FirebaseUser) => {
-            if (!firestore) return;
-            setIsAppUserLoading(true);
+    const fetchUserRole = async (firebaseUser: FirebaseUser) => {
+        if (!firestore) return;
+        setIsAppUserLoading(true);
+        try {
             const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-            try {
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    setAppUser(userDoc.data() as AppUser);
-                } else {
-                    console.error("Could not find user document in Firestore for logged in user.");
-                    if (auth) await signOut(auth);
-                    router.push('/login');
-                }
-            } catch (error) {
-                console.error("Error fetching user document:", error);
-                 if (auth) await signOut(auth);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                setAppUser(userDoc.data() as AppUser);
+            } else {
+                console.error("Could not find user document in Firestore for logged in user.");
+                if (auth) await signOut(auth);
                 router.push('/login');
-            } finally {
-                setIsAppUserLoading(false);
             }
-        };
+        } catch (error) {
+            console.error("Error fetching user document:", error);
+            if (auth) await signOut(auth);
+            router.push('/login');
+        } finally {
+            setIsAppUserLoading(false);
+        }
+    };
 
+    if (user && (!appUser || appUser.uid !== user.uid)) {
         fetchUserRole(user);
+    } else if (!user) {
+        setIsAppUserLoading(false);
     }
   }, [user, appUser, isUserLoading, firestore, auth, router]);
 

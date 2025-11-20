@@ -16,21 +16,21 @@ import {
   AlertTriangle,
   FileWarning,
   CircleDot,
-  ArrowRight,
   ShieldAlert,
   Archive,
   Hourglass,
   FileCheck,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccessChangesChart } from '@/components/dashboard/admin/access-changes-chart';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useFirestore, useMemoFirebase } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, query, where, limit } from 'firebase/firestore';
-import type { User as AppUser, PendingTask } from '@/lib/schemas';
+import { collection } from 'firebase/firestore';
+import type { User as AppUser } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, title, value, footer, cardClassName, iconClassName, valueClassName, footerClassName }) => (
+const StatCard = ({ icon: Icon, title, value, footer, cardClassName, iconClassName, valueClassName }: { icon: React.ElementType, title: string, value: React.ReactNode, footer: string, cardClassName?: string, iconClassName?: string, valueClassName?: string }) => (
   <Card className={cn("bg-white", cardClassName)}>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
@@ -38,7 +38,7 @@ const StatCard = ({ icon: Icon, title, value, footer, cardClassName, iconClassNa
     </CardHeader>
     <CardContent>
       <div className={cn("text-2xl font-bold text-foreground", valueClassName)}>{value}</div>
-      <p className={cn("text-xs text-muted-foreground", footerClassName)}>{footer}</p>
+      <p className="text-xs text-muted-foreground">{footer}</p>
     </CardContent>
   </Card>
 );

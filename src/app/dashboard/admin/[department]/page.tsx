@@ -6,7 +6,7 @@ import SuperAdminDashboard from '@/app/dashboard/admin/system/page';
 // Import other admin dashboards here as they are created
 // e.g., import HrCredentialingDashboard from '@/components/dashboard/admin/hr-credentialing-dashboard';
 
-const dashboardMap = {
+const dashboardMap: { [key: string]: React.ComponentType } = {
   system: SuperAdminDashboard,
   // 'hr-credentialing': HrCredentialingDashboard,
 };
