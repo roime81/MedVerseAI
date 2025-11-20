@@ -12,15 +12,13 @@ export default function ComplianceAuditDashboardPage() {
         <div className="flex-1 overflow-y-auto p-8">
             <Card className="bg-white">
                 <CardHeader>
-                <CardTitle className="flex items-center">
-                    <ClipboardCheck className="mr-2 h-5 w-5" />
-                    Account & Access Review
-                </CardTitle>
+                    <CardTitle className="flex items-center">
+                        <ClipboardCheck className="mr-2 h-5 w-5" />
+                        Compliance/Audit Dashboard
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                <p className="text-muted-foreground">
-                    Perform periodic reviews of user accounts, detect dormant or abnormal access patterns, and ensure separation of duties is maintained.
-                </p>
+                    <p className="text-lg">Hello Compliance/Audit Admin</p>
                 </CardContent>
             </Card>
         </div>

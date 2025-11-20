@@ -12,15 +12,13 @@ export default function CybersecurityDashboardPage() {
         <div className="flex-1 overflow-y-auto p-8">
             <Card className="bg-white">
                 <CardHeader>
-                <CardTitle className="flex items-center">
-                    <ShieldAlert className="mr-2 h-5 w-5" />
-                    Security & Access Monitoring
-                </CardTitle>
+                    <CardTitle className="flex items-center">
+                        <ShieldAlert className="mr-2 h-5 w-5" />
+                        Cybersecurity Dashboard
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                <p className="text-muted-foreground">
-                    Enforce MFA, monitor for suspicious activity, and manage access policies. Review audit logs and session recordings to ensure compliance.
-                </p>
+                    <p className="text-lg">Hello Cybersecurity Admin</p>
                 </CardContent>
             </Card>
         </div>
