@@ -37,6 +37,9 @@ import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
+const departmentToPath = (department: string): string => {
+  return department.toLowerCase().replace(/[\s/&]+/g, '-');
+};
 
 const getNavItems = (role: string, department?: string) => {
     const baseNav = [
@@ -50,34 +53,30 @@ const getNavItems = (role: string, department?: string) => {
         case 'nurse':
             return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, ...baseNav];
         case 'admin':
-            switch (department) {
-                case 'System':
-                    return [
-                        { href: "/dashboard/super-admin", label: "Home / Overview", icon: Home, section: 'main' },
-                        { href: "/dashboard/directory", label: "User Directory", icon: Users, section: 'main' },
-                        { href: "/dashboard/admin-directory", label: "Requests & Approvals", icon: FileText, section: 'main' },
-                        { href: "/dashboard/super-admin/escalations", label: "Escalations", icon: FolderClock, section: 'main' },
-                        { href: "/dashboard/super-admin/monitoring", label: "Monitoring & Alerts", icon: ShieldAlert, section: 'main' },
-                        { href: "/dashboard/super-admin/reports", label: "Reports", icon: BarChart, section: 'main' },
-                        { href: "/dashboard/super-admin/config", label: "Admin & Config", icon: Settings, section: 'admin' },
-                    ];
-                case 'HR/Credentialing':
-                    return [{ href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: BadgeCheck }, ...baseNav];
-                case 'Medical Affairs/Clinical Gov':
-                    return [{ href: "/dashboard/medical-affairs-clinical-gov", label: "Medical Affairs", icon: Stethoscope }, ...baseNav];
-                case 'Department Head':
-                    return [{ href: "/dashboard/department-head", label: "HOD Dashboard", icon: UserCog }, ...baseNav];
-                case 'IT/IAM':
-                    return [{ href: "/dashboard/it-iam", label: "IT/IAM Dashboard", icon: Users }, ...baseNav];
-                case 'Cybersecurity':
-                    return [{ href: "/dashboard/cybersecurity", label: "Security Ops", icon: ShieldAlert }, ...baseNav];
-                case 'HIS/EMR':
-                    return [{ href: "/dashboard/his-emr", label: "HIS/EMR Admin", icon: Database }, ...baseNav];
-                case 'Compliance/Audit':
-                    return [{ href: "/dashboard/compliance-audit", label: "Compliance", icon: ClipboardCheck }, ...baseNav];
-                default:
-                    return [{ href: "/dashboard/super-admin", label: "Admin Overview", icon: Shield }, ...baseNav];
+            if (department) {
+                const departmentPath = departmentToPath(department);
+                let specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Admin Dashboard", icon: Shield };
+                if (department === 'System') {
+                   specificAdminNav = { href: "/dashboard/admin/system", label: "System Overview", icon: Shield };
+                } else if (department === 'HR/Credentialing') {
+                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "HR & Credentialing", icon: BadgeCheck };
+                } else if (department === 'Medical Affairs/Clinical Gov') {
+                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Medical Affairs", icon: Stethoscope };
+                } else if (department === 'Department Head') {
+                    specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "HOD Dashboard", icon: UserCog };
+                } else if (department === 'IT/IAM') {
+                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "IT/IAM Dashboard", icon: Users };
+                } else if (department === 'Cybersecurity') {
+                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Security Ops", icon: ShieldAlert };
+                } else if (department === 'HIS/EMR') {
+                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "HIS/EMR Admin", icon: Database };
+                } else if (department === 'Compliance/Audit') {
+                     specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: "Compliance", icon: ClipboardCheck };
+                }
+                return [specificAdminNav, ...baseNav];
             }
+            // Fallback for admin with no department
+            return [{ href: "/dashboard/admin/system", label: "Admin Overview", icon: Shield }, ...baseNav];
         case 'radiology':
             return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, ...baseNav];
         case 'lab':

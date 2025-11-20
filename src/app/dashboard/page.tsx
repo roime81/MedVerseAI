@@ -37,18 +37,8 @@ export default function DashboardRedirect() {
 
         let path = '';
 
-        if (role === 'admin') {
-            if (department === 'System') {
-                path = '/dashboard/super-admin';
-            } else if (department === 'HR/Credentialing') {
-                path = '/dashboard/hr-credentialing';
-            } else if (department) {
-                // Generic handler for other admin departments
-                path = `/dashboard/${departmentToPath(department)}`;
-            } else {
-                // Fallback for an admin with no department
-                path = '/dashboard/super-admin';
-            }
+        if (role === 'admin' && department) {
+            path = `/dashboard/admin/${departmentToPath(department)}`;
         } else {
           switch (role) {
             case 'physician':
