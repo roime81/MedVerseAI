@@ -58,18 +58,13 @@ const getNavItems = (role: string, department?: string) => {
                  if (department === 'System') {
                      return [
                         { href: "/dashboard/admin/system", label: 'Access Management', icon: Home },
-                        { href: "/dashboard/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
+                        { href: "/dashboard/admin/hr-credentialing", label: "HR & Credentialing", icon: UserCog },
                         { href: "/dashboard/admin-directory", label: "Admin Directory", icon: Shield },
                         { href: "/dashboard/directory", label: "User Directory", icon: Database },
                     ];
                 }
-                 if (department === 'HR/Credentialing') {
-                    const specificAdminNav = { href: `/dashboard/hr-credentialing`, label: 'Credentialing Portal', icon: UserCog };
-                    return [specificAdminNav, ...baseNav];
-                }
-
                 const departmentPath = departmentToPath(department);
-                let departmentLabel = `${department} Dashboard`;
+                const departmentLabel = `${department} Dashboard`;
                 const specificAdminNav = { href: `/dashboard/admin/${departmentPath}`, label: departmentLabel, icon: Shield };
                 return [specificAdminNav, ...baseNav];
             }
