@@ -14,6 +14,8 @@ import {
   PlayCircle,
   Database,
   Cog,
+  Terminal,
+  Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SystemUsageTrendChart } from '@/components/dashboard/admin/his-emr/system-usage-trend-chart';
@@ -90,6 +92,18 @@ export default function HisEmrAdminDashboard() {
                 <p className="text-muted-foreground">EMR access management, role configuration, and system provisioning</p>
             </div>
             <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-6">
+                {/* Maintenance Banner */}
+                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
+                    <div className="flex items-center">
+                        <Activity className="h-5 w-5 text-blue-600 mr-3" />
+                        <div>
+                            <p className="font-semibold text-blue-800">EMR System Maintenance Scheduled</p>
+                            <p className="text-sm text-blue-700">Planned maintenance window: Sunday, November 24, 2025, 2:00 AM - 6:00 AM. No new provisioning during this period.</p>
+                        </div>
+                    </div>
+                    <Button variant="outline" size="sm" className="bg-white">View Details</Button>
+                </div>
+                
                 {/* Stat Cards */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <StatCard 
@@ -224,6 +238,19 @@ export default function HisEmrAdminDashboard() {
                     </CardContent>
                 </Card>
 
+                {/* Quick Actions */}
+                <Card className="bg-white">
+                    <CardHeader>
+                        <CardTitle>Quick Actions</CardTitle>
+                         <p className="text-sm text-muted-foreground">EMR management and configuration tools</p>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Button variant="outline" className="flex-col h-24 text-foreground"><Terminal className="mb-2 h-6 w-6"/>Provisioning Queue</Button>
+                        <Button variant="outline" className="flex-col h-24 text-foreground"><Users className="mb-2 h-6 w-6"/>EMR Users</Button>
+                        <Button variant="outline" className="flex-col h-24 text-foreground"><Cog className="mb-2 h-6 w-6"/>Role Templates</Button>
+                        <Button variant="outline" className="flex-col h-24 text-foreground"><Activity className="mb-2 h-6 w-6"/>System Health</Button>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
