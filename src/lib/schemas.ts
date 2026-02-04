@@ -99,3 +99,13 @@ export const CareSiteSchema = z.object({
   careSiteName: z.string().describe("The official name of the hospital or care site."),
 });
 export type CareSite = z.infer<typeof CareSiteSchema>;
+
+export const ClinicalNoteSchema = z.object({
+  noteId: z.string().describe("Unique identifier for the note."),
+  encounterId: z.string().describe("Link to the Encounter."),
+  authorId: z.string().optional().describe("ID of the clinician who wrote the note."),
+  noteType: z.string().optional().describe("SOAP, Progress, Admission, Discharge."),
+  noteText: z.string().optional().describe("The unstructured text of the note."),
+  dateTimeCreated: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date-time format" }).describe("Timestamp when the note was created."),
+});
+export type ClinicalNote = z.infer<typeof ClinicalNoteSchema>;

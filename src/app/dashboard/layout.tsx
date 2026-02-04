@@ -25,6 +25,7 @@ import {
     FileClock,
     FileWarning,
     BarChart,
+    Sparkles,
 } from 'lucide-react';
 import { Logo } from '@/components/core/logo';
 import { doc, getDoc } from 'firebase/firestore';
@@ -38,6 +39,7 @@ const getNavItems = (appUser: AppUser | null) => {
 
     const role = appUser.role;
     const department = appUser.department;
+    const aiAssistantItem = { href: "/dashboard/ai-summary", label: "AI Assistant", icon: Sparkles };
 
     if (role === 'admin') {
         if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity' || department === 'HIS/EMR' || department === 'Compliance/Audit') {
@@ -55,6 +57,7 @@ const getNavItems = (appUser: AppUser | null) => {
             return [
                 { href: homePath, label: "Home / Overview", icon: Home },
                 { href: "/dashboard/directory", label: "User Directory", icon: Users },
+                aiAssistantItem,
                 { href: "#", label: "Requests & Approvals", icon: FileClock },
                 { href: "#", label: "Escalations", icon: FileWarning },
                 { href: "#", label: "Monitoring & Alerts", icon: Bell },
@@ -65,21 +68,21 @@ const getNavItems = (appUser: AppUser | null) => {
     
     switch(role) {
         case 'physician':
-            return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+            return [ { href: "/dashboard/physician", label: "Clinician Workbench", icon: Stethoscope }, { href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         case 'nurse':
-            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+            return [ { href: "/dashboard/nurse", label: "Nurse Station", icon: Stethoscope }, { href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         case 'radiology':
-            return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+            return [{ href: "/dashboard/radiology", label: "Radiology Worklist", icon: Scan }, { href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         case 'lab':
-             return [{ href: "/dashboard/lab", label: "Lab Worklist", icon: FlaskConical }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+             return [{ href: "/dashboard/lab", label: "Lab Worklist", icon: FlaskConical }, { href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         case 'billing':
-             return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+             return [{ href: "/dashboard/billing", label: "Billing Dashboard", icon: CreditCard }, { href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         case 'pharmacist':
-            return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, { href: "/dashboard/directory", label: "User Directory", icon: Users }];
+            return [{ href: "/dashboard/pharmacist", label: "Pharmacy Queue", icon: Pill }, { href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         case 'admin':
-             return [{ href: "/dashboard/directory", label: "User Directory", icon: Users }];
+             return [{ href: "/dashboard/directory", label: "User Directory", icon: Users }, aiAssistantItem];
         default:
-            return [{ href: "/dashboard/patient-portal", label: "Patient Portal", icon: Home }];
+            return [{ href: "/dashboard/patient-portal", label: "Patient Portal", icon: Home }, aiAssistantItem];
     }
 }
 
