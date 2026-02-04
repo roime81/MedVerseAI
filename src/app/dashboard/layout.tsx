@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase';
@@ -32,6 +31,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { User as AppUser } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { AiChatDialog } from '@/components/dashboard/ai/ai-chat-dialog';
 
 
 const getNavItems = (appUser: AppUser | null) => {
@@ -39,7 +39,7 @@ const getNavItems = (appUser: AppUser | null) => {
 
     const role = appUser.role;
     const department = appUser.department;
-    const aiAssistantItem = { href: "/dashboard/ai-summary", label: "AI Assistant", icon: Sparkles };
+    const aiAssistantItem = { id: "ai-assistant", label: "AI Assistant", icon: Sparkles };
 
     if (role === 'admin') {
         if (department === 'System' || department === 'HR/Credentialing' || department === 'Medical Affairs/Clinical Gov' || department === 'Department Head' || department === 'IT/IAM' || department === 'Cybersecurity' || department === 'HIS/EMR' || department === 'Compliance/Audit') {
@@ -100,6 +100,7 @@ export default function DashboardLayout({
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [isAppUserLoading, setIsAppUserLoading] = useState(true);
   const [isRedirecting, setIsRedirecting] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     if (isUserLoading || !firestore) return;
@@ -237,6 +238,7 @@ export default function DashboardLayout({
   }
 
   return (
+    <>
     <div className={cn("flex h-screen w-full font-sans", isSpecialAdmin ? "bg-[#F8F9FA]" : "bg-slate-100")}>
       <aside className={cn("flex flex-col border-r text-foreground w-64", isSpecialAdmin ? "bg-gray-800 text-gray-300" : "bg-white")}>
         <div className={cn("p-4 border-b h-[65px] flex items-center", isSpecialAdmin ? "border-gray-700" : "border-border")}>
@@ -245,7 +247,30 @@ export default function DashboardLayout({
         <nav className="flex-1 p-2 space-y-1">
             {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href;
+                const isActive = item.href ? pathname === item.href : false;
+
+                if (item.id === 'ai-assistant') {
+                    return (
+                        <Button
+                            key={item.label}
+                            variant={'ghost'}
+                            className={cn("w-full justify-start text-sm", 
+                               isSpecialAdmin 
+                               ? "text-gray-400 hover:bg-gray-700 hover:text-white"
+                               : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
+                            )}
+                            onClick={() => setIsChatOpen(true)}
+                        >
+                            <Icon className={cn("mr-3 h-5 w-5", 
+                               isSpecialAdmin
+                               ? "text-gray-400"
+                               : "text-muted-foreground"
+                            )} />
+                            {item.label}
+                        </Button>
+                    )
+                }
+
                 return (
                     <Button
                         key={item.label}
@@ -257,7 +282,7 @@ export default function DashboardLayout({
                         )}
                         asChild
                     >
-                        <Link href={item.href}>
+                        <Link href={item.href || '#'}>
                             <Icon className={cn("mr-3 h-5 w-5", 
                                isSpecialAdmin
                                ? (isActive ? "text-white" : "text-gray-400")
@@ -324,5 +349,7 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+    <AiChatDialog open={isChatOpen} onOpenChange={setIsChatOpen} />
+    </>
   );
 }
