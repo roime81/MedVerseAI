@@ -6,11 +6,19 @@ MedVerseAI is a healthcare operations and clinical-workflow demo built with Next
 
 ## Screenshots
 
-The sign-in screen at desktop and mobile viewport sizes:
+### Sign-in
 
 <p align="center">
   <img src="docs/images/sign-in.png" alt="MedVerseAI sign-in screen at desktop size" width="68%">
   <img src="docs/images/sign-in-mobile.png" alt="MedVerseAI sign-in screen at mobile size" width="22%">
+</p>
+
+### Dashboard after login
+
+The nurse workspace (`/dashboard/nurse`) with its role-specific navigation, user/department badge, vital alerts, patient list, and medication schedule. The values shown are static demo content.
+
+<p align="center">
+  <img src="docs/images/dashboard-nurse.png" alt="MedVerseAI nurse dashboard after login" width="100%">
 </p>
 
 ## UI overview
