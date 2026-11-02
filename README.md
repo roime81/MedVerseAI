@@ -4,6 +4,15 @@ MedVerseAI is a healthcare operations and clinical-workflow demo built with Next
 
 > **Important:** This project is a prototype, not a medical device or production EHR. Do not use it to diagnose or treat patients, or enter real patient information. AI output can be inaccurate and must not replace clinical judgment. The sample-data seeder writes to the Firebase project configured by the app and is intended only for isolated development/test projects.
 
+## Screenshots
+
+The sign-in screen at desktop and mobile viewport sizes:
+
+<p align="center">
+  <img src="docs/images/sign-in.png" alt="MedVerseAI sign-in screen at desktop size" width="68%">
+  <img src="docs/images/sign-in-mobile.png" alt="MedVerseAI sign-in screen at mobile size" width="22%">
+</p>
+
 ## UI overview
 
 After signing in, the dashboard layout presents a role-specific left navigation, a top bar with the signed-in user and department, search, notifications, and logout. An AI Assistant opens from the navigation. The available workspaces include:
