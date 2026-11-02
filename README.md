@@ -10,7 +10,7 @@ MedVerseAI is a healthcare operations and clinical-workflow demo built with Next
 
 <p align="center">
   <img src="docs/images/sign-in.png" alt="MedVerseAI sign-in screen at desktop size" width="68%">
-  <img src="docs/images/sign-in-mobile.png" alt="MedVerseAI sign-in screen at mobile size" width="22%">
+
 </p>
 
 ### Dashboard after login
